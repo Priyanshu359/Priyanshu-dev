@@ -1,0 +1,137 @@
+{
+  "groups": [
+    {
+      "name": "priyanshu",
+      "type": "dev.priyanshu.api.platform.PlatformProperties",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties"
+    },
+    {
+      "name": "priyanshu.cors",
+      "type": "dev.priyanshu.api.platform.PlatformProperties$Cors",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties",
+      "sourceMethod": "getCors()"
+    },
+    {
+      "name": "priyanshu.lab",
+      "type": "dev.priyanshu.api.platform.PlatformProperties$Lab",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties",
+      "sourceMethod": "getLab()"
+    },
+    {
+      "name": "priyanshu.lab.seed",
+      "type": "dev.priyanshu.api.platform.PlatformProperties$Lab$Seed",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Lab",
+      "sourceMethod": "getSeed()"
+    },
+    {
+      "name": "priyanshu.notification",
+      "type": "dev.priyanshu.api.platform.PlatformProperties$Notification",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties",
+      "sourceMethod": "getNotification()"
+    },
+    {
+      "name": "priyanshu.outbox",
+      "type": "dev.priyanshu.api.platform.PlatformProperties$Outbox",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties",
+      "sourceMethod": "getOutbox()"
+    },
+    {
+      "name": "priyanshu.rate-limit",
+      "type": "dev.priyanshu.api.platform.PlatformProperties$RateLimit",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties",
+      "sourceMethod": "getRateLimit()"
+    },
+    {
+      "name": "priyanshu.rate-limit.contact",
+      "type": "dev.priyanshu.api.platform.PlatformProperties$RateLimit$Contact",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$RateLimit",
+      "sourceMethod": "getContact()"
+    },
+    {
+      "name": "priyanshu.rate-limit.global",
+      "type": "dev.priyanshu.api.platform.PlatformProperties$RateLimit$Global",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$RateLimit",
+      "sourceMethod": "getGlobal()"
+    }
+  ],
+  "properties": [
+    {
+      "name": "priyanshu.cors.allowed-origins",
+      "type": "java.util.List<java.lang.String>",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Cors"
+    },
+    {
+      "name": "priyanshu.lab.seed.enabled",
+      "type": "java.lang.Boolean",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Lab$Seed",
+      "defaultValue": false
+    },
+    {
+      "name": "priyanshu.lab.seed.orders-count",
+      "type": "java.lang.Integer",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Lab$Seed",
+      "defaultValue": 200000
+    },
+    {
+      "name": "priyanshu.notification.from-email",
+      "type": "java.lang.String",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Notification",
+      "defaultValue": "noreply@priyanshu.dev"
+    },
+    {
+      "name": "priyanshu.notification.log-only",
+      "type": "java.lang.Boolean",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Notification",
+      "defaultValue": true
+    },
+    {
+      "name": "priyanshu.notification.to-email",
+      "type": "java.lang.String",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Notification",
+      "defaultValue": "priyanshu.kr.sinha74@gmail.com"
+    },
+    {
+      "name": "priyanshu.outbox.batch-size",
+      "type": "java.lang.Integer",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Outbox",
+      "defaultValue": 50
+    },
+    {
+      "name": "priyanshu.outbox.polling-interval-ms",
+      "type": "java.lang.Long",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Outbox",
+      "defaultValue": 1000
+    },
+    {
+      "name": "priyanshu.outbox.stream-name",
+      "type": "java.lang.String",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$Outbox",
+      "defaultValue": "app:events"
+    },
+    {
+      "name": "priyanshu.rate-limit.contact.hourly-ip-limit",
+      "type": "java.lang.Long",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$RateLimit$Contact",
+      "defaultValue": 3
+    },
+    {
+      "name": "priyanshu.rate-limit.global.capacity",
+      "type": "java.lang.Long",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$RateLimit$Global",
+      "defaultValue": 60
+    },
+    {
+      "name": "priyanshu.rate-limit.global.refill-period-seconds",
+      "type": "java.lang.Long",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$RateLimit$Global",
+      "defaultValue": 60
+    },
+    {
+      "name": "priyanshu.rate-limit.global.refill-tokens",
+      "type": "java.lang.Long",
+      "sourceType": "dev.priyanshu.api.platform.PlatformProperties$RateLimit$Global",
+      "defaultValue": 60
+    }
+  ],
+  "hints": []
+}

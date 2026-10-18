@@ -1,0 +1,79 @@
+hero:
+  greeting: "Hi, I’m"
+  name: "Priyanshu Sinha."
+  tagline: "I build the backends that keep products fast — and the AI that runs on top of them."
+  bio: "Backend engineer at StudyIQ, where I own 20+ Java/Spring Boot microservices serving traffic peaks of 100K+ requests a minute. Outside work, I build web, mobile and backend products for clients."
+  facts:
+    - tag: "NOW"
+      value: "SDE-1 Backend · StudyIQ"
+    - tag: "BASED IN"
+      value: "Gurugram, India"
+    - tag: "FOCUS"
+      value: "Distributed systems + AI"
+    - tag: "OPEN TO"
+      value: "Freelance projects"
+      active: true
+  actions:
+    primary:
+      label: "See my backend in action ↓"
+      href: "#demo"
+    secondary:
+      label: "Work with me"
+      href: "/hire"
+    socials:
+      - label: "GitHub"
+        href: "https://github.com"
+      - label: "LinkedIn"
+        href: "https://linkedin.com"
+      - label: "Résumé"
+        href: "/resume.pdf"
+
+demoIntro:
+  kicker: "Backend + AI, live"
+  title: "Ask me anything. Then watch your question travel through my backend."
+  subtitle: "Every AI answer is a backend problem: rate limits, caches, retrieval, streaming. Send a question and see each hop. Then ask the same one again."
+
+demoConfig:
+  liveBadge: "LIVE · POST /api/ask"
+  note: "Try it: send a question, then send the same one again — the cache answers it without touching the model. Spam it and the rate limiter steps in. Stages are slowed down so you can see them; the labels show real timings. Switch to real speed to see how fast it actually is."
+  rateLimitBlockedText: "Whoa, slow down. Retry-After: 3s. (That was the rate limiter protecting the model from you.)"
+
+developerTerminal:
+  kicker: "For developers"
+  title: "Prefer the terminal? So do I."
+  text: "My whole profile is an API. Fetch it, pipe it through jq, or hire me straight from the command line."
+  command: "curl https://api.priyanshu.dev/me"
+
+sectionsIndex:
+  - id: "01"
+    tag: "01 / The Lab"
+    heading: "Backend concepts, running live"
+    description: "Rate limiting, caching, locks, retries — each with a diagram, a live demo and the code."
+    href: "/lab/rate-limiting"
+  - id: "02"
+    tag: "02 / AI"
+    heading: "How I design AI-powered systems"
+    description: "RAG, LLM gateways and voice pipelines, explained from the backend up."
+    href: "/ai"
+  - id: "03"
+    tag: "03 / Journey"
+    heading: "The person behind the code"
+    description: "Every phase so far — the wins, the hard years and what they taught me."
+    href: "/journey"
+
+labOverview:
+  title: "Inside the Lab"
+  cta: "Start with rate limiting →"
+  ctaHref: "/lab/rate-limiting"
+
+footer:
+  heading: "Need a backend built — or fixed? Let’s talk."
+  primaryCta:
+    label: "Work with me"
+    href: "/hire"
+  secondaryLinks:
+    - label: "GitHub"
+      href: "https://github.com"
+    - label: "LinkedIn"
+      href: "https://linkedin.com"
+  telemetryFormat: "served today: [live count] · cache hits: [live count] · rate limits triggered: [live count]"

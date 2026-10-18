@@ -1,0 +1,36 @@
+kicker: "FOR RECRUITERS"
+title: "The 30-second snapshot"
+subtitle: "Everything you’d look for first, in one place. Want the depth? The Lab shows how I actually build."
+snapshot:
+  - tag: "CURRENT ROLE"
+    value: "SDE-1 Backend · StudyIQ"
+  - tag: "EXPERIENCE"
+    value: "1.5+ years, production backend"
+  - tag: "CORE STACK"
+    value: "Java, Spring Boot, Kafka, Redis, AWS"
+  - tag: "LOCATION"
+    value: "Gurugram · [open to relocation?]"
+  - tag: "LOOKING FOR"
+    value: "[Backend / SDE roles]"
+  - tag: "NOTICE PERIOD"
+    value: "[X days]"
+metrics:
+  - value: "20+"
+    label: "microservices owned in production"
+  - value: "100K+"
+    label: "requests/minute at observed peaks"
+  - value: "92%"
+    label: "cache hit rate on read-heavy paths"
+actions:
+  resume:
+    label: "Download résumé (PDF)"
+    href: "/resume.pdf"
+  email:
+    label: "Email me"
+    href: "mailto:priyanshu.kr.sinha74@gmail.com"
+  linkedin:
+    label: "LinkedIn"
+    href: "https://linkedin.com"
+  labLink:
+    label: "See how I build →"
+    href: "/lab/rate-limiting"

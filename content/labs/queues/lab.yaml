@@ -1,0 +1,16 @@
+id: "queues"
+number: "07"
+title: "Queues, retries and dead letters"
+tagline: "Messages fail, back off, retry, and land safely in a DLQ."
+status: "soon"
+order: 7
+kicker: "Lab / 07 · Queues"
+headline: "Messages fail, back off, retry, and land safely in a DLQ."
+intro: "Building resilient Kafka consumer pipelines with exponential backoff, poison pill isolation, and Dead Letter Queues."
+navigation:
+  prev:
+    label: "← 06 Circuit breaker"
+    href: "/lab/circuit-breaker"
+  next:
+    label: "← All demos"
+    href: "/"

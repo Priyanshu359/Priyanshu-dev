@@ -1,0 +1,81 @@
+id: "rate-limiting"
+number: "01"
+title: "Rate limiting"
+tagline: "Spam a button, watch the token bucket drain and the 429s arrive."
+status: "live"
+order: 1
+kicker: "Lab / 01 · Rate limiting"
+headline: "How do you stop one user from taking down your API?"
+intro: "A rate limiter decides, in under a millisecond, whether a request gets through. Here’s a token bucket running live. Give each user a bucket of tokens; every request spends one; tokens refill at a steady rate. Empty bucket means 429."
+liveBadge: "LIVE · capacity 5 · refills 1 token / 2s"
+settings:
+  capacity: 5
+  refillRateMs: 2000
+  refillTokens: 1
+diagram:
+  title: "The architecture"
+  subtitle: "The check happens before your request ever reaches business logic, and the counter lives in Redis so every server instance shares one view of each user."
+  alertNote: "bucket empty → 429 + Retry-After, controller never runs"
+  nodes:
+    - id: "client"
+      label: "Client"
+      sub: "your browser"
+    - id: "filter"
+      label: "Rate-limit filter"
+      sub: "Spring OncePerRequestFilter"
+      highlight: true
+    - id: "redis"
+      label: "Redis"
+      sub: "Lua script, atomic"
+    - id: "controller"
+      label: "Controller"
+      sub: "only if allowed"
+  edges:
+    - from: "client"
+      to: "filter"
+      label: "→"
+    - from: "filter"
+      to: "redis"
+      label: "⇄"
+    - from: "filter"
+      to: "controller"
+      label: "→"
+experimentCopy:
+  bucketLabel: "Your bucket"
+  sendOneLabel: "Send 1 request"
+  sendBurstLabel: "Burst 10"
+  resetLabel: "Reset"
+  okLabel: "200 OK"
+  blockedLabel: "429 Too Many"
+  networkHeading: "// Network — same as F12 → Network on the live site"
+  emptyStateText: "Send a request to see the response headers."
+  liveNote: "On the live site these requests hit a real Spring Boot endpoint backed by Redis. Open your Network tab and the headers above appear there too."
+codeSection:
+  title: "The core of it"
+  filename: "token_bucket.lua"
+  code: |
+    -- token_bucket.lua (runs atomically inside Redis)
+    local tokens = tonumber(redis.call('HGET', KEYS[1], 'tokens') or ARGV[1])
+    local last   = tonumber(redis.call('HGET', KEYS[1], 'ts') or ARGV[3])
+    local refill = math.floor((ARGV[3] - last) / ARGV[2])
+    tokens = math.min(ARGV[1], tokens + refill)
+    if tokens < 1 then return {0, tokens} end
+    redis.call('HSET', KEYS[1], 'tokens', tokens - 1, 'ts', ARGV[3])
+    return {1, tokens - 1}
+  githubLinkText: "Full source on GitHub →"
+  githubUrl: "https://github.com"
+tradeOffsHeading: "Trade-offs I weighed"
+tradeOffs:
+  - title: "Token bucket"
+    text: "Allows short bursts, smooth over time. Good default for user-facing APIs."
+  - title: "Sliding window"
+    text: "Stricter and fairer at window edges, but costs more memory per user."
+  - title: "Why Lua in Redis"
+    text: "Read-check-write in one atomic step, so two servers can’t both spend the last token."
+navigation:
+  prev:
+    label: "← All demos"
+    href: "/"
+  next:
+    label: "Next: 02 Databases →"
+    href: "/lab/databases"

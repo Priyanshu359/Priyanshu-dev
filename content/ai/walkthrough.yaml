@@ -1,0 +1,74 @@
+kicker: "AI · architecture walkthrough"
+title: "In every AI product, the backend is the real hero."
+intro: "The model gets the headlines. But what makes an AI feature fast, affordable and reliable is everything around it. Type any question into the app below, then scroll through the nine steps at your own pace and see exactly what each box does with it."
+clientKicker: "type a question below and follow it through the system ↓"
+clientHeader: "client · priyanshu.dev/ask"
+inputPlaceholder: "Type any question…"
+buttonLabel: "Send"
+samplePrompts:
+  - "What does he do at StudyIQ?"
+  - "How does he use Redis?"
+  - "Who won the cricket match yesterday?"
+metaDefault: "Type a question and press Send. Nothing is answered — you’ll see how it flows."
+steps:
+  - step: 1
+    num: "01"
+    title: "A question arrives"
+    nodes: ["client", "gateway", "limiter"]
+    text: "Auth first, then a per-user token budget checked in Redis. One runaway script can burn a month’s AI bill — the limiter is the first line of defence."
+    tech: "Spring Security · Redis Lua · 429 + Retry-After"
+  - step: 2
+    num: "02"
+    title: "Check the semantic cache"
+    nodes: ["cache"]
+    text: "Similar questions often have the same answer. A cache hit returns in milliseconds and never touches the model — the cheapest AI call is the one you don’t make."
+    tech: "Redis · embedding similarity · TTL"
+  - step: 3
+    num: "03"
+    title: "Orchestrate the request"
+    nodes: ["orch", "pg"]
+    text: "A Spring Boot service loads the user’s session and context from Postgres, decides what to retrieve, and which tools the model may call."
+    tech: "Spring Boot · Postgres · tool registry"
+  - step: 4
+    num: "04"
+    title: "Retrieve only what matters"
+    nodes: ["vector"]
+    text: "Vector search finds the few chunks relevant to this question. Short, grounded prompts are faster, cheaper and hallucinate less."
+    tech: "pgvector · top-k · metadata filters"
+  - step: 5
+    num: "05"
+    title: "Call the model — safely"
+    nodes: ["llmgw", "model"]
+    text: "Timeouts, retries with backoff, a circuit breaker, and a cheaper fallback model when the main one struggles. The model is one box; the safety net around it is backend."
+    tech: "Resilience4j · backoff · fallback routing"
+  - step: 6
+    num: "06"
+    title: "Stream it back"
+    nodes: ["sse", "client"]
+    text: "Tokens flow back over Server-Sent Events as they’re generated, so the first word appears long before the answer is finished."
+    tech: "SSE · backpressure · cancellation"
+  - step: 7
+    num: "07"
+    title: "Do the bookkeeping later"
+    nodes: ["kafka", "usage", "evals"]
+    text: "Token usage, cost per feature and user feedback go onto a queue. The user never waits for analytics."
+    tech: "Kafka · consumers · idempotent writes"
+  - step: 8
+    num: "08"
+    title: "Keep knowledge fresh"
+    nodes: ["docs", "workers", "vector2", "vector"]
+    text: "New documents go through a queue to embedding workers. Jobs are idempotent, so a retry never creates duplicate vectors."
+    tech: "queue · workers · upsert by content hash"
+  - step: 9
+    num: "09"
+    title: "Now count the boxes"
+    nodes: ["model"]
+    text: "Sixteen boxes on this diagram. One of them is the model. Almost everything that makes the product fast, cheap and reliable is backend."
+    tech: "that’s the job I do"
+navigation:
+  prev:
+    label: "← Back to the Lab"
+    href: "/lab/rate-limiting"
+  next:
+    label: "Building an AI feature? Let’s talk →"
+    href: "/hire"

@@ -1,0 +1,16 @@
+id: "caching"
+number: "03"
+title: "Caching"
+tagline: "Same request twice — see the latency drop and X-Cache flip to HIT."
+status: "soon"
+order: 3
+kicker: "Lab / 03 · Caching"
+headline: "Same request twice — see the latency drop and X-Cache flip to HIT."
+intro: "Explore how Redis caching slashes database query load and drops p99 latency on read-heavy paths."
+navigation:
+  prev:
+    label: "← 02 Databases"
+    href: "/lab/databases"
+  next:
+    label: "Next: 04 Flash sale →"
+    href: "/lab/flash-sale"

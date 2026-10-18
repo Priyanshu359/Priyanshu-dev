@@ -1,0 +1,93 @@
+name: Deploy API to Oracle Cloud VM
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'services/api/**'
+      - 'content/**'
+      - 'pom.xml'
+      - 'infra/production/**'
+      - '.github/workflows/deploy.yml'
+
+permissions:
+  contents: read
+  packages: write
+
+jobs:
+  build-and-push:
+    name: Build & Push Multi-Arch Docker Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU (for arm64 emulation)
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository }}/api
+          tags: |
+            type=raw,value=latest
+            type=sha,format=short
+
+      - name: Build and push multi-arch Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ./services/api/Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  deploy:
+    name: Deploy to Oracle Cloud VM
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Deploy via SSH to Oracle VM
+        uses: appleboy/ssh-action@v1.0.3
+        if: env.VM_HOST != ''
+        env:
+          VM_HOST: ${{ secrets.VM_HOST }}
+        with:
+          host: ${{ secrets.VM_HOST }}
+          username: ${{ secrets.VM_USER || 'ubuntu' }}
+          key: ${{ secrets.VM_SSH_KEY }}
+          script: |
+            set -e
+            echo "==> Deploying latest API container to Oracle Cloud VM..."
+            cd /home/ubuntu/app/infra/production || cd ~/app/infra/production
+            
+            # Authenticate with GHCR to pull package
+            echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u "${{ github.actor }}" --password-stdin
+            
+            # Pull latest multi-arch image and restart containers
+            docker compose pull api
+            docker compose up -d
+            
+            # Verify health status
+            echo "==> Checking API health status..."
+            sleep 15
+            curl -f http://localhost:8080/actuator/health || (docker compose logs api --tail 50 && exit 1)
+            echo "==> Deployment successful!"

@@ -1,0 +1,16 @@
+id: "circuit-breaker"
+number: "06"
+title: "Circuit breaker"
+tagline: "Break a downstream service and watch it fail fast, then recover."
+status: "soon"
+order: 6
+kicker: "Lab / 06 · Circuit breaker"
+headline: "Break a downstream service and watch it fail fast, then recover."
+intro: "Isolating failing dependencies with Resilience4j circuit breakers, fallback handlers, and half-open probes."
+navigation:
+  prev:
+    label: "← 05 Idempotent payments"
+    href: "/lab/idempotent-payments"
+  next:
+    label: "Next: 07 Queues & retries →"
+    href: "/lab/queues"

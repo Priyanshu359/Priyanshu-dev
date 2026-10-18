@@ -1,0 +1,304 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Lab — Databases</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{opacity:0.75}
+</style>
+</helmet>
+<div style="background: {{t.bg}}; color: {{t.text}}; font-family: 'IBM Plex Sans', 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 1.6; transition: background 0.25s, color 0.25s">
+
+<header style="border-bottom: 1px solid {{t.border}}">
+<nav aria-label="Main" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 16px">
+<a href="Main.dc.html" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 500; font-size: 15px; text-decoration: none">priyanshu.dev</a>
+<button type="button" onClick="{{toggleTheme}}" aria-label="{{toggleLabel}}" title="{{toggleLabel}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%; cursor: pointer; background: transparent; color: {{t.text}}; border: 1px solid {{t.border2}}">
+<sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></sc-if>
+<sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></sc-if>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; font-size: 15px">
+<a href="RateLimiter.dc.html" style="text-decoration: none; font-weight: 600">Lab</a>
+<a href="AI.dc.html" style="text-decoration: none">AI</a>
+<a href="Journey.dc.html" style="text-decoration: none">Journey</a>
+<a href="Hire.dc.html" style="text-decoration: none; background: {{t.btnBg}}; color: {{t.btnText}}; padding: 10px 16px; border-radius: 6px; font-weight: 500">Let’s talk</a>
+</div>
+</nav>
+</header>
+
+<div style="border-bottom: 1px solid {{t.border}}">
+<div aria-label="Lab experiments" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; gap: 8px; flex-wrap: wrap; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px">
+<a href="RateLimiter.dc.html" style="text-decoration: none; padding: 14px 4px; color: {{t.muted}}">01 Rate limiting</a>
+<span style="padding: 14px 4px; border-bottom: 2px solid {{t.accent}}; font-weight: 500">02 Databases</span>
+<span style="padding: 14px 4px; color: {{t.muted}}">03 Caching · soon</span>
+<span style="padding: 14px 4px; color: {{t.muted}}">04 Flash sale · soon</span>
+</div>
+</div>
+
+<section style="max-width: 1120px; margin: 0 auto; padding: 88px 24px 56px">
+<p style="margin: 0 0 16px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px; color: {{t.muted}}">Lab / 02 · Databases</p>
+<h1 style="margin: 0; font-size: 52px; line-height: 1.08; font-weight: 600; letter-spacing: -0.025em; max-width: 880px">Most “slow APIs” are really slow queries.</h1>
+<p style="margin: 24px 0 0; font-size: 19px; color: {{t.muted}}; max-width: 680px">Three experiments on things I’ve fixed in production: a missing index, the N+1 problem, and a race condition that pays out money twice. Run each one and read the database’s side of the story.</p>
+<p style="margin: 16px 0 0; font-size: 14px; color: {{t.muted}}">Numbers here are illustrative, from a 1M-row test table. On the live site they come from real EXPLAIN ANALYZE runs against Postgres.</p>
+</section>
+
+<section aria-label="Experiment 1: indexes" style="max-width: 1120px; margin: 0 auto; padding: 0 24px 80px">
+<div style="background: {{t.surface}}; border: 1px solid {{t.border}}; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 22px">
+<div>
+<div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.accent}}">EXPERIMENT 01 · INDEXES &amp; QUERY PLANS</div>
+<h2 style="margin: 6px 0 0; font-size: 28px; font-weight: 600">“Show me a user’s last 20 orders”</h2>
+</div>
+<div style="background: {{t.term}}; color: #E8EAED; border-radius: 8px; padding: 16px 18px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.7; overflow-x: auto; white-space: pre"><span style="color: #8FB4FF">SELECT</span> * <span style="color: #8FB4FF">FROM</span> orders
+<span style="color: #8FB4FF">WHERE</span> user_id = 4821 <span style="color: #8FB4FF">AND</span> created_at &gt; now() - interval '30 days'
+<span style="color: #8FB4FF">ORDER BY</span> created_at <span style="color: #8FB4FF">DESC LIMIT</span> 20;</div>
+<div role="group" aria-label="Index strategy" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{idxOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 15px; cursor: pointer; border: 1px solid {{o.border}}; background: {{o.bg}}; color: {{o.color}}">{{o.label}}</button>
+</sc-for>
+<button type="button" onClick="{{runIdx}}" style="min-height: 44px; padding: 0 20px; border: none; border-radius: 6px; background: {{t.accent}}; color: {{t.accentBtnText}}; font: inherit; font-weight: 500; cursor: pointer; margin-left: auto">{{idxRunLabel}}</button>
+</div>
+<div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.muted}}">{{idxDdl}}</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 16px">
+<div><div style="font-size: 13px; color: {{t.muted}}">Rows scanned</div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 30px; color: {{idxColor}}">{{idxRows}}</div></div>
+<div><div style="font-size: 13px; color: {{t.muted}}">Execution time</div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 30px; color: {{idxColor}}">{{idxTime}}</div></div>
+<div>
+<div style="font-size: 13px; color: {{t.muted}}; margin-bottom: 6px">Work done (log scale)</div>
+<div style="height: 10px; background: {{t.tint}}; border-radius: 5px; overflow: hidden"><div style="height: 10px; width: {{idxBar}}; background: {{idxColor}}; border-radius: 5px; transition: width 0.6s"></div></div>
+</div>
+</div>
+<div style="flex: 999 1 460px; min-width: 0; background: {{t.term}}; color: #E8EAED; border-radius: 8px; padding: 16px 18px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; line-height: 1.7; overflow-x: auto; white-space: pre; min-height: 150px"><span style="color: #9AA0A8">EXPLAIN ANALYZE</span>
+{{idxPlan}}</div>
+</div>
+</div>
+</section>
+
+<section aria-label="Experiment 2: N+1 queries" style="max-width: 1120px; margin: 0 auto; padding: 0 24px 80px">
+<div style="background: {{t.surface}}; border: 1px solid {{t.border}}; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 22px">
+<div>
+<div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.accent}}">EXPERIMENT 02 · THE N+1 PROBLEM</div>
+<h2 style="margin: 6px 0 0; font-size: 28px; font-weight: 600">GET /api/courses — 50 courses, each with its instructor</h2>
+</div>
+<div role="group" aria-label="Loading strategy" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{n1Opts}}" as="o" hint-placeholder-count="2">
+<button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 15px; cursor: pointer; border: 1px solid {{o.border}}; background: {{o.bg}}; color: {{o.color}}">{{o.label}}</button>
+</sc-for>
+<button type="button" onClick="{{runN1}}" style="min-height: 44px; padding: 0 20px; border: none; border-radius: 6px; background: {{t.accent}}; color: {{t.accentBtnText}}; font: inherit; font-weight: 500; cursor: pointer; margin-left: auto">Call the endpoint</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 14px">
+<div><div style="font-size: 13px; color: {{t.muted}}">Queries for one request</div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 44px; line-height: 1.1; color: {{n1Color}}">{{n1Count}}</div></div>
+<div style="background: {{t.tint}}; border-radius: 8px; padding: 14px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.6; white-space: pre; overflow-x: auto">{{n1Code}}</div>
+</div>
+<div style="flex: 999 1 460px; min-width: 0; background: {{t.term}}; color: #E8EAED; border-radius: 8px; padding: 16px 18px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.7; overflow-x: auto; min-height: 220px">
+<div style="color: #9AA0A8">// SQL log · X-Query-Count: {{n1Count}}</div>
+<sc-for list="{{n1Log}}" as="l" hint-placeholder-count="4">
+<div style="white-space: pre; color: {{l.color}}">{{l.text}}</div>
+</sc-for>
+</div>
+</div>
+</div>
+</section>
+
+<section aria-label="Experiment 3: transactions" style="max-width: 1120px; margin: 0 auto; padding: 0 24px 88px">
+<div style="background: {{t.surface}}; border: 1px solid {{t.border}}; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 22px">
+<div>
+<div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.accent}}">EXPERIMENT 03 · TRANSACTIONS &amp; LOCKING</div>
+<h2 style="margin: 6px 0 0; font-size: 28px; font-weight: 600">Two ₹700 withdrawals hit a ₹1,000 wallet at the same moment</h2>
+</div>
+<div role="group" aria-label="Concurrency strategy" style="display: flex; flex-wrap: wrap; gap: 8px">
+<sc-for list="{{txOpts}}" as="o" hint-placeholder-count="3">
+<button type="button" aria-pressed="{{o.pressed}}" onClick="{{o.pick}}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 15px; cursor: pointer; border: 1px solid {{o.border}}; background: {{o.bg}}; color: {{o.color}}">{{o.label}}</button>
+</sc-for>
+<button type="button" onClick="{{runTx}}" style="min-height: 44px; padding: 0 20px; border: none; border-radius: 6px; background: {{t.accent}}; color: {{t.accentBtnText}}; font: inherit; font-weight: 500; cursor: pointer; margin-left: auto">Fire both requests</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+<div style="flex: 999 1 460px; min-width: 0; display: flex; flex-direction: column; gap: 8px; min-height: 260px">
+<sc-for list="{{txLog}}" as="l" hint-placeholder-count="4">
+<div style="display: flex; gap: 12px; align-items: baseline; padding: 10px 12px; border-radius: 8px; background: {{t.tint}}">
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; font-weight: 500; padding: 2px 8px; border-radius: 4px; color: {{l.tagText}}; background: {{l.tagBg}}">{{l.who}}</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px">{{l.text}}</span>
+</div>
+</sc-for>
+</div>
+<div style="flex: 1 1 260px; display: flex; flex-direction: column; gap: 14px">
+<div><div style="font-size: 13px; color: {{t.muted}}">Final balance</div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 40px; line-height: 1.1">{{txBalance}}</div></div>
+<div style="border: 1px solid {{txResultColor}}; color: {{txResultColor}}; border-radius: 8px; padding: 12px 14px; font-weight: 500">{{txResult}}</div>
+<div style="background: {{t.tint}}; border-radius: 8px; padding: 14px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.6; white-space: pre; overflow-x: auto">{{txCode}}</div>
+</div>
+</div>
+</div>
+</section>
+
+<section style="border-top: 1px solid {{t.border}}; background: {{t.surface}}">
+<div style="max-width: 1120px; margin: 0 auto; padding: 88px 24px">
+<h2 style="margin: 0 0 32px; font-size: 32px; font-weight: 600; letter-spacing: -0.01em">Trade-offs I weigh</h2>
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+<div style="flex: 1 1 300px"><h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 600">Indexes aren’t free</h3><p style="margin: 0; color: {{t.body}}">Every index speeds up reads and slows down writes. I index for the queries that actually run hot, not every column.</p></div>
+<div style="flex: 1 1 300px"><h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 600">Column order matters</h3><p style="margin: 0; color: {{t.body}}">(user_id, created_at) serves “a user’s recent orders”. (created_at, user_id) mostly doesn’t. Equality first, then range.</p></div>
+<div style="flex: 1 1 300px"><h3 style="margin: 0 0 8px; font-size: 18px; font-weight: 600">Pessimistic vs optimistic</h3><p style="margin: 0; color: {{t.body}}">Row locks are simple when conflicts are common, like a hot wallet. A version column scales better when they’re rare.</p></div>
+</div>
+<div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 64px; padding-top: 32px; border-top: 1px solid {{t.border}}">
+<a href="RateLimiter.dc.html" style="font-weight: 500">← 01 Rate limiting</a>
+<a href="AI.dc.html" style="font-weight: 500; color: {{t.accent}}">Next: why backend is the hero of AI →</a>
+</div>
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":3600}}'>
+class Component extends DCLogic {
+  themes() {
+    return [
+      { bg: '#FBFBFA', surface: '#FFFFFF', tint: '#F4F4F2', text: '#111418', body: '#3A3F47', muted: '#4A5059', border: '#E6E6E3', border2: '#D4D4D0', accent: '#1F4FD1', accentBtnText: '#FFFFFF', btnBg: '#111418', btnText: '#FFFFFF', green: '#0F6B52', blocked: '#B4400E', warm: '#9A4A0B', warmBg: '#FFF1E3', accentBg: '#E8EEFD', term: '#111418' },
+      { bg: '#0B0D10', surface: '#14171C', tint: '#101318', text: '#E8EAED', body: '#C9CDD3', muted: '#A3A9B3', border: '#262B33', border2: '#3A404A', accent: '#7AA2FF', accentBtnText: '#0B0D10', btnBg: '#E8EAED', btnText: '#0B0D10', green: '#5FD39B', blocked: '#FF9A7A', warm: '#F0B070', warmBg: '#2A1D10', accentBg: '#18213A', term: '#05070A' }
+    ];
+  }
+  idxData() {
+    return {
+      none: { label: 'No index', ddl: '-- no index on orders(user_id, created_at)', rows: '1,000,000', time: '~418 ms', bar: '100%', bad: 2, plan: 'Limit  (actual time=418.2..418.3 rows=20)\n  ->  Sort  (sort key: created_at DESC)\n        ->  Seq Scan on orders\n              Filter: user_id = 4821 AND created_at > ...\n              Rows Removed by Filter: 999,972' },
+      single: { label: 'Index on user_id', ddl: 'CREATE INDEX idx_orders_user ON orders (user_id);', rows: '1,180', time: '~6 ms', bar: '42%', bad: 1, plan: 'Limit  (actual time=5.9..6.1 rows=20)\n  ->  Sort  (sort key: created_at DESC)\n        ->  Index Scan using idx_orders_user on orders\n              Index Cond: user_id = 4821\n              Filter: created_at > ...  (1,160 rows removed)' },
+      composite: { label: 'Composite (user_id, created_at)', ddl: 'CREATE INDEX idx_orders_user_created ON orders (user_id, created_at DESC);', rows: '20', time: '~0.1 ms', bar: '5%', bad: 0, plan: 'Limit  (actual time=0.04..0.09 rows=20)\n  ->  Index Scan using idx_orders_user_created on orders\n        Index Cond: user_id = 4821 AND created_at > ...\n        -- already in order: no sort, stops after 20 rows' }
+    };
+  }
+  txData() {
+    return {
+      naive: {
+        label: 'Read, then write (no lock)',
+        code: 'Wallet w = repo.findById(id);\nif (w.balance >= 700) {\n  w.balance -= 700;\n  repo.save(w);\n}',
+        steps: [['T1', 'SELECT balance → ₹1,000'], ['T2', 'SELECT balance → ₹1,000'], ['T1', 'check ok · UPDATE balance = ₹300'], ['T2', 'check ok · UPDATE balance = ₹300'], ['T1', 'COMMIT · pays ₹700'], ['T2', 'COMMIT · pays ₹700']],
+        balance: '₹300', ok: false, result: 'Lost update: ₹1,400 paid out of a ₹1,000 wallet.'
+      },
+      lock: {
+        label: 'SELECT … FOR UPDATE',
+        code: '@Transactional\n@Lock(PESSIMISTIC_WRITE)\nWallet w = repo.findByIdForUpdate(id);\n// T2 waits here until T1 commits',
+        steps: [['T1', 'SELECT … FOR UPDATE → ₹1,000 (row locked)'], ['T2', 'SELECT … FOR UPDATE → waiting for lock…'], ['T1', 'UPDATE balance = ₹300 · COMMIT · pays ₹700'], ['T2', 'lock acquired → reads ₹300'], ['T2', 'check fails → ROLLBACK · 409 Insufficient funds']],
+        balance: '₹300', ok: true, result: 'Correct: one succeeds, one is safely rejected.'
+      },
+      optimistic: {
+        label: 'Optimistic (version column)',
+        code: '@Version long version;\n\nUPDATE wallet SET balance = ?, version = 8\nWHERE id = ? AND version = 7;',
+        steps: [['T1', 'SELECT → ₹1,000 · version 7'], ['T2', 'SELECT → ₹1,000 · version 7'], ['T1', 'UPDATE … WHERE version = 7 → 1 row · COMMIT'], ['T2', 'UPDATE … WHERE version = 7 → 0 rows (stale)'], ['T2', 'retry → reads ₹300 · version 8'], ['T2', 'check fails → 409 Insufficient funds']],
+        balance: '₹300', ok: true, result: 'Correct, with no locks held — the conflict is detected and retried.'
+      }
+    };
+  }
+  componentDidMount() {
+    this.timers = [];
+    this.setState({ theme: 0, idx: 'none', idxRan: false, idxRunning: false, n1: 'naive', n1Shown: 0, n1Log: [], n1Ran: false, tx: 'naive', txShown: 0, txRan: false });
+  }
+  componentWillUnmount() {
+    (this.timers || []).forEach((x) => clearTimeout(x));
+  }
+  later(fn, ms) {
+    this.timers.push(setTimeout(fn, ms));
+  }
+  runIdx() {
+    if ((this.state || {}).idxRunning) return;
+    this.setState({ idxRunning: true, idxRan: false });
+    this.later(() => this.setState({ idxRunning: false, idxRan: true }), 700);
+  }
+  runN1() {
+    const s = this.state || {};
+    const naive = (s.n1 || 'naive') === 'naive';
+    this.setState({ n1Log: [], n1Shown: 0, n1Ran: true });
+    if (!naive) {
+      this.later(() => this.setState({ n1Shown: 1, n1Log: [{ text: 'SELECT c.*, i.* FROM courses c\n  JOIN instructors i ON i.id = c.instructor_id\n  LIMIT 50', main: true }] }), 250);
+      return;
+    }
+    this.later(() => this.setState({ n1Shown: 1, n1Log: [{ text: 'SELECT * FROM courses LIMIT 50', main: true }] }), 150);
+    for (let k = 1; k <= 50; k++) {
+      this.later(() => {
+        this.setState((p) => {
+          const log = (p.n1Log || []).slice();
+          if (k <= 6) log.push({ text: 'SELECT * FROM instructors WHERE id = ' + (100 + k * 7) });
+          return { n1Shown: k + 1, n1Log: log };
+        });
+      }, 150 + k * 40);
+    }
+  }
+  runTx() {
+    const s = this.state || {};
+    const d = this.txData()[s.tx || 'naive'];
+    this.setState({ txShown: 0, txRan: true });
+    d.steps.forEach((st, i) => {
+      this.later(() => this.setState({ txShown: i + 1 }), 300 + i * 450);
+    });
+  }
+  pills(t, opts, current, key, extra) {
+    return opts.map((o) => {
+      const on = o.id === current;
+      return {
+        label: o.label,
+        pressed: on ? 'true' : 'false',
+        border: on ? t.text : t.border2,
+        bg: on ? t.text : t.surface,
+        color: on ? t.bg : t.text,
+        pick: () => { const u = {}; u[key] = o.id; Object.assign(u, extra || {}); this.setState(u); }
+      };
+    });
+  }
+  renderVals() {
+    const s = Object.assign({ theme: 0, idx: 'none', idxRan: false, idxRunning: false, n1: 'naive', n1Shown: 0, n1Log: [], n1Ran: false, tx: 'naive', txShown: 0, txRan: false }, this.state || {});
+    const t = this.themes()[s.theme];
+    const dark = s.theme === 1;
+    const ix = this.idxData();
+    const cur = ix[s.idx];
+    const idxColor = !s.idxRan ? t.muted : (cur.bad === 2 ? t.blocked : (cur.bad === 1 ? t.warm : t.green));
+    const n1Naive = s.n1 === 'naive';
+    const log = (s.n1Log || []).map((l) => ({ text: l.text, color: l.main ? '#8FB4FF' : '#E8EAED' }));
+    if (n1Naive && s.n1Shown > 7) log.push({ text: '… +' + (s.n1Shown - 7) + ' more identical queries', color: '#F2B263' });
+    if (!s.n1Ran) log.push({ text: 'Press “Call the endpoint”.', color: '#9AA0A8' });
+    const n1Done = s.n1Ran && (n1Naive ? s.n1Shown >= 51 : s.n1Shown >= 1);
+    const tx = this.txData()[s.tx];
+    const shown = s.txRan ? tx.steps.slice(0, s.txShown) : [];
+    const txLog = shown.map((st) => ({
+      who: st[0],
+      text: st[1],
+      tagText: st[0] === 'T1' ? t.accent : t.warm,
+      tagBg: st[0] === 'T1' ? t.accentBg : t.warmBg
+    }));
+    const txDone = s.txRan && s.txShown >= tx.steps.length;
+    return {
+      t: t,
+      isDark: dark,
+      isLight: !dark,
+      toggleLabel: dark ? 'Switch to light mode' : 'Switch to dark mode',
+      toggleTheme: () => this.setState((p) => ({ theme: p.theme === 1 ? 0 : 1 })),
+      idxOpts: this.pills(t, [{ id: 'none', label: ix.none.label }, { id: 'single', label: ix.single.label }, { id: 'composite', label: ix.composite.label }], s.idx, 'idx', { idxRan: false }),
+      idxDdl: cur.ddl,
+      idxRunLabel: s.idxRunning ? 'Scanning…' : 'Run EXPLAIN ANALYZE',
+      idxRows: s.idxRan ? cur.rows : '—',
+      idxTime: s.idxRan ? cur.time : '—',
+      idxBar: s.idxRan ? cur.bar : '0%',
+      idxPlan: s.idxRunning ? 'planning…' : (s.idxRan ? cur.plan : 'Pick a strategy and run it.'),
+      idxColor: idxColor,
+      runIdx: () => this.runIdx(),
+      n1Opts: this.pills(t, [{ id: 'naive', label: 'Lazy loading (naive)' }, { id: 'fetch', label: 'JOIN FETCH' }], s.n1, 'n1', { n1Ran: false, n1Log: [], n1Shown: 0 }),
+      n1Count: s.n1Shown,
+      n1Color: !n1Done ? t.text : (n1Naive ? t.blocked : t.green),
+      n1Code: n1Naive ? 'courseRepo.findAll()\n  .forEach(c -> c.getInstructor()\n                 .getName());' : '@Query("select c from Course c\n        join fetch c.instructor")\nList<Course> findAllWithInstructor();',
+      n1Log: log,
+      runN1: () => this.runN1(),
+      txOpts: this.pills(t, [{ id: 'naive', label: this.txData().naive.label }, { id: 'lock', label: this.txData().lock.label }, { id: 'optimistic', label: this.txData().optimistic.label }], s.tx, 'tx', { txRan: false, txShown: 0 }),
+      txLog: txLog,
+      txBalance: txDone ? tx.balance : '₹1,000',
+      txResult: txDone ? tx.result : (s.txRan ? 'Running…' : 'Pick a strategy and fire both requests.'),
+      txResultColor: !txDone ? t.border2 : (tx.ok ? t.green : t.blocked),
+      txCode: tx.code,
+      runTx: () => this.runTx()
+    };
+  }
+}
+</script>
+</body>
+</html>

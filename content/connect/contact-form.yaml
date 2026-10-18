@@ -1,0 +1,58 @@
+heading: "Send me a message"
+subheading: "Tell me who you are and the form adapts to what I need to know."
+directEmailPrefix: "Or email directly:"
+emailAddress: "priyanshu.kr.sinha74@gmail.com"
+rateLimitNotice: "This form is rate-limited too. Of course it is."
+commonLabels:
+  nameLabel: "Name"
+segments:
+  recruiter:
+    id: "recruiter"
+    label: "Recruiter"
+    emailLabel: "Work email"
+    companyLabel: "Company"
+    roleLabel: "Role / link to job description"
+    msgLabel: "Anything else I should know?"
+    sendLabel: "Send to Priyanshu"
+    sentNote: "I’ll get back to you within [X days]. My résumé is linked above if you need it sooner."
+  client:
+    id: "client"
+    label: "Client"
+    emailLabel: "Email"
+    projectTypeLabel: "What do you need?"
+    projectTypes:
+      - "Full app (web or mobile)"
+      - "Backend / APIs"
+      - "AI feature"
+      - "Performance fix"
+      - "Something else"
+    timelineLabel: "Timeline"
+    timelines:
+      - "Under a month"
+      - "1–3 months"
+      - "Flexible"
+    msgLabel: "Tell me about the project"
+    sendLabel: "Request a quote"
+    sentNote: "I’ll reply within [X days] with questions or a rough estimate."
+  student:
+    id: "student"
+    label: "Student / developer"
+    emailLabel: "Email"
+    stageLabel: "Where are you right now?"
+    stages:
+      - "Student"
+      - "Fresher, job hunting"
+      - "Working developer"
+    topicLabel: "What’s on your mind?"
+    topics:
+      - "Just saying hi"
+      - "Something I’m building"
+      - "Something I learned"
+      - "A backend chat"
+    msgLabel: "Your message"
+    sendLabel: "Say hi"
+    sentNote: "Thanks for writing — I’ll reply soon."
+confirmation:
+  statusBadge: "202 Accepted · queued for delivery"
+  title: "Thanks — your message is in."
+  againButtonLabel: "Send another"

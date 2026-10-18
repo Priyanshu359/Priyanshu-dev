@@ -1,0 +1,7 @@
+title: "About"
+paragraphs:
+  - "I started as a backend intern on a U.S. healthcare platform and now run production services at StudyIQ. On the side I take on freelance projects — web, mobile and the backends behind them."
+  - "I care about the parts of software nobody sees until they break: queues, caches, transactions, and what happens at peak traffic. I build AI-powered features the same way — backend first."
+resumeLink:
+  label: "Download résumé (PDF)"
+  href: "/resume.pdf"

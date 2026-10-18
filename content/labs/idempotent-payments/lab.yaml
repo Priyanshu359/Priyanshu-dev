@@ -1,0 +1,16 @@
+id: "idempotent-payments"
+number: "05"
+title: "Idempotent payments"
+tagline: "Double-click “Pay” and still get charged once."
+status: "soon"
+order: 5
+kicker: "Lab / 05 · Idempotent payments"
+headline: "Double-click “Pay” and still get charged once."
+intro: "Designing idempotent API handlers with unique request keys, status checks, and replay protection."
+navigation:
+  prev:
+    label: "← 04 Flash sale"
+    href: "/lab/flash-sale"
+  next:
+    label: "Next: 06 Circuit breaker →"
+    href: "/lab/circuit-breaker"

@@ -1,0 +1,456 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI — The backend is the hero</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a{color:inherit}a:hover{opacity:0.75}
+</style>
+</helmet>
+<div style="background: {{t.bg}}; color: {{t.text}}; font-family: 'IBM Plex Sans', 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 1.6; transition: background 0.25s, color 0.25s">
+
+<header style="border-bottom: 1px solid {{t.border}}">
+<nav aria-label="Main" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 16px">
+<a href="Main.dc.html" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 500; font-size: 15px; text-decoration: none">priyanshu.dev</a>
+<button type="button" onClick="{{toggleTheme}}" aria-label="{{toggleLabel}}" title="{{toggleLabel}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%; cursor: pointer; background: transparent; color: {{t.text}}; border: 1px solid {{t.border2}}">
+<sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg></sc-if>
+<sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg></sc-if>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; font-size: 15px">
+<a href="RateLimiter.dc.html" style="text-decoration: none">Lab</a>
+<a href="AI.dc.html" style="text-decoration: none; font-weight: 600">AI</a>
+<a href="Journey.dc.html" style="text-decoration: none">Journey</a>
+<a href="Hire.dc.html" style="text-decoration: none; background: {{t.btnBg}}; color: {{t.btnText}}; padding: 10px 16px; border-radius: 6px; font-weight: 500">Let’s talk</a>
+</div>
+</nav>
+</header>
+
+<section style="max-width: 1120px; margin: 0 auto; padding: 96px 24px 72px">
+<p style="margin: 0 0 16px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px; color: {{t.muted}}">AI · architecture walkthrough</p>
+<h1 style="margin: 0; font-size: 56px; line-height: 1.06; font-weight: 600; letter-spacing: -0.025em; max-width: 900px">In every AI product, the backend is the real hero.</h1>
+<p style="margin: 24px 0 0; font-size: 20px; color: {{t.muted}}; max-width: 680px">The model gets the headlines. But what makes an AI feature fast, affordable and reliable is everything around it. Type any question into the app below, then scroll through the nine steps at your own pace and see exactly what each box does with it.</p>
+<div style="margin-top: 32px; display: inline-flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.muted}}; border: 1px solid {{t.border}}; border-radius: 999px; padding: 8px 14px">type a question below and follow it through the system ↓</div>
+</section>
+
+<section aria-label="Architecture walkthrough" style="border-top: 1px solid {{t.border}}; background: {{t.tint}}">
+<div style="max-width: 1120px; margin: 0 auto; padding: 64px 24px 96px; display: flex; flex-wrap: wrap; gap: 40px; align-items: flex-start">
+
+<div style="flex: 1 1 520px; min-width: 0; position: sticky; top: 16px; align-self: flex-start; background: {{t.surface}}; border: 1px solid {{t.border}}; border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap">
+<div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; color: {{t.muted}}">AI-POWERED PLATFORM · STEP {{stepNum}} / {{stepCount}}</div>
+<div style="display: flex; gap: 6px">
+<button type="button" onClick="{{prev}}" aria-label="Previous step" style="width: 44px; height: 36px; border-radius: 6px; border: 1px solid {{t.border2}}; background: transparent; color: {{t.text}}; cursor: pointer; font: inherit">←</button>
+<button type="button" onClick="{{next}}" aria-label="Next step" style="width: 44px; height: 36px; border-radius: 6px; border: 1px solid {{t.border2}}; background: transparent; color: {{t.text}}; cursor: pointer; font: inherit">→</button>
+</div>
+</div>
+<div style="height: 4px; background: {{t.border}}; border-radius: 2px; overflow: hidden"><div style="height: 4px; width: {{progress}}; background: {{t.accent}}; transition: width 0.4s"></div></div>
+<div style="border: 1px solid {{t.border2}}; border-radius: 10px; overflow: hidden; background: {{t.bg}}">
+<div style="display: flex; align-items: center; gap: 6px; padding: 7px 12px; border-bottom: 1px solid {{t.border}}; background: {{t.tint}}">
+<span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{t.border2}}; display: inline-block"></span><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{t.border2}}; display: inline-block"></span><span aria-hidden="true" style="width: 8px; height: 8px; border-radius: 50%; background: {{t.border2}}; display: inline-block"></span>
+<span style="margin-left: 6px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: {{t.muted}}">client · priyanshu.dev/ask</span>
+</div>
+<div style="padding: 10px; display: flex; flex-direction: column; gap: 8px">
+<div style="display: flex; gap: 8px">
+<label for="ask-q" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0)">Ask a question</label>
+<input id="ask-q" type="text" maxlength="200" value="{{aQ}}" onInput="{{onType}}" onKeyDown="{{onKey}}" placeholder="Type any question…" style="flex: 1 1 auto; min-width: 0; min-height: 44px; border: 1px solid {{t.border2}}; border-radius: 6px; padding: 0 12px; font: inherit; font-size: 15px; color: inherit; background: {{t.surface}}">
+<button type="button" onClick="{{askRun}}" style="min-height: 44px; min-width: 64px; padding: 0 16px; border: none; border-radius: 6px; background: {{t.accent}}; color: {{t.accentBtnText}}; font: inherit; font-weight: 500; cursor: pointer">{{askLabel}}</button>
+</div>
+<div style="display: flex; flex-wrap: wrap; gap: 6px">
+<sc-for list="{{askExamples}}" as="ex" hint-placeholder-count="3">
+<button type="button" onClick="{{ex.pick}}" style="min-height: 32px; padding: 0 10px; border-radius: 999px; border: 1px solid {{t.border2}}; background: transparent; color: {{t.muted}}; font: inherit; font-size: 12px; cursor: pointer">{{ex.text}}</button>
+</sc-for>
+</div>
+<div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: {{askMetaColor}}">{{askMeta}}</div>
+</div>
+</div>
+
+<sc-for list="{{rows}}" as="row" hint-placeholder-count="8">
+<div style="display: flex; flex-direction: column; gap: 6px">
+<sc-if value="{{row.hasLabel}}" hint-placeholder-val="{{ false }}">
+<div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed {{t.border2}}; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; letter-spacing: 0.06em; color: {{t.muted}}">{{row.label}}</div>
+</sc-if>
+<div style="display: flex; gap: 8px">
+<sc-for list="{{row.nodes}}" as="n" hint-placeholder-count="2">
+<div style="flex: 1 1 0; min-width: 0; border: {{n.border}}; background: {{n.bg}}; opacity: {{n.opacity}}; border-radius: 8px; padding: 8px 10px; transition: opacity 0.35s, background 0.35s, border-color 0.35s">
+<div style="display: flex; justify-content: space-between; gap: 6px; align-items: baseline"><span style="font-weight: 600; font-size: 14px">{{n.label}}</span><span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 10px; color: {{n.tagColor}}">{{n.tag}}</span></div>
+<div style="font-size: 12px; color: {{t.muted}}">{{n.sub}}</div>
+</div>
+</sc-for>
+</div>
+<sc-if value="{{row.arrow}}" hint-placeholder-val="{{ true }}">
+<div aria-hidden="true" style="text-align: center; font-size: 12px; line-height: 1; color: {{t.muted}}">↓</div>
+</sc-if>
+</div>
+</sc-for>
+</div>
+
+<div style="flex: 1 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 20px">
+<sc-for list="{{steps}}" as="s" hint-placeholder-count="9">
+<button type="button" data-ai-step="{{s.idx}}" onClick="{{s.pick}}" style="text-align: left; min-height: 340px; display: flex; flex-direction: column; justify-content: center; gap: 10px; padding: 28px; border-radius: 12px; cursor: pointer; font: inherit; color: {{t.text}}; background: {{s.bg}}; border: {{s.border}}; transition: background 0.3s, border-color 0.3s">
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{s.numColor}}">{{s.num}}</span>
+<span style="font-size: 24px; font-weight: 600; line-height: 1.2">{{s.title}}</span>
+<span style="font-size: 17px; color: {{t.body}}">{{s.text}}</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; color: {{t.muted}}">{{s.tech}}</span>
+<sc-if value="{{s.hasRun}}" hint-placeholder-val="{{ false }}">
+<span style="display: block; margin-top: 6px; padding-top: 12px; border-top: 1px dashed {{t.border2}}; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; font-weight: 500; color: {{s.runColor}}">YOUR REQUEST · {{s.runLabel}}</span>
+</sc-if>
+<sc-if value="{{s.hasData}}" hint-placeholder-val="{{ false }}">
+<span style="display: block; background: {{t.term}}; color: #E8EAED; border-radius: 6px; padding: 10px 12px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; line-height: 1.6; white-space: pre-wrap; word-break: break-word">{{s.data}}</span>
+</sc-if>
+<sc-if value="{{s.hasBars}}" hint-placeholder-val="{{ false }}">
+<span style="display: flex; flex-direction: column; gap: 6px">
+<sc-for list="{{s.bars}}" as="b" hint-placeholder-count="3">
+<span style="display: flex; align-items: center; gap: 10px; font-size: 13px"><span style="flex: 0 0 130px">{{b.title}}</span><span style="flex: 1 1 auto; display: block; height: 8px; background: {{t.tint}}; border-radius: 4px; overflow: hidden"><span style="display: block; height: 8px; width: {{b.width}}; background: {{t.accent}}; transition: width 0.5s"></span></span><span style="flex: 0 0 40px; text-align: right; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px">{{b.score}}</span></span>
+</sc-for>
+</span>
+</sc-if>
+</button>
+</sc-for>
+</div>
+
+</div>
+</section>
+
+<section style="max-width: 1120px; margin: 0 auto; padding: 96px 24px 40px">
+<p style="margin: 0 0 8px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.accent}}">Built in production</p>
+<h2 style="margin: 0 0 12px; font-size: 32px; font-weight: 600; letter-spacing: -0.01em">Voice agents: same story, tighter deadline</h2>
+<p style="margin: 0 0 32px; color: {{t.muted}}; max-width: 680px">I’ve built an ASR → LLM → TTS pipeline to automate support calls. In voice, every stage has to stream into the next — silence on a phone call feels like a bug.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px">
+<div style="flex: 1 1 200px; border: 1px solid {{t.border2}}; background: {{t.surface}}; border-radius: 8px; padding: 18px"><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: {{t.muted}}">1 · LISTEN</div><div style="font-weight: 600">Speech → text</div><div style="font-size: 14px; color: {{t.body}}">Stream audio, detect end of turn</div></div>
+<div style="flex: 1 1 200px; border: 2px solid {{t.accent}}; background: {{t.surface}}; border-radius: 8px; padding: 18px"><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: {{t.muted}}">2 · THINK</div><div style="font-weight: 600">LLM + context</div><div style="font-size: 14px; color: {{t.body}}">Account lookup, intent, answer</div></div>
+<div style="flex: 1 1 200px; border: 1px solid {{t.border2}}; background: {{t.surface}}; border-radius: 8px; padding: 18px"><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: {{t.muted}}">3 · SPEAK</div><div style="font-weight: 600">Text → speech</div><div style="font-size: 14px; color: {{t.body}}">Speak the first sentence early</div></div>
+<div style="flex: 1 1 200px; border: 1px dashed {{t.blocked}}; background: {{t.surface}}; border-radius: 8px; padding: 18px"><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: {{t.blocked}}">ESCAPE HATCH</div><div style="font-weight: 600">Hand off to a human</div><div style="font-size: 14px; color: {{t.body}}">Low confidence or frustrated caller</div></div>
+</div>
+</section>
+
+<section style="max-width: 1120px; margin: 0 auto; padding: 56px 24px 96px">
+<h2 style="margin: 0 0 20px; font-size: 24px; font-weight: 600">Concepts I work with</h2>
+<div style="display: flex; gap: 10px; flex-wrap: wrap; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px">
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">Embeddings &amp; vector search</span>
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">Semantic caching</span>
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">Token budgets</span>
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">Retries &amp; fallbacks</span>
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">Streaming (SSE)</span>
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">Structured outputs</span>
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">Tool calling</span>
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">ASR / TTS</span>
+<span style="border: 1px solid {{t.border2}}; border-radius: 6px; padding: 8px 12px">Evals &amp; guardrails</span>
+</div>
+<div style="display: flex; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-top: 64px; padding-top: 32px; border-top: 1px solid {{t.border}}">
+<a href="RateLimiter.dc.html" style="font-weight: 500">← Back to the Lab</a>
+<a href="Hire.dc.html" style="font-weight: 500; color: {{t.accent}}">Building an AI feature? Let’s talk →</a>
+</div>
+</section>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":6000}}'>
+class Component extends DCLogic {
+  themes() {
+    return [
+      { bg: '#FBFBFA', surface: '#FFFFFF', tint: '#F4F4F2', text: '#111418', body: '#3A3F47', muted: '#4A5059', border: '#E6E6E3', border2: '#D4D4D0', accent: '#1F4FD1', btnBg: '#111418', btnText: '#FFFFFF', green: '#0F6B52', activeBg: '#EEF2FD', blocked: '#B4400E', modelBg: '#FFF4E8', model: '#9A4A0B', doneBg: '#EEF6F2', term: '#111418', accentBtnText: '#FFFFFF' },
+      { bg: '#0B0D10', surface: '#14171C', tint: '#101318', text: '#E8EAED', body: '#C9CDD3', muted: '#A3A9B3', border: '#262B33', border2: '#3A404A', accent: '#7AA2FF', btnBg: '#E8EAED', btnText: '#0B0D10', green: '#5FD39B', activeBg: '#18213A', blocked: '#FF9A7A', modelBg: '#2A1D10', model: '#F0B070', doneBg: '#12261D', term: '#05070A', accentBtnText: '#0B0D10' }
+    ];
+  }
+  layout() {
+    return [
+      { label: 'REQUEST PATH', nodes: [['client', 'Client', 'browser / app']], arrow: true },
+      { nodes: [['gateway', 'API gateway', 'auth, routing'], ['limiter', 'Rate limiter', 'token budget · Redis']], arrow: true },
+      { nodes: [['cache', 'Semantic cache', 'Redis'], ['orch', 'Orchestrator', 'Spring Boot']], arrow: true },
+      { nodes: [['pg', 'Postgres', 'sessions, users'], ['vector', 'Vector DB', 'pgvector']], arrow: true },
+      { nodes: [['llmgw', 'LLM gateway', 'retry · breaker · fallback'], ['model', 'Model', 'the AI']], arrow: true },
+      { nodes: [['sse', 'Stream', 'SSE to client']], arrow: false },
+      { label: 'ASYNC · AFTER THE RESPONSE', nodes: [['kafka', 'Queue', 'Kafka'], ['usage', 'Usage & cost', 'per feature'], ['evals', 'Feedback', 'evals']], arrow: false },
+      { label: 'INGESTION · OFFLINE', nodes: [['docs', 'New docs', 'uploads, CMS'], ['workers', 'Embed workers', 'chunk + embed'], ['vector2', '→ Vector DB', 'idempotent upsert']], arrow: false }
+    ];
+  }
+  stepDefs() {
+    return [
+      { title: 'A question arrives', nodes: ['client', 'gateway', 'limiter'], text: 'Auth first, then a per-user token budget checked in Redis. One runaway script can burn a month’s AI bill — the limiter is the first line of defence.', tech: 'Spring Security · Redis Lua · 429 + Retry-After' },
+      { title: 'Check the semantic cache', nodes: ['cache'], text: 'Similar questions often have the same answer. A cache hit returns in milliseconds and never touches the model — the cheapest AI call is the one you don’t make.', tech: 'Redis · embedding similarity · TTL' },
+      { title: 'Orchestrate the request', nodes: ['orch', 'pg'], text: 'A Spring Boot service loads the user’s session and context from Postgres, decides what to retrieve, and which tools the model may call.', tech: 'Spring Boot · Postgres · tool registry' },
+      { title: 'Retrieve only what matters', nodes: ['vector'], text: 'Vector search finds the few chunks relevant to this question. Short, grounded prompts are faster, cheaper and hallucinate less.', tech: 'pgvector · top-k · metadata filters' },
+      { title: 'Call the model — safely', nodes: ['llmgw', 'model'], text: 'Timeouts, retries with backoff, a circuit breaker, and a cheaper fallback model when the main one struggles. The model is one box; the safety net around it is backend.', tech: 'Resilience4j · backoff · fallback routing' },
+      { title: 'Stream it back', nodes: ['sse', 'client'], text: 'Tokens flow back over Server-Sent Events as they’re generated, so the first word appears long before the answer is finished.', tech: 'SSE · backpressure · cancellation' },
+      { title: 'Do the bookkeeping later', nodes: ['kafka', 'usage', 'evals'], text: 'Token usage, cost per feature and user feedback go onto a queue. The user never waits for analytics.', tech: 'Kafka · consumers · idempotent writes' },
+      { title: 'Keep knowledge fresh', nodes: ['docs', 'workers', 'vector2', 'vector'], text: 'New documents go through a queue to embedding workers. Jobs are idempotent, so a retry never creates duplicate vectors.', tech: 'queue · workers · upsert by content hash' },
+      { title: 'Now count the boxes', nodes: ['model'], text: 'Sixteen boxes on this diagram. One of them is the model. Almost everything that makes the product fast, cheap and reliable is backend.', tech: 'that’s the job I do' }
+    ];
+  }
+  componentDidMount() {
+    this.timers = [];
+    this.qcache = [];
+    this.buildIndex();
+    this.setState({ theme: 0, step: 0, q: '', bucket: 5, rStat: [], aRes: null });
+    this.refill = setInterval(() => this.setState((p) => ({ bucket: Math.min(5, (p.bucket == null ? 5 : p.bucket) + 1) })), 4000);
+    this.attach = setTimeout(() => {
+      try {
+        const els = document.querySelectorAll('[data-ai-step]');
+        if (!els.length || typeof IntersectionObserver === 'undefined') return;
+        this.io = new IntersectionObserver((entries) => {
+          entries.forEach((e) => {
+            if (e.isIntersecting) {
+              const i = parseInt(e.target.getAttribute('data-ai-step'), 10);
+              if (!isNaN(i)) this.setState({ step: i });
+            }
+          });
+        }, { rootMargin: '-45% 0px -45% 0px' });
+        els.forEach((el) => this.io.observe(el));
+      } catch (err) {}
+    }, 800);
+  }
+  componentWillUnmount() {
+    clearTimeout(this.attach);
+    clearInterval(this.refill);
+    (this.timers || []).forEach((x) => clearTimeout(x));
+    if (this.io) this.io.disconnect();
+  }
+  kb() {
+    return [
+      { t: 'Current role', k: 'job role studyiq work', x: 'Priyanshu is an SDE-1 backend engineer at StudyIQ in Gurugram. He owns more than 20 production Java and Spring Boot microservices in an ecosystem of 35+ services. His work covers feature development, releases, monitoring and incident response.' },
+      { t: 'Scale & traffic', k: 'scale traffic users', x: 'His systems support 35K+ daily and 150K+ monthly active users. They handle around 10K requests per minute on average and 100K+ requests per minute at peaks during flash sales and live exams.' },
+      { t: 'Caching', k: 'cache redis performance', x: 'He improved read-heavy course and catalog endpoints with Redis caching. Cache hit rates went above 92% and more than 90% of MySQL reads on those flows disappeared.' },
+      { t: 'Kafka & queues', k: 'kafka queue', x: 'He builds resilient Kafka consumers with concurrent and batch processing. Retries use backoff, and database writes are idempotent so a retried message never creates duplicates.' },
+      { t: 'Databases', k: 'db sql performance', x: 'He optimises MySQL workloads by removing Hibernate N+1 queries. He adds composite indexes for high-frequency transactions and reads query plans before guessing.' },
+      { t: 'Incidents', k: 'incident production debugging', x: 'He has resolved production incidents involving DynamoDB synchronisation, OTP delivery backpressure and duplicate notifications. He used distributed tracing, queue isolation, automated recovery and deduplication.' },
+      { t: 'Mentors Buddy', k: 'build project ai wallet', x: 'He built Mentors Buddy end to end as the sole backend developer. It is a Java 21 and Spring Boot mentorship platform with an ACID-compliant credit wallet, Google Calendar and Meet integration, Firebase chat and AI meeting insights.' },
+      { t: 'Voice AI pipeline', k: 'build project ai voice', x: 'He built an ASR to LLM to TTS voice pipeline aimed at automating more than half of support calls. Each stage streams into the next so conversations feel instant.' },
+      { t: 'AI approach', k: 'ai design', x: 'He designs AI features backend-first. That means rate limits and token budgets, semantic caching, retrieval with vector search, an LLM gateway with retries and fallbacks, and streaming responses.' },
+      { t: 'Internship', k: 'internship meditab', x: 'Before his current job he interned at Meditab Software in Ahmedabad. He worked on a U.S. healthcare EHR platform using Node.js, Express, PostgreSQL and RabbitMQ.' },
+      { t: 'Education', k: 'education college', x: 'He studied Computer Science at Chandigarh University from 2021 to 2025. He graduated with an 8.02 CGPA and a 50% merit scholarship.' },
+      { t: 'Freelance', k: 'freelance hire', x: 'He takes on freelance projects: React web apps, Flutter mobile apps, Spring Boot or Node.js backends, AI integrations and performance fixes. Client work is under NDA.' },
+      { t: 'Contact', k: 'contact', x: 'Recruiters, clients and fellow developers can reach him through the Let’s talk page. His email is priyanshu.kr.sinha74@gmail.com.' },
+      { t: 'Tech stack', k: 'stack', x: 'His core stack is Java, Spring Boot, Kafka, Redis, MySQL, PostgreSQL and DynamoDB. He deploys with Docker, Kubernetes and AWS.' }
+    ];
+  }
+  stopWords() {
+    return new Set('a an the is are was were be been being of to in on for and or with what who whom how does do did has have had he his him i you your me my can could would will should about at by from it its this that these those tell much many any which when where why there their them as into than then so if not use used using some get got also just very more most way ever'.split(' '));
+  }
+  synonyms() {
+    return { work: 'job', works: 'job', role: 'job', job: 'job', company: 'job', employer: 'job', currently: 'job', redis: 'cache', caching: 'cache', cache: 'cache', cached: 'cache', llm: 'ai', ml: 'ai', gpt: 'ai', model: 'ai', ai: 'ai', artificial: 'ai', genai: 'ai', database: 'db', databases: 'db', db: 'db', sql: 'db', mysql: 'db', postgres: 'db', postgresql: 'db', query: 'db', queries: 'db', index: 'db', indexes: 'db', hire: 'freelance', hiring: 'freelance', freelance: 'freelance', freelancing: 'freelance', client: 'freelance', clients: 'freelance', contact: 'contact', email: 'contact', reach: 'contact', college: 'education', university: 'education', degree: 'education', study: 'education', studied: 'education', studyiq: 'job', gpa: 'education', cgpa: 'education', kafka: 'kafka', queue: 'kafka', queues: 'kafka', messaging: 'kafka', consumer: 'kafka', consumers: 'kafka', voice: 'voice', call: 'voice', calls: 'voice', speech: 'voice', traffic: 'scale', scale: 'scale', scaling: 'scale', spike: 'scale', spikes: 'scale', peak: 'scale', peaks: 'scale', load: 'scale', intern: 'internship', internship: 'internship', interned: 'internship', incident: 'incident', incidents: 'incident', outage: 'incident', bug: 'incident', bugs: 'incident', stack: 'stack', tech: 'stack', technologies: 'stack', tools: 'stack', built: 'build', build: 'build', project: 'build', projects: 'build' };
+  }
+  tokenize(str) {
+    const stop = this._stop || (this._stop = this.stopWords());
+    const syn = this._syn || (this._syn = this.synonyms());
+    const out = [];
+    (String(str).toLowerCase().match(/[a-z0-9]+/g) || []).forEach((w) => {
+      if (w.length < 2 || stop.has(w)) return;
+      if (syn[w]) { out.push(syn[w]); return; }
+      let s = w;
+      if (s.length > 5 && s.endsWith('ing')) s = s.slice(0, -3);
+      else if (s.length > 4 && s.endsWith('ed')) s = s.slice(0, -2);
+      else if (s.length > 3 && s.endsWith('s') && !s.endsWith('ss')) s = s.slice(0, -1);
+      out.push(syn[s] || s);
+    });
+    return out;
+  }
+  hashDim(w) {
+    let h = 5381;
+    for (let i = 0; i < w.length; i++) h = ((h * 33) ^ w.charCodeAt(i)) >>> 0;
+    return h % 256;
+  }
+  embed(tokens) {
+    const v = new Array(256).fill(0);
+    const idf = this.idf || {};
+    tokens.forEach((w) => { v[this.hashDim(w)] += (idf[w] || 2.6); });
+    const n = Math.sqrt(v.reduce((a, b) => a + b * b, 0)) || 1;
+    return v.map((x) => x / n);
+  }
+  cos(a, b) {
+    let d = 0;
+    for (let i = 0; i < a.length; i++) d += a[i] * b[i];
+    return d;
+  }
+  buildIndex() {
+    const kb = this.kb();
+    const docs = kb.map((c) => this.tokenize(c.t + ' ' + (c.k || '') + ' ' + c.k + ' ' + c.x));
+    const df = {};
+    docs.forEach((ts) => new Set(ts).forEach((w) => { df[w] = (df[w] || 0) + 1; }));
+    const N = kb.length;
+    const idf = {};
+    Object.keys(df).forEach((w) => { idf[w] = Math.log((N + 1) / (df[w] + 1)) + 1; });
+    this.idf = idf;
+    this.chunks = kb.map((c, i) => ({ title: c.t, text: c.x, vec: this.embed(docs[i]) }));
+  }
+  setRun(i, v) {
+    this.setState((p) => { const a = (p.rStat || []).slice(); a[i] = v; return { rStat: a }; });
+  }
+  at(fn, ms) { this.timers.push(setTimeout(fn, ms)); }
+  ask(override) {
+    const s = this.state || {};
+    const q = String(override != null ? override : (s.q || '')).trim().slice(0, 200);
+    if (!q) return;
+    if (!this.chunks) this.buildIndex();
+    const clock = () => (typeof performance !== 'undefined' ? performance.now() : Date.now());
+    const took = (a) => { const d = clock() - a; return (d < 0.01 ? '<0.01' : d.toFixed(2)) + ' ms'; };
+    this.asked = (this.asked || 0) + 1;
+    this.session = this.session || ('sess_' + Math.random().toString(36).slice(2, 7));
+    const id = 'req_' + Math.random().toString(36).slice(2, 8);
+    const R = { id: id, sd: [], ms: [], bars: [] };
+    const stat = ['idle', 'idle', 'idle', 'idle', 'idle', 'idle', 'idle', 'idle', 'idle'];
+    let t0 = clock();
+    const left = s.bucket == null ? 5 : s.bucket;
+    const blocked = left <= 0;
+    R.sd[0] = 'POST /api/ask\n{ "q": ' + JSON.stringify(q) + ' }\nrequest-id: ' + id + '\nauth: anonymous visitor ✓\n' + (blocked ? 'rate limit: bucket empty → 429 Too Many Requests\nRetry-After: 4s\nthe request stops here — nothing else runs' : 'rate limit: allowed · ' + (left - 1) + '/5 requests left');
+    R.ms[0] = took(t0);
+    R.blocked = blocked;
+    let hit = false;
+    if (blocked) {
+      stat[0] = 'blocked';
+    } else {
+      stat[0] = 'done';
+      t0 = clock();
+      const toks = this.tokenize(q);
+      const vec = this.embed(toks);
+      let best = null, bestSim = 0;
+      (this.qcache || []).forEach((c) => { const sim = this.cos(vec, c.vec); if (sim > bestSim) { bestSim = sim; best = c; } });
+      hit = !!best && bestSim >= 0.9;
+      const nz = vec.map((v, i) => [i, v]).filter((p) => p[1] > 0).sort((a, b) => b[1] - a[1]).slice(0, 3);
+      R.sd[1] = 'tokens: [' + toks.map((w) => '"' + w + '"').join(', ') + ']\nvector: 256 dims · ' + (nz.length ? nz.map((p) => 'd' + p[0] + '=' + p[1].toFixed(2)).join(' ') : 'empty') + '\n' + (best ? 'closest earlier question: ' + JSON.stringify(best.q) + '\nsimilarity ' + bestSim.toFixed(2) + ' → ' + (hit ? 'HIT' : 'MISS') + ' (threshold 0.90)' : 'cache is empty → MISS') + (hit ? '\nthe stored answer would be returned in ~1 ms' : '');
+      R.ms[1] = took(t0);
+      stat[1] = 'done';
+      let ctxCount = 0, tin = 0;
+      if (hit) {
+        stat[2] = stat[3] = stat[4] = 'skipped';
+        R.sd[2] = R.sd[3] = R.sd[4] = 'Skipped — the semantic cache already covers this question, so no retrieval and no model call.';
+      } else {
+        t0 = clock();
+        R.sd[2] = 'session ' + this.session + ' · ' + (this.asked - 1) + ' earlier question' + (this.asked === 2 ? '' : 's') + ' loaded from Postgres\nplan: search knowledge base → call model with context\ntools allowed: knowledge_search';
+        R.ms[2] = took(t0);
+        stat[2] = 'done';
+        t0 = clock();
+        const top = this.chunks.map((c) => ({ c: c, s: this.cos(vec, c.vec) })).sort((a, b) => b.s - a.s).slice(0, 3);
+        R.bars = top.map((x) => ({ title: x.c.title, score: x.s.toFixed(2), width: Math.max(3, Math.round(x.s * 100)) + '%' }));
+        const ctx = top.filter((x, i) => x.s >= 0.15 && (i === 0 || x.s >= top[0].s * 0.8)).slice(0, 2);
+        ctxCount = ctx.length;
+        R.sd[3] = 'cosine similarity against ' + this.chunks.length + ' knowledge chunks · top 3:' + (ctx.length ? '' : '\nnothing above 0.15 → no context to send');
+        R.ms[3] = took(t0);
+        stat[3] = 'done';
+        t0 = clock();
+        const prompt = 'SYSTEM: Answer only from CONTEXT.\nCONTEXT:\n' + ctx.map((x) => '[' + x.c.title + '] ' + x.c.text).join('\n') + '\nQUESTION: ' + q;
+        tin = Math.ceil(prompt.length / 4);
+        R.sd[4] = 'prompt assembled:\nSYSTEM: Answer only from CONTEXT. If it is not there, say so.\nCONTEXT: ' + (ctx.length ? ctx.map((x) => '[' + x.c.title + ']').join(' ') : '(none — the model would be told to say it doesn’t know)') + '\nQUESTION: ' + q + '\n≈ ' + tin + ' tokens · budget 2,000 ✓\n\n→ LLM gateway: timeout 10s · 2 retries · fallback model\n→ model call: not connected in this demo';
+        R.ms[4] = took(t0);
+        stat[4] = 'done';
+        this.qcache = [{ q: q, vec: vec }].concat(this.qcache || []).slice(0, 20);
+      }
+      R.sd[5] = 'Content-Type: text/event-stream\nX-Cache: ' + (hit ? 'HIT' : 'MISS') + '\n' + (hit ? 'the cached answer would be sent in one go' : 'tokens would stream back here one by one as the model writes them');
+      R.ms[5] = 'ready';
+      stat[5] = 'done';
+      R.sd[6] = '→ topic usage.recorded\n{ id: "' + id + '", prompt_tokens: ' + (hit ? 0 : tin) + ', cache: "' + (hit ? 'HIT' : 'MISS') + '", context_chunks: ' + ctxCount + ' }\nconsumer: usage-logger · the user never waits for this';
+      R.ms[6] = 'queued';
+      stat[6] = 'done';
+      R.sd[7] = 'index: ' + this.chunks.length + ' chunks · 256-dim vectors\nupserts keyed by content hash → re-runs never duplicate\nyour question read the index; it didn’t change it';
+      R.ms[7] = 'read-only';
+      stat[7] = 'done';
+      const touched = hit ? 8 : 13;
+      R.sd[8] = 'your request touched ' + touched + ' of 16 boxes\n' + (hit ? 'model calls: 0 — the cache handled it' : 'model calls: 1') + '\neverything else: backend';
+      R.ms[8] = touched + '/16';
+      stat[8] = 'done';
+    }
+    R.hit = hit;
+    this.setState({ q: q, aRes: R, rStat: stat, step: 0, bucket: blocked ? 0 : left - 1 });
+  }
+  askVals(t) {
+    const s = this.state || {};
+    const R = s.aRes || null;
+    let meta = 'Type a question and press Send. Nothing is answered — you’ll see how it flows.';
+    let color = t.muted;
+    if (R) {
+      meta = R.blocked ? (R.id + ' · 429 Too Many Requests · Retry-After: 4s') : (R.id + ' · sent · X-Cache: ' + (R.hit ? 'HIT' : 'MISS') + ' · ' + (s.bucket == null ? 5 : s.bucket) + '/5 left — now scroll through the steps ↓');
+      color = R.blocked ? t.blocked : t.green;
+    }
+    const ex = ['What does he do at StudyIQ?', 'How does he use Redis?', 'Who won the cricket match yesterday?'];
+    return {
+      aQ: s.q || '',
+      onType: (e) => this.setState({ q: e && e.target ? e.target.value : '' }),
+      onKey: (e) => { if (e && e.key === 'Enter') this.ask(); },
+      askRun: () => this.ask(),
+      askLabel: 'Send',
+      askExamples: ex.map((x) => ({ text: x, pick: () => this.ask(x) })),
+      askMeta: meta,
+      askMetaColor: color
+    };
+  }
+  runInfo(t, i) {
+    const s = this.state || {};
+    const R = s.aRes;
+    const v = (s.rStat || [])[i] || 'idle';
+    if (!R || v === 'idle') return { hasRun: false, runLabel: '', runColor: t.muted, hasData: false, data: '', hasBars: false, bars: [] };
+    let label = 'running…', color = t.accent;
+    if (v === 'done') { label = i === 1 ? ((R.hit ? 'HIT · ' : 'MISS · ') + R.ms[1]) : R.ms[i]; color = t.green; }
+    if (v === 'skipped') { color = t.muted; }
+    if (v === 'skipped') { label = 'skipped · cache hit'; color = t.muted; }
+    if (v === 'blocked') { label = '429 · blocked'; color = t.blocked; }
+    const showData = v !== 'active' && !!R.sd[i];
+    const bars = (i === 3 && v === 'done') ? R.bars : [];
+    return { hasRun: true, runLabel: label, runColor: color, hasData: showData, data: showData ? R.sd[i] : '', hasBars: bars.length > 0, bars: bars };
+  }
+  renderVals() {
+    const s = this.state || {};
+    const themeIdx = s.theme || 0;
+    const t = this.themes()[themeIdx];
+    const defs = this.stepDefs();
+    const step = Math.min(defs.length - 1, Math.max(0, s.step || 0));
+    const active = defs[step].nodes;
+    const finale = step === defs.length - 1;
+    const rows = this.layout().map((r) => ({
+      hasLabel: !!r.label,
+      label: r.label || '',
+      arrow: r.arrow,
+      nodes: r.nodes.map((n) => {
+        const on = active.indexOf(n[0]) !== -1;
+        const isModel = n[0] === 'model';
+        let border = '1px solid ' + t.border2, bg = t.surface, opacity = on ? 1 : 0.38;
+        if (on) { border = '2px solid ' + t.accent; bg = t.activeBg; }
+        if (isModel && on) { border = '2px solid ' + t.model; bg = t.modelBg; }
+        if (on && n[0] === 'limiter' && s.aRes && s.aRes.blocked && step === 0) { border = '2px solid ' + t.blocked; }
+        if (finale && !isModel) { opacity = 0.3; }
+        return { label: n[1], sub: n[2], border: border, bg: bg, opacity: opacity, tag: isModel ? 'AI' : (on ? '●' : ''), tagColor: isModel ? t.model : t.accent };
+      })
+    }));
+    const steps = defs.map((d, i) => {
+      const on = i === step;
+      return {
+        idx: String(i),
+        num: (i < 9 ? '0' : '') + (i + 1),
+        title: d.title,
+        text: d.text,
+        tech: d.tech,
+        bg: on ? t.surface : 'transparent',
+        border: on ? ('2px solid ' + t.accent) : ('1px solid ' + t.border),
+        numColor: on ? t.accent : t.muted,
+        pick: () => this.setState({ step: i }),
+        ...this.runInfo(t, i)
+      };
+    });
+    const dark = themeIdx === 1;
+    return {
+      ...this.askVals(t),
+      t: t,
+      isDark: dark,
+      isLight: !dark,
+      toggleLabel: dark ? 'Switch to light mode' : 'Switch to dark mode',
+      toggleTheme: () => this.setState((p) => ({ theme: p.theme === 1 ? 0 : 1 })),
+      rows: rows,
+      steps: steps,
+      stepNum: step + 1,
+      stepCount: defs.length,
+      progress: Math.round(((step + 1) / defs.length) * 100) + '%',
+      prev: () => this.setState((p) => ({ step: Math.max(0, (p.step || 0) - 1) })),
+      next: () => this.setState((p) => ({ step: Math.min(defs.length - 1, (p.step || 0) + 1) }))
+    };
+  }
+}
+</script>
+</body>
+</html>

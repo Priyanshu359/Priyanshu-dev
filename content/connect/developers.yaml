@@ -1,0 +1,13 @@
+kicker: "FOR STUDENTS & DEVELOPERS"
+title: "No agenda. Just a conversation."
+subtitle: "I’m still learning too. If you’re a student or a developer and something here clicked with you, write to me. Some of the best people I know started as a random “hey, saw your work.”"
+cards:
+  - id: "building"
+    title: "Tell me what you’re building"
+    description: "Side project, college project, something at work — I’d genuinely like to hear about it."
+  - id: "learned"
+    title: "Share something you learned"
+    description: "A bug that taught you something, an article you loved. I’ll probably share one back."
+  - id: "say-hi"
+    title: "Or just say hi"
+    description: "That’s reason enough."

@@ -1,0 +1,24 @@
+categories:
+  - id: "frontend"
+    tag: "FRONTEND"
+    items:
+      - "React"
+      - "Flutter"
+  - id: "backend"
+    tag: "BACKEND"
+    items:
+      - "Spring Boot"
+      - "Node.js"
+      - "Express"
+  - id: "data"
+    tag: "DATA"
+    items:
+      - "MySQL"
+      - "PostgreSQL"
+      - "Redis"
+  - id: "cloud"
+    tag: "CLOUD"
+    items:
+      - "AWS"
+      - "Docker"
+      - "CI/CD"

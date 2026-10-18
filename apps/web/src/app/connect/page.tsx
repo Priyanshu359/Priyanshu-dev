@@ -72,7 +72,7 @@ export default function ConnectPage() {
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--color-accent)" }}>
                 01 · Recruiters &amp; hiring managers
               </span>
-              <span style={{ fontSize: "24px", fontWeight: 600 }}>“We’re hiring.”</span>
+              <span style={{ fontSize: "24px", fontWeight: 600 }}>“Considering me for a role?”</span>
               <span style={{ color: "var(--color-muted)" }}>
                 A 30-second snapshot, my résumé, and the fastest way to reach me.
               </span>
@@ -101,7 +101,7 @@ export default function ConnectPage() {
               </span>
               <span style={{ fontSize: "24px", fontWeight: 600 }}>“We need something built.”</span>
               <span style={{ color: "var(--color-muted)" }}>
-                Web, mobile and backend projects — what I build and how we’d work.
+                AI agents, web, mobile and backend projects — what I build and how we’d work.
               </span>
               <span style={{ marginTop: "8px", fontWeight: 500, color: "var(--color-green)" }}>
                 See services ↓
@@ -304,71 +304,40 @@ export default function ConnectPage() {
             ))}
           </div>
 
-          {/* Client work / Case studies */}
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "baseline",
-              gap: "16px",
-              flexWrap: "wrap",
-              margin: "64px 0 20px",
-            }}
-          >
-            <h3 style={{ margin: 0, fontSize: "24px", fontWeight: 600 }}>{clientWork.heading}</h3>
-            <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--color-muted)" }}>
-              {clientWork.subheading}
-            </span>
+          {/* Why clients can trust me section */}
+          <div style={{ margin: "72px 0 24px" }}>
+            <h3 style={{ margin: 0, fontSize: "28px", fontWeight: 700, letterSpacing: "-0.02em" }}>
+              {clientWork.title || "Why clients can trust me with their project"}
+            </h3>
           </div>
 
-          <div style={{ display: "flex", flexWrap: "wrap", gap: "20px" }}>
-            {clientWork.projects.map((proj) => (
-              <article
-                key={proj.id}
+          <div
+            style={{
+              display: "grid",
+              gridTemplateColumns: "repeat(auto-fit, minmax(360px, 1fr))",
+              gap: "20px",
+            }}
+          >
+            {clientWork.reasons?.map((reason) => (
+              <div
+                key={reason.id}
                 style={{
-                  flex: "1 1 460px",
                   backgroundColor: "var(--color-surface)",
                   border: "1px solid var(--color-border)",
-                  borderRadius: "10px",
-                  padding: "24px",
+                  borderRadius: "12px",
+                  padding: "28px",
                   display: "flex",
                   flexDirection: "column",
-                  gap: "10px",
+                  gap: "12px",
                 }}
               >
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    gap: "12px",
-                    fontFamily: "var(--font-mono)",
-                    fontSize: "12px",
-                    color: "var(--color-muted)",
-                  }}
-                >
-                  <span>{proj.clientType}</span>
-                  <span style={{ border: "1px solid var(--color-border2)", borderRadius: "4px", padding: "2px 8px" }}>
-                    {proj.badge}
-                  </span>
-                </div>
-                <h4 style={{ margin: 0, fontSize: "20px", fontWeight: 600 }}>{proj.headline}</h4>
-                <p style={{ margin: 0, color: "var(--color-body)" }}>
-                  <strong>Problem:</strong> {proj.problem}. <strong>Built:</strong> {proj.built}.{" "}
-                  <strong>Outcome:</strong> {proj.outcome}.
+                <h4 style={{ margin: 0, fontSize: "19px", fontWeight: 700, lineHeight: 1.35 }}>
+                  {reason.title}
+                </h4>
+                <p style={{ margin: 0, color: "var(--color-body)", fontSize: "15px", lineHeight: 1.6 }}>
+                  {reason.description}
                 </p>
-                <p
-                  style={{
-                    margin: 0,
-                    padding: "12px 14px",
-                    backgroundColor: "var(--color-tint)",
-                    borderRadius: "6px",
-                    color: "var(--color-body)",
-                    fontStyle: "italic",
-                  }}
-                >
-                  “{proj.testimonial}” — {proj.testimonialAuthor}
-                </p>
-              </article>
+              </div>
             ))}
           </div>
         </section>

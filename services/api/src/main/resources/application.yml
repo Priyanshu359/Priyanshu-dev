@@ -40,20 +40,25 @@ spring:
       timeout: 2000ms
 
   mail:
-    host: ${SMTP_HOST:localhost}
-    port: ${SMTP_PORT:587}
-    username: ${SMTP_USER:}
+    host: ${SMTP_HOST:smtp.resend.com}
+    port: ${SMTP_PORT:465}
+    username: ${SMTP_USER:resend}
     password: ${SMTP_PASSWORD:}
     properties:
       mail:
         smtp:
-          auth: false
+          auth: ${SMTP_AUTH:true}
+          ssl:
+            enable: ${SMTP_SSL_ENABLE:true}
           starttls:
-            enable: false
+            enable: ${SMTP_STARTTLS_ENABLE:false}
+          connectiontimeout: 5000
+          timeout: 5000
+          writetimeout: 5000
 
 priyanshu:
   cors:
-    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://priyanshu.dev,https://www.priyanshu.dev}
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://priyanshu.dev,https://www.priyanshu.dev,https://priyanshusinha.dev,https://www.priyanshusinha.dev}
   
   rate-limit:
     global:
@@ -61,7 +66,7 @@ priyanshu:
       refill-tokens: ${RATE_LIMIT_GLOBAL_REFILL:60}
       refill-period-seconds: ${RATE_LIMIT_GLOBAL_PERIOD:60}
     contact:
-      hourly-ip-limit: ${RATE_LIMIT_CONTACT_IP_HOURLY:3}
+      hourly-ip-limit: ${RATE_LIMIT_CONTACT_IP_HOURLY:20}
   
   turnstile:
     secret-key: ${TURNSTILE_SECRET_KEY:}
@@ -73,8 +78,8 @@ priyanshu:
   
   notification:
     to-email: ${CONTACT_TO_EMAIL:priyanshu.kr.sinha74@gmail.com}
-    from-email: ${CONTACT_FROM_EMAIL:noreply@priyanshu.dev}
-    log-only: ${NOTIFICATION_LOG_ONLY:true}
+    from-email: ${CONTACT_FROM_EMAIL:contact@priyanshusinha.dev}
+    log-only: ${NOTIFICATION_LOG_ONLY:false}
 
   lab:
     seed:

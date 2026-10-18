@@ -68,7 +68,9 @@ describe("Content System Validation", () => {
     it("loads profile suitable for /api/me", () => {
       const profile = getProfile();
       expect(profile.role).toBe("Backend Engineer (SDE-1)");
-      expect(profile.stack).toEqual(["Java", "Spring Boot", "Kafka", "Redis"]);
+      expect(profile.stack).toContain("Java");
+      expect(profile.stack).toContain("Spring Boot");
+      expect(profile.stack).toContain("AI Agents");
       expect(profile.hireMe).toBe("POST https://api.priyanshu.dev/hire-me");
     });
   });
@@ -164,14 +166,14 @@ describe("Content System Validation", () => {
       const rec = getConnectRecruiters();
       expect(rec.metrics).toHaveLength(3);
       const noticePeriod = rec.snapshot.find((s) => s.tag === "NOTICE PERIOD");
-      expect(noticePeriod?.value).toBe("[X days]");
+      expect(noticePeriod?.value).toBe("30 days");
     });
 
     it("loads services, stack, process, client work, and developers", () => {
       expect(getConnectServices().services).toHaveLength(6);
-      expect(getConnectStack().categories).toHaveLength(4);
+      expect(getConnectStack().categories).toHaveLength(5);
       expect(getConnectProcess().steps).toHaveLength(4);
-      expect(getConnectClientWork().projects).toHaveLength(2);
+      expect(getConnectClientWork().reasons).toHaveLength(6);
       expect(getConnectDevelopers().cards).toHaveLength(3);
     });
 

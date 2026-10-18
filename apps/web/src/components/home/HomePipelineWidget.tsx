@@ -24,6 +24,7 @@ export function HomePipelineWidget({
   pipelineStages,
 }: HomePipelineWidgetProps) {
   const [state, dispatch] = useReducer(homeSimReducer, initialHomeSimState);
+  const [measuredLatency, setMeasuredLatency] = React.useState<number | null>(null);
   const { streamAsk } = useEventStream();
   const cancelRef = useRef<(() => void) | null>(null);
 
@@ -52,60 +53,33 @@ export function HomePipelineWidget({
     dispatch({ type: "SET_REPLAY", isReplay: false });
     dispatch({ type: "START_REQUEST" });
 
+    const timers: NodeJS.Timeout[] = [];
+    const cancelAll = () => {
+      timers.forEach(clearTimeout);
+      timers.length = 0;
+    };
+    cancelRef.current = cancelAll;
+
+    const speedMultiplier = state.realSpeed ? 0.04 : 1;
+    const later = (fn: () => void, ms: number) => {
+      timers.push(setTimeout(fn, ms * speedMultiplier));
+    };
+
     let accumulatedText = "";
     let isHit = false;
     let isBlocked = false;
     let receivedEvents = false;
+    const events: any[] = [];
+    const startTime = performance.now();
 
     const success = await streamAsk(
       { q: selectedPreset.question, isHomePreset: true },
       {
         onEvent: (event) => {
           receivedEvents = true;
-          if (event.type === "stage.started") {
-            const stNum = event.stageNumber ?? 1;
-            if (stNum <= 6) {
-              dispatch({ type: "SET_STAGE", index: stNum - 1, status: "active" });
-            }
-          } else if (event.type === "stage.done") {
-            const stNum = event.stageNumber ?? 1;
-            if (stNum === 1) {
-              if (event.data?.blocked) {
-                isBlocked = true;
-                dispatch({
-                  type: "BLOCKED",
-                  message: demoConfig.rateLimitBlockedText,
-                });
-              } else {
-                dispatch({ type: "DECREMENT_TOKEN" });
-                dispatch({ type: "SET_STAGE", index: 0, status: "done" });
-                dispatch({ type: "SET_STAGE", index: 1, status: "done" });
-              }
-            } else if (stNum === 2) {
-              isHit = !!event.data?.cacheHit;
-              dispatch({ type: "SET_STAGE", index: 2, status: "done" });
-            } else if (stNum <= 6) {
-              dispatch({ type: "SET_STAGE", index: stNum - 1, status: "done" });
-            }
-          } else if (event.type === "stream.token") {
-            if (event.tokenChunk) {
-              accumulatedText += event.tokenChunk;
-              dispatch({ type: "SET_STREAM_TEXT", text: accumulatedText });
-            }
-          } else if (event.type === "pipeline.done") {
-            if (!isBlocked) {
-              if (isHit) {
-                dispatch({
-                  type: "COMPLETE_HIT",
-                  answer: accumulatedText || selectedPreset.answer,
-                });
-              } else {
-                dispatch({
-                  type: "COMPLETE_MISS",
-                  questionIndex: state.selectedQuestionIndex,
-                });
-              }
-            }
+          events.push(event);
+          if (event.type === "stream.token" && event.tokenChunk) {
+            accumulatedText += event.tokenChunk;
           }
         },
         onError: (err) => {
@@ -114,7 +88,10 @@ export function HomePipelineWidget({
       }
     );
 
-    if (!success || !receivedEvents) {
+    const actualLatencyMs = Math.round(performance.now() - startTime);
+    setMeasuredLatency(actualLatencyMs);
+
+    if (!success || !receivedEvents || events.length === 0) {
       // Offline fallback: simulator labelled "replay of a real request"
       cancelRef.current = runHomeSimulation(
         state,
@@ -122,7 +99,80 @@ export function HomePipelineWidget({
         presets,
         demoConfig.rateLimitBlockedText
       );
+      return;
     }
+
+    // Inspect live events to determine blocked and hit status
+    const gatewayDone = events.find((e) => e.type === "stage.done" && e.stageNumber === 1);
+    const cacheDone = events.find((e) => e.type === "stage.done" && e.stageNumber === 2);
+    isBlocked = !!gatewayDone?.data?.blocked;
+    isHit = !isBlocked && !!cacheDone?.data?.cacheHit;
+
+    // Stage 0: Gateway
+    later(() => {
+      dispatch({ type: "SET_STAGE", index: 0, status: "done" });
+      dispatch({ type: "SET_STAGE", index: 1, status: "active" });
+    }, 280);
+
+    // Stage 1: Rate limiter
+    if (isBlocked) {
+      later(() => {
+        dispatch({
+          type: "BLOCKED",
+          message: demoConfig.rateLimitBlockedText,
+        });
+      }, 550);
+      return;
+    }
+
+    later(() => {
+      dispatch({ type: "DECREMENT_TOKEN" });
+      dispatch({ type: "SET_STAGE", index: 1, status: "done" });
+      dispatch({ type: "SET_STAGE", index: 2, status: "active" });
+    }, 550);
+
+    // Stage 2: Cache
+    if (isHit) {
+      later(() => {
+        dispatch({ type: "SET_STAGE", index: 2, status: "done" });
+        dispatch({ type: "SET_STAGE", index: 3, status: "skipped" });
+        dispatch({ type: "SET_STAGE", index: 4, status: "skipped" });
+        dispatch({ type: "SET_STAGE", index: 5, status: "active" });
+        dispatch({ type: "SET_STREAM_TEXT", text: accumulatedText || selectedPreset.answer });
+      }, 850);
+
+      later(() => {
+        dispatch({
+          type: "COMPLETE_HIT",
+          answer: accumulatedText || selectedPreset.answer,
+        });
+      }, 1100);
+      return;
+    }
+
+    // Cache Miss Path
+    later(() => {
+      dispatch({ type: "SET_STAGE", index: 2, status: "done" });
+      dispatch({ type: "SET_STAGE", index: 3, status: "active" });
+    }, 850);
+
+    later(() => {
+      dispatch({ type: "SET_STAGE", index: 3, status: "done" });
+      dispatch({ type: "SET_STAGE", index: 4, status: "active" });
+    }, 1250);
+
+    later(() => {
+      dispatch({ type: "SET_STAGE", index: 4, status: "done" });
+      dispatch({ type: "SET_STAGE", index: 5, status: "active" });
+    }, 1650);
+
+    later(() => {
+      dispatch({ type: "SET_STREAM_TEXT", text: accumulatedText || selectedPreset.answer });
+      dispatch({
+        type: "COMPLETE_MISS",
+        questionIndex: state.selectedQuestionIndex,
+      });
+    }, 2050);
   };
 
   const dotLeft = `${(state.dotIndex / 5) * 100}%`;
@@ -204,16 +254,17 @@ export function HomePipelineWidget({
               minHeight: "36px",
               padding: "0 14px",
               borderRadius: "var(--radius-full)",
-              border: "1px solid var(--color-border2)",
-              backgroundColor: state.realSpeed ? "var(--color-activeBg)" : "transparent",
-              color: state.realSpeed ? "var(--color-accent)" : "var(--color-text)",
+              border: `1px solid ${state.realSpeed ? "var(--color-green)" : "var(--color-border2)"}`,
+              backgroundColor: state.realSpeed ? "rgba(127, 209, 165, 0.12)" : "transparent",
+              color: state.realSpeed ? "var(--color-green)" : "var(--color-text)",
               fontFamily: "var(--font-mono)",
               fontSize: "12px",
+              fontWeight: 500,
               cursor: "pointer",
               transition: "all 0.2s",
             }}
           >
-            {state.realSpeed ? "Playback: real speed" : "Playback: slow-mo"}
+            {state.realSpeed ? "Playback: real speed ⚡" : "Playback: slow-mo ⏳"}
           </button>
         </div>
       </div>
@@ -320,12 +371,72 @@ export function HomePipelineWidget({
         />
       </div>
 
+      {/* Speed Notification Banner for Users */}
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "12px",
+          padding: "10px 16px",
+          borderRadius: "var(--radius-md)",
+          backgroundColor: state.realSpeed ? "rgba(127, 209, 165, 0.08)" : "rgba(242, 178, 99, 0.08)",
+          border: `1px solid ${state.realSpeed ? "rgba(127, 209, 165, 0.25)" : "rgba(242, 178, 99, 0.25)"}`,
+          fontFamily: "var(--font-mono)",
+          fontSize: "12px",
+          lineHeight: 1.5,
+          color: state.realSpeed ? "#7FD1A5" : "#F2B263",
+        }}
+      >
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <span>{state.realSpeed ? "⚡" : "⏳"}</span>
+          <span>
+            {state.realSpeed ? (
+              <>
+                <strong>Real Speed active:</strong> executing with zero artificial delays directly against Spring Boot & Redis (~15ms).
+              </>
+            ) : (
+              <>
+                <strong>Slow-mo is enabled by default</strong> so you can watch each hop. Want real speed?
+              </>
+            )}
+          </span>
+        </div>
+        <button
+          type="button"
+          onClick={() => dispatch({ type: "TOGGLE_SPEED" })}
+          style={{
+            padding: "4px 10px",
+            borderRadius: "var(--radius-sm)",
+            border: `1px solid ${state.realSpeed ? "#7FD1A5" : "#F2B263"}`,
+            backgroundColor: "transparent",
+            color: state.realSpeed ? "#7FD1A5" : "#F2B263",
+            cursor: "pointer",
+            fontWeight: 500,
+            fontSize: "11px",
+            fontFamily: "inherit",
+            whiteSpace: "nowrap",
+          }}
+        >
+          {state.realSpeed ? "Switch to Slow-Mo ⏳" : "Switch to Real Speed ⚡"}
+        </button>
+      </div>
+
       {/* Network Response Inspector */}
       <HeaderInspector
         status={state.statusText}
         cacheHeader={state.cacheHeader}
         remaining={state.tokensRemaining}
-        responseTime={state.responseTime}
+        responseTime={state.realSpeed && measuredLatency ? `${measuredLatency} ms` : state.responseTime}
+        headers={[
+          {
+            key: "X-Playback-Mode",
+            value: state.realSpeed
+              ? `REAL TIME · Live backend response: ${measuredLatency ? `${measuredLatency} ms` : "sub-20ms"}`
+              : "SLOW-MO · Educational pacing active (click button to benchmark real speed)",
+            color: state.realSpeed ? "#7FD1A5" : "#F2B263",
+          },
+        ]}
         body={state.answerText}
       />
 

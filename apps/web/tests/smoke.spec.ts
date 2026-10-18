@@ -95,7 +95,7 @@ test.describe("Portfolio Site Smoke Tests", () => {
     await expect(page).toHaveTitle(/Let’s talk/);
 
     // Verify 3 path cards
-    await expect(page.locator("text=“We’re hiring.”")).toBeVisible();
+    await expect(page.locator("text=“Considering me for a role?”")).toBeVisible();
     await expect(page.locator("text=“We need something built.”")).toBeVisible();
     await expect(page.locator("text=“Just saying hi.”")).toBeVisible();
 

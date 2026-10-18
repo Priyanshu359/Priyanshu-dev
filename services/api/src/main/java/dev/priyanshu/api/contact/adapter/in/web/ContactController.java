@@ -41,7 +41,7 @@ public class ContactController {
             "description", "Submit a freelance inquiry, hiring request, or direct engineering message straight from terminal.",
             "allowedTypes", Map.of(
                 "recruiter", "Include details: { \"company\": \"...\", \"role\": \"...\" }",
-                "client", "Include details: { \"projectType\": \"Full app|Backend|AI\", \"timeline\": \"Under a month|1-3 months|Flexible\" }",
+                "client", "Include details: { \"projectType\": \"AI Agents|Full app|Backend|AI\", \"timeline\": \"Under a month|1-3 months|Flexible\" }",
                 "student", "Include details: { \"stage\": \"Student|Working dev\", \"topic\": \"Backend chat|What I'm building\" }"
             ),
             "curlExample", """

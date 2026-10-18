@@ -37,8 +37,43 @@ public class AskPipelineService {
     private final LlmGatewayService llmGatewayService;
     private final UsageEventOutboxPort usageEventOutboxPort;
 
-    // Rate limiter for /ask (5 tokens per IP, 1 refill / 3s)
-    private final ConcurrentHashMap<String, AtomicInteger> ipBuckets = new ConcurrentHashMap<>();
+    // Rate limiter for /ask (capacity 5 tokens per IP, 1 refill / 3s)
+    private final ConcurrentHashMap<String, TokenBucket> ipBuckets = new ConcurrentHashMap<>();
+
+    public static class TokenBucket {
+        private final int capacity;
+        private final double refillTokensPerSecond;
+        private double tokens;
+        private long lastRefillTimeMs;
+
+        public TokenBucket(int capacity, double refillTokensPerSecond) {
+            this.capacity = capacity;
+            this.refillTokensPerSecond = refillTokensPerSecond;
+            this.tokens = capacity;
+            this.lastRefillTimeMs = System.currentTimeMillis();
+        }
+
+        public synchronized boolean tryAcquire() {
+            refill();
+            if (tokens >= 1.0) {
+                tokens -= 1.0;
+                return true;
+            }
+            return false;
+        }
+
+        public synchronized int getRemaining() {
+            refill();
+            return (int) Math.floor(tokens);
+        }
+
+        private void refill() {
+            long now = System.currentTimeMillis();
+            double elapsedSec = Math.max(0, (now - lastRefillTimeMs) / 1000.0);
+            tokens = Math.min(capacity, tokens + elapsedSec * refillTokensPerSecond);
+            lastRefillTimeMs = now;
+        }
+    }
 
     public AskPipelineService(
             EmbeddingPort embeddingPort,
@@ -70,12 +105,9 @@ public class AskPipelineService {
         long s1Start = System.currentTimeMillis();
         emitter.accept(StageEvent.started(1, "gateway", List.of("client", "gateway", "limiter")));
 
-        AtomicInteger bucket = ipBuckets.computeIfAbsent(clientIp, k -> new AtomicInteger(5));
-        int tokensLeft = bucket.get();
-        boolean allowed = tokensLeft > 0;
-        if (allowed) {
-            tokensLeft = bucket.decrementAndGet();
-        }
+        TokenBucket bucket = ipBuckets.computeIfAbsent(clientIp, k -> new TokenBucket(5, 1.0 / 3.0));
+        boolean allowed = bucket.tryAcquire();
+        int tokensLeft = bucket.getRemaining();
 
         long s1Duration = Math.max(1, System.currentTimeMillis() - s1Start);
         Map<String, Object> s1Data = Map.of(

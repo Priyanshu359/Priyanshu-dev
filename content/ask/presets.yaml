@@ -1,7 +1,7 @@
 presets:
   - id: "work"
     question: "What does Priyanshu work on?"
-    answer: "Priyanshu is a backend engineer at StudyIQ. He owns 20+ Java/Spring Boot microservices and works on caching, Kafka pipelines and production reliability for high-traffic exam platforms."
+    answer: "Priyanshu is a backend engineer at StudyIQ. He is responsible for maintaining and operating 20+ Java/Spring Boot microservices within a 35+ services infrastructure and works on caching, Kafka pipelines and production reliability for high-traffic exam platforms."
   - id: "traffic"
     question: "How does he handle traffic spikes?"
     answer: "Redis caching on read-heavy paths, Kafka for async work, connection-pool tuning and Kubernetes autoscaling. You can try the same patterns live in the Lab."

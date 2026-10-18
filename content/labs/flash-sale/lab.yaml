@@ -1,0 +1,16 @@
+id: "flash-sale"
+number: "04"
+title: "Flash sale without overselling"
+tagline: "Hundreds of buyers, ten items, one distributed lock."
+status: "soon"
+order: 4
+kicker: "Lab / 04 · Flash sale"
+headline: "Hundreds of buyers, ten items, one distributed lock."
+intro: "How distributed locks and atomic inventory decrements prevent overselling under high concurrency."
+navigation:
+  prev:
+    label: "← 03 Caching"
+    href: "/lab/caching"
+  next:
+    label: "Next: 05 Idempotent payments →"
+    href: "/lab/idempotent-payments"

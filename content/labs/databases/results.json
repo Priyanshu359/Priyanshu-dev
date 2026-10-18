@@ -1,0 +1,63 @@
+{
+  "labId": "databases",
+  "testedAt": "2026-10-18T12:00:00Z",
+  "tool": "k6 v0.50.0",
+  "tableSize": "1,000,000 rows",
+  "indexes": {
+    "none": {
+      "strategy": "No index",
+      "p50DurationMs": 412.4,
+      "p95DurationMs": 428.1,
+      "rowsScanned": 1000000,
+      "planNode": "Seq Scan"
+    },
+    "single": {
+      "strategy": "Single index (user_id)",
+      "p50DurationMs": 5.8,
+      "p95DurationMs": 6.4,
+      "rowsScanned": 1180,
+      "planNode": "Index Scan"
+    },
+    "composite": {
+      "strategy": "Composite index (user_id, created_at DESC)",
+      "p50DurationMs": 0.08,
+      "p95DurationMs": 0.12,
+      "rowsScanned": 20,
+      "planNode": "Index Scan"
+    }
+  },
+  "nPlusOne": {
+    "naive": {
+      "mode": "Lazy loading (naive)",
+      "queryCount": 51,
+      "durationMs": 42.6,
+      "p95DurationMs": 48.2
+    },
+    "fetch": {
+      "mode": "JOIN FETCH",
+      "queryCount": 1,
+      "durationMs": 3.8,
+      "p95DurationMs": 4.5
+    }
+  },
+  "concurrency": {
+    "naive": {
+      "strategy": "No lock",
+      "lostUpdateRate": "100%",
+      "finalBalance": "₹300",
+      "correct": false
+    },
+    "pessimisticLock": {
+      "strategy": "SELECT ... FOR UPDATE",
+      "lostUpdateRate": "0%",
+      "finalBalance": "₹300",
+      "correct": true
+    },
+    "optimisticLock": {
+      "strategy": "Optimistic (@Version)",
+      "lostUpdateRate": "0%",
+      "finalBalance": "₹300",
+      "correct": true
+    }
+  }
+}

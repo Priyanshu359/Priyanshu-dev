@@ -1,0 +1,165 @@
+id: "databases"
+number: "02"
+title: "Databases"
+tagline: "Query plans and indexes, the N+1 problem, and a race condition that pays out twice."
+status: "live"
+order: 2
+kicker: "Lab / 02 · Databases"
+headline: "Most “slow APIs” are really slow queries."
+intro: "Three experiments on things I’ve fixed in production: a missing index, the N+1 problem, and a race condition that pays out money twice. Run each one and read the database’s side of the story."
+note: "Numbers here are illustrative, from a 1M-row test table. On the live site they come from real EXPLAIN ANALYZE runs against Postgres."
+experiments:
+  indexes:
+    kicker: "EXPERIMENT 01 · INDEXES & QUERY PLANS"
+    title: "“Show me a user’s last 20 orders”"
+    query: |
+      SELECT * FROM orders
+      WHERE user_id = 4821 AND created_at > now() - interval '30 days'
+      ORDER BY created_at DESC LIMIT 20;
+    options:
+      - id: "none"
+        label: "No index"
+        ddl: "-- no index on orders(user_id, created_at)"
+        rows: "1,000,000"
+        time: "~418 ms"
+        bar: "100%"
+        badLevel: 2
+        plan: |
+          Limit  (actual time=418.2..418.3 rows=20)
+            ->  Sort  (sort key: created_at DESC)
+                  ->  Seq Scan on orders
+                        Filter: user_id = 4821 AND created_at > ...
+                        Rows Removed by Filter: 999,972
+      - id: "single"
+        label: "Index on user_id"
+        ddl: "CREATE INDEX idx_orders_user ON orders (user_id);"
+        rows: "1,180"
+        time: "~6 ms"
+        bar: "42%"
+        badLevel: 1
+        plan: |
+          Limit  (actual time=5.9..6.1 rows=20)
+            ->  Sort  (sort key: created_at DESC)
+                  ->  Index Scan using idx_orders_user on orders
+                        Index Cond: user_id = 4821
+                        Filter: created_at > ...  (1,160 rows removed)
+      - id: "composite"
+        label: "Composite (user_id, created_at)"
+        ddl: "CREATE INDEX idx_orders_user_created ON orders (user_id, created_at DESC);"
+        rows: "20"
+        time: "~0.1 ms"
+        bar: "5%"
+        badLevel: 0
+        plan: |
+          Limit  (actual time=0.04..0.09 rows=20)
+            ->  Index Scan using idx_orders_user_created on orders
+                  Index Cond: user_id = 4821 AND created_at > ...
+                  -- already in order: no sort, stops after 20 rows
+  n1:
+    kicker: "EXPERIMENT 02 · THE N+1 PROBLEM"
+    title: "GET /api/courses — 50 courses, each with its instructor"
+    buttonLabel: "Call the endpoint"
+    options:
+      - id: "naive"
+        label: "Lazy loading (naive)"
+        code: |
+          courseRepo.findAll()
+            .forEach(c -> c.getInstructor()
+                           .getName());
+        queryCount: 51
+      - id: "fetch"
+        label: "JOIN FETCH"
+        code: |
+          @Query("select c from Course c
+                  join fetch c.instructor")
+          List<Course> findAllWithInstructor();
+        queryCount: 1
+  transactions:
+    kicker: "EXPERIMENT 03 · TRANSACTIONS & LOCKING"
+    title: "Two ₹700 withdrawals hit a ₹1,000 wallet at the same moment"
+    buttonLabel: "Fire both requests"
+    initialBalance: "₹1,000"
+    options:
+      - id: "naive"
+        label: "Read, then write (no lock)"
+        code: |
+          Wallet w = repo.findById(id);
+          if (w.balance >= 700) {
+            w.balance -= 700;
+            repo.save(w);
+          }
+        steps:
+          - who: "T1"
+            text: "SELECT balance → ₹1,000"
+          - who: "T2"
+            text: "SELECT balance → ₹1,000"
+          - who: "T1"
+            text: "check ok · UPDATE balance = ₹300"
+          - who: "T2"
+            text: "check ok · UPDATE balance = ₹300"
+          - who: "T1"
+            text: "COMMIT · pays ₹700"
+          - who: "T2"
+            text: "COMMIT · pays ₹700"
+        balance: "₹300"
+        ok: false
+        result: "Lost update: ₹1,400 paid out of a ₹1,000 wallet."
+      - id: "lock"
+        label: "SELECT … FOR UPDATE"
+        code: |
+          @Transactional
+          @Lock(PESSIMISTIC_WRITE)
+          Wallet w = repo.findByIdForUpdate(id);
+          // T2 waits here until T1 commits
+        steps:
+          - who: "T1"
+            text: "SELECT … FOR UPDATE → ₹1,000 (row locked)"
+          - who: "T2"
+            text: "SELECT … FOR UPDATE → waiting for lock…"
+          - who: "T1"
+            text: "UPDATE balance = ₹300 · COMMIT · pays ₹700"
+          - who: "T2"
+            text: "lock acquired → reads ₹300"
+          - who: "T2"
+            text: "check fails → ROLLBACK · 409 Insufficient funds"
+        balance: "₹300"
+        ok: true
+        result: "Correct: one succeeds, one is safely rejected."
+      - id: "optimistic"
+        label: "Optimistic (version column)"
+        code: |
+          @Version long version;
+
+          UPDATE wallet SET balance = ?, version = 8
+          WHERE id = ? AND version = 7;
+        steps:
+          - who: "T1"
+            text: "SELECT → ₹1,000 · version 7"
+          - who: "T2"
+            text: "SELECT → ₹1,000 · version 7"
+          - who: "T1"
+            text: "UPDATE … WHERE version = 7 → 1 row · COMMIT"
+          - who: "T2"
+            text: "UPDATE … WHERE version = 7 → 0 rows (stale)"
+          - who: "T2"
+            text: "retry → reads ₹300 · version 8"
+          - who: "T2"
+            text: "check fails → 409 Insufficient funds"
+        balance: "₹300"
+        ok: true
+        result: "Correct, with no locks held — the conflict is detected and retried."
+tradeOffsHeading: "Trade-offs I weigh"
+tradeOffs:
+  - title: "Indexes aren’t free"
+    text: "Every index speeds up reads and slows down writes. I index for the queries that actually run hot, not every column."
+  - title: "Column order matters"
+    text: "(user_id, created_at) serves “a user’s recent orders”. (created_at, user_id) mostly doesn’t. Equality first, then range."
+  - title: "Pessimistic vs optimistic"
+    text: "Row locks are simple when conflicts are common, like a hot wallet. A version column scales better when they’re rare."
+navigation:
+  prev:
+    label: "← 01 Rate limiting"
+    href: "/lab/rate-limiting"
+  next:
+    label: "Next: why backend is the hero of AI →"
+    href: "/ai"

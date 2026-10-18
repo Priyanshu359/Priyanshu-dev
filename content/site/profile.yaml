@@ -1,0 +1,32 @@
+name: "Priyanshu Sinha"
+role: "Backend Engineer (SDE-1)"
+stack:
+  - "Java"
+  - "Spring Boot"
+  - "Kafka"
+  - "Redis"
+openTo: "freelance"
+hireMe: "POST https://api.priyanshu.dev/hire-me"
+company: "StudyIQ"
+location: "Gurugram, India"
+email: "priyanshu.kr.sinha74@gmail.com"
+github: "https://github.com"
+linkedin: "https://linkedin.com"
+resumeUrl: "/resume.pdf"
+microservicesCount: 20
+peakRpm: "100K+"
+cacheHitRate: "92%"
+experienceYears: "1.5+"
+education:
+  institution: "Chandigarh University"
+  degree: "Computer Science"
+  period: "2021–2025"
+  cgpa: "8.02"
+  scholarship: "50% merit scholarship"
+priorExperience:
+  company: "Meditab Software"
+  role: "Backend Intern"
+  location: "Ahmedabad"
+  period: "2025"
+  stack: ["Node.js", "Express", "PostgreSQL", "RabbitMQ"]
+  domain: "U.S. healthcare EHR platform"

@@ -1,0 +1,26 @@
+{
+  "labId": "rate-limiting",
+  "testedAt": "2026-10-18T12:00:00Z",
+  "tool": "k6 v0.50.0",
+  "summary": {
+    "totalRequests": 500,
+    "allowed200": 128,
+    "rateLimited429": 372,
+    "p95DurationMs": 1.2,
+    "p99DurationMs": 2.4,
+    "redisLatencyP95Ms": 0.45,
+    "tokenRefillAccuracy": "99.8%"
+  },
+  "burstTest": {
+    "capacity": 5,
+    "burstSize": 10,
+    "admitted": 5,
+    "rejected": 5,
+    "firstRejectionIndex": 6
+  },
+  "steadyState": {
+    "requestRate": "1 req / 2s",
+    "admitted": 100,
+    "rejected": 0
+  }
+}

@@ -1,0 +1,29 @@
+---
+title: "Production Database Bottlenecks"
+labId: "databases"
+order: 2
+---
+
+## Most "Slow APIs" Are Really Slow Queries
+
+In high-throughput Spring Boot architectures, application code rarely causes latency spikes on its own. Instead, 90% of degraded endpoints trace back to how queries interact with the database engine.
+
+This lab explores three distinct database challenges that frequently arise in production:
+
+### 1. Missing Indexes & Query Plan Analysis
+
+A sequential table scan across 1,000,000 records requires the storage engine to read every data page from disk or buffer cache, evaluate the filter predicate, and sort matching rows. 
+
+With a composite index matching the exact query filter and sort order (`orders(user_id, created_at DESC)`), the database performs a directional B-Tree traversal straight to the target rows and halts immediately once the `LIMIT` is reached.
+
+### 2. The N+1 Query Problem
+
+Object-Relational Mapping (ORM) frameworks like Hibernate make lazy associations deceptively simple. When querying a list of 50 courses, traversing `course.getInstructor()` without an eager join triggers 50 separate SQL queries.
+
+Using `JOIN FETCH` consolidates all entity data into a single round-trip query, eliminating network latency and connection pool pressure.
+
+### 3. Concurrency & Lost Updates
+
+When two threads attempt to decrement a shared balance simultaneously without synchronization, both may read the identical starting balance, compute the new value independently, and overwrite each other's changes.
+
+Pessimistic row locking (`SELECT ... FOR UPDATE`) guarantees serial execution by holding an exclusive lock on the row, while optimistic locking (`@Version`) avoids locks by checking for stale versions at commit time.

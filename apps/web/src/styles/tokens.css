@@ -1,0 +1,244 @@
+/**
+ * AUTO-GENERATED DESIGN TOKENS — DO NOT EDIT DIRECTLY
+ * Generated from tokens.json
+ */
+
+:root {
+  /* Typography - Fonts */
+  --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, Menlo, Monaco, 'Courier New', monospace;
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+
+  /* Typography - Font Sizes */
+  --text-2xs: 10px;
+  --text-xs: 11px;
+  --text-sm: 12px;
+  --text-base: 13px;
+  --text-md: 14px;
+  --text-regular: 15px;
+  --text-body: 16px;
+  --text-lg: 17px;
+  --text-xl: 18px;
+  --text-2xl: 19px;
+  --text-3xl: 20px;
+  --text-4xl: 21px;
+  --text-5xl: 24px;
+  --text-6xl: 28px;
+  --text-7xl: 32px;
+  --text-8xl: 36px;
+  --text-9xl: 40px;
+  --text-10xl: 44px;
+  --text-11xl: 48px;
+  --text-12xl: 52px;
+  --text-13xl: 56px;
+  --text-14xl: 64px;
+  --text-hero: 84px;
+
+  /* Typography - Font Weights */
+  --font-weight-regular: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+
+  /* Typography - Line Heights */
+  --leading-none: 1;
+  --leading-tight: 1.08;
+  --leading-snug: 1.15;
+  --leading-normal: 1.25;
+  --leading-relaxed: 1.6;
+  --leading-loose: 1.7;
+
+  /* Typography - Letter Spacings */
+  --tracking-tighter: -0.035em;
+  --tracking-tight: -0.025em;
+  --tracking-snug: -0.01em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.06em;
+  --tracking-wider: 0.08em;
+
+  /* Spacing */
+  --space-0: 0px;
+  --space-1: 4px;
+  --space-2: 6px;
+  --space-3: 8px;
+  --space-4: 10px;
+  --space-5: 12px;
+  --space-6: 14px;
+  --space-7: 16px;
+  --space-8: 18px;
+  --space-9: 20px;
+  --space-10: 22px;
+  --space-11: 24px;
+  --space-12: 28px;
+  --space-13: 32px;
+  --space-14: 36px;
+  --space-15: 40px;
+  --space-16: 44px;
+  --space-17: 48px;
+  --space-18: 56px;
+  --space-19: 64px;
+  --space-20: 72px;
+  --space-21: 80px;
+  --space-22: 88px;
+  --space-23: 96px;
+  --space-24: 112px;
+  --space-25: 120px;
+  --space-26: 136px;
+
+  /* Radii */
+  --radius-none: 0px;
+  --radius-2xs: 2px;
+  --radius-xs: 4px;
+  --radius-sm: 5px;
+  --radius-md: 6px;
+  --radius-lg: 8px;
+  --radius-xl: 10px;
+  --radius-2xl: 12px;
+  --radius-3xl: 14px;
+  --radius-full: 9999px;
+
+  /* Default theme values (Light - Ink & Blue) */
+  --color-bg: #FBFBFA;
+  --color-surface: #FFFFFF;
+  --color-tint: #F4F4F2;
+  --color-text: #111418;
+  --color-body: #3A3F47;
+  --color-muted: #4A5059;
+  --color-border: #E6E6E3;
+  --color-border2: #D4D4D0;
+  --color-accent: #1F4FD1;
+  --color-btnBg: #111418;
+  --color-btnText: #FFFFFF;
+  --color-accentBtnText: #FFFFFF;
+  --color-green: #0F6B52;
+  --color-dot: #0F6B52;
+  --color-ok: #0F6B52;
+  --color-okBorder: #0F6B52;
+  --color-blocked: #B4400E;
+  --color-blockedBg: #FBEFE9;
+  --color-doneBg: #EEF6F2;
+  --color-activeBg: #EEF2FD;
+  --color-skipBg: #F4F4F2;
+  --color-skipBorder: #B9B9B4;
+  --color-term: #111418;
+  --color-termBg: #111418;
+  --color-foot: #111418;
+  --color-footText: #FFFFFF;
+  --color-footMuted: #A9AEB6;
+  --color-footBorder: #5B616B;
+  --color-footBtnBg: #FFFFFF;
+  --color-footBtnText: #111418;
+  --color-warm: #8A4B0F;
+  --color-warmBg: #FBF6EE;
+  --color-warmBorder: #EADFCD;
+  --color-warmBtnText: #FFFFFF;
+  --color-segOn: #FFFFFF;
+  --color-shadow: 0 1px 2px rgba(17, 20, 24, 0.12);
+}
+
+[data-theme="light"] {
+  --color-bg: #FBFBFA;
+  --color-surface: #FFFFFF;
+  --color-tint: #F4F4F2;
+  --color-text: #111418;
+  --color-body: #3A3F47;
+  --color-muted: #4A5059;
+  --color-border: #E6E6E3;
+  --color-border2: #D4D4D0;
+  --color-accent: #1F4FD1;
+  --color-btnBg: #111418;
+  --color-btnText: #FFFFFF;
+  --color-accentBtnText: #FFFFFF;
+  --color-green: #0F6B52;
+  --color-dot: #0F6B52;
+  --color-ok: #0F6B52;
+  --color-okBorder: #0F6B52;
+  --color-blocked: #B4400E;
+  --color-blockedBg: #FBEFE9;
+  --color-doneBg: #EEF6F2;
+  --color-activeBg: #EEF2FD;
+  --color-skipBg: #F4F4F2;
+  --color-skipBorder: #B9B9B4;
+  --color-term: #111418;
+  --color-termBg: #111418;
+  --color-foot: #111418;
+  --color-footText: #FFFFFF;
+  --color-footMuted: #A9AEB6;
+  --color-footBorder: #5B616B;
+  --color-footBtnBg: #FFFFFF;
+  --color-footBtnText: #111418;
+  --color-warm: #8A4B0F;
+  --color-warmBg: #FBF6EE;
+  --color-warmBorder: #EADFCD;
+  --color-warmBtnText: #FFFFFF;
+  --color-segOn: #FFFFFF;
+  --color-shadow: 0 1px 2px rgba(17, 20, 24, 0.12);
+}
+
+[data-theme="dark"] {
+  --color-bg: #0B0D10;
+  --color-surface: #14171C;
+  --color-tint: #101318;
+  --color-text: #E8EAED;
+  --color-body: #C9CDD3;
+  --color-muted: #A3A9B3;
+  --color-border: #262B33;
+  --color-border2: #3A404A;
+  --color-accent: #7AA2FF;
+  --color-btnBg: #E8EAED;
+  --color-btnText: #0B0D10;
+  --color-accentBtnText: #0B0D10;
+  --color-green: #5FD39B;
+  --color-dot: #5FD39B;
+  --color-ok: #5FD39B;
+  --color-okBorder: #2F6B50;
+  --color-blocked: #FF9A7A;
+  --color-blockedBg: #2E1A14;
+  --color-doneBg: #12261D;
+  --color-activeBg: #18213A;
+  --color-skipBg: #191C21;
+  --color-skipBorder: #3A404A;
+  --color-term: #05070A;
+  --color-termBg: #05070A;
+  --color-foot: #05070A;
+  --color-footText: #E8EAED;
+  --color-footMuted: #A3A9B3;
+  --color-footBorder: #3A404A;
+  --color-footBtnBg: #E8EAED;
+  --color-footBtnText: #0B0D10;
+  --color-warm: #E3A867;
+  --color-warmBg: #17130E;
+  --color-warmBorder: #3A2F22;
+  --color-warmBtnText: #0B0D10;
+  --color-segOn: #262B33;
+  --color-shadow: none;
+}
+
+[data-theme="journey"] {
+  --color-bg: #F6F1E9;
+  --color-surface: #FAF6F0;
+  --color-text: #2A2420;
+  --color-body: #5A4F46;
+  --color-muted: #6B5F55;
+  --color-border: #E2D9CB;
+  --color-border2: #D3C8B7;
+  --color-accent: #8A3B1F;
+  --color-btnBg: #2A2420;
+  --color-btnText: #FFFFFF;
+  --color-ch1Bg: #E8EEF2;
+  --color-ch1Photo: #CFDAE2;
+  --color-ch1Text: #3E4C57;
+  --color-ch2Bg: #F3E6C8;
+  --color-ch2Photo: #E6D3A6;
+  --color-ch2Text: #6B4E12;
+  --color-ch3Bg: #DDEBDF;
+  --color-ch3Photo: #C3D9C7;
+  --color-ch3Text: #2F5238;
+  --color-ch4Bg: #2F2A33;
+  --color-ch4Text: #F1ECE6;
+  --color-ch4Sub: #C9BFD2;
+  --color-ch4Body: #E3DCE8;
+  --color-ch5Bg: #E3E7F3;
+  --color-ch5Photo: #C9D0E6;
+  --color-ch5Text: #2E3A63;
+}

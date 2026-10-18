@@ -1,0 +1,25 @@
+---
+title: "Rate Limiting in Production"
+labId: "rate-limiting"
+order: 1
+---
+
+## Why Rate Limiting Matters
+
+A rate limiter decides, in under a millisecond, whether a request gets through. Without one, a single misconfigured client script or a coordinated spike can exhaust your database connection pool, overwhelm downstream microservices, or run up thousands of dollars in LLM API bills.
+
+In our production architecture at StudyIQ, rate limiting operates as an early filter in the request lifecycle before requests ever hit business controllers or database transactions.
+
+### Token Bucket Mechanics
+
+The token bucket algorithm gives each user a bucket of tokens with a fixed capacity (for instance, 5 tokens). Every incoming request costs one token:
+
+1. **If tokens are available**: The counter decrements by 1 and the request proceeds immediately with HTTP `200 OK`.
+2. **If the bucket is empty**: The request is rejected immediately with HTTP `429 Too Many Requests` and a `Retry-After` header.
+3. **Refill**: Tokens refill at a steady interval (for example, 1 token every 2 seconds) up to the maximum capacity.
+
+### Atomic Execution with Redis Lua
+
+In a distributed environment with multiple Spring Boot application nodes, keeping the token count in local application memory would allow users to multiply their rate limit by the number of servers.
+
+Instead, we maintain state in Redis and execute the check-and-decrement logic inside an atomic Lua script. Because Redis executes Lua scripts as a single atomic unit, race conditions between concurrent requests from the same user are eliminated entirely.

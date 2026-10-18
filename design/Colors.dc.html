@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Color options — homepage first screen</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+</style>
+</helmet>
+<div style="width: 1440px; height: 760px; box-sizing: border-box; padding: 48px; background: #EDEDEA; font-family: 'IBM Plex Sans', 'Helvetica Neue', sans-serif; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px">
+<sc-for list="{{palettes}}" as="p" hint-placeholder-count="2">
+<div style="display: flex; flex-direction: column; gap: 12px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+<div style="font-size: 18px; font-weight: 600; color: #111418">{{p.label}}</div>
+<div style="display: flex; gap: 6px">
+<span style="width: 22px; height: 22px; border-radius: 4px; border: 1px solid #C9C9C4; background: {{p.bg}}"></span>
+<span style="width: 22px; height: 22px; border-radius: 4px; border: 1px solid #C9C9C4; background: {{p.text}}"></span>
+<span style="width: 22px; height: 22px; border-radius: 4px; border: 1px solid #C9C9C4; background: {{p.accent}}"></span>
+</div>
+</div>
+<div style="flex: 1; border-radius: 10px; overflow: hidden; background: {{p.bg}}; color: {{p.text}}; border: 1px solid {{p.border}}; display: flex; flex-direction: column">
+<div style="display: flex; justify-content: space-between; align-items: center; padding: 16px 28px; border-bottom: 1px solid {{p.border}}; font-size: 13px">
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 500">priyanshu.dev</span>
+<span style="display: flex; gap: 16px; align-items: center"><span>Lab</span><span>AI</span><span>Journey</span><span style="background: {{p.btnBg}}; color: {{p.btnText}}; padding: 6px 10px; border-radius: 5px; font-weight: 500">Let’s talk</span></span>
+</div>
+<div style="padding: 36px 28px 24px; display: flex; flex-direction: column; gap: 12px">
+<div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{p.accent}}">Hi, I’m</div>
+<div style="font-size: 42px; line-height: 1; font-weight: 600; letter-spacing: -0.03em">Priyanshu Sinha.</div>
+<div style="font-size: 21px; line-height: 1.25; font-weight: 500; color: {{p.muted}}">I build the backends that keep products fast — and the AI that runs on top of them.</div>
+<div style="display: flex; gap: 24px; padding: 12px 0; border-top: 1px solid {{p.border}}; border-bottom: 1px solid {{p.border}}; font-size: 12px; margin-top: 6px">
+<div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 10px; color: {{p.muted}}">NOW</div><div style="font-weight: 500">SDE-1 · StudyIQ</div></div>
+<div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 10px; color: {{p.muted}}">FOCUS</div><div style="font-weight: 500">Systems + AI</div></div>
+<div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 10px; color: {{p.muted}}">OPEN TO</div><div style="font-weight: 500; display: flex; align-items: center; gap: 6px"><span style="width: 7px; height: 7px; border-radius: 50%; background: {{p.dot}}; display: inline-block"></span>Freelance</div></div>
+</div>
+<div style="display: flex; gap: 8px; font-size: 13px; margin-top: 4px">
+<span style="background: {{p.btnBg}}; color: {{p.btnText}}; padding: 9px 14px; border-radius: 5px; font-weight: 500">See my backend in action ↓</span>
+<span style="border: 1px solid {{p.border}}; padding: 9px 14px; border-radius: 5px; font-weight: 500">Work with me</span>
+</div>
+</div>
+<div style="margin-top: auto; background: {{p.surface}}; border-top: 1px solid {{p.border}}; padding: 18px 28px; display: flex; flex-direction: column; gap: 10px">
+<div style="display: flex; gap: 6px; font-size: 11px">
+<span style="flex: 1; border: 1px solid {{p.okBorder}}; border-radius: 5px; padding: 6px; color: {{p.ok}}; font-family: 'IBM Plex Mono', ui-monospace, monospace">gateway ✓</span>
+<span style="flex: 1; border: 1px solid {{p.okBorder}}; border-radius: 5px; padding: 6px; color: {{p.ok}}; font-family: 'IBM Plex Mono', ui-monospace, monospace">cache HIT</span>
+<span style="flex: 1; border: 2px solid {{p.accent}}; border-radius: 5px; padding: 6px; color: {{p.accent}}; font-family: 'IBM Plex Mono', ui-monospace, monospace">LLM…</span>
+<span style="flex: 1; border: 1px solid {{p.border}}; border-radius: 5px; padding: 6px; color: {{p.muted}}; font-family: 'IBM Plex Mono', ui-monospace, monospace">stream</span>
+</div>
+<div style="background: {{p.termBg}}; color: #E8EAED; border-radius: 6px; padding: 10px 12px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px">HTTP/1.1 <span style="color: #7FD1A5">200 OK</span> · X-Cache: <span style="color: #8FB4FF">HIT</span> · 6 ms</div>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1440,"height":760}}'>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      palettes: [
+        { label: 'Light · Ink & Blue', bg: '#FBFBFA', surface: '#FFFFFF', text: '#111418', muted: '#4A5059', border: '#E3E3DF', accent: '#1F4FD1', btnBg: '#111418', btnText: '#FFFFFF', dot: '#0F6B52', ok: '#0F6B52', okBorder: '#0F6B52', termBg: '#111418' },
+        { label: 'Dark · Midnight', bg: '#0B0D10', surface: '#14171C', text: '#E8EAED', muted: '#A3A9B3', border: '#262B33', accent: '#7AA2FF', btnBg: '#E8EAED', btnText: '#0B0D10', dot: '#5FD39B', ok: '#5FD39B', okBorder: '#2F6B50', termBg: '#05070A' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

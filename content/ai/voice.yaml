@@ -1,0 +1,22 @@
+kicker: "Built in production"
+title: "Voice agents: same story, tighter deadline"
+subtitle: "I’ve built an ASR → LLM → TTS pipeline to automate support calls. In voice, every stage has to stream into the next — silence on a phone call feels like a bug."
+stages:
+  - id: "listen"
+    badge: "1 · LISTEN"
+    title: "Speech → text"
+    description: "Stream audio, detect end of turn"
+  - id: "think"
+    badge: "2 · THINK"
+    title: "LLM + context"
+    description: "Account lookup, intent, answer"
+    highlight: true
+  - id: "speak"
+    badge: "3 · SPEAK"
+    title: "Text → speech"
+    description: "Speak the first sentence early"
+  - id: "escape"
+    badge: "ESCAPE HATCH"
+    title: "Hand off to a human"
+    description: "Low confidence or frustrated caller"
+    isEscapeHatch: true

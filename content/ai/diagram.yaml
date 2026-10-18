@@ -1,0 +1,105 @@
+title: "16-Box AI Platform Architecture"
+totalBoxes: 16
+modelBoxes: 1
+backendBoxes: 15
+lanes:
+  - id: "request-path"
+    label: "REQUEST PATH"
+    rows:
+      - id: "row-1"
+        arrow: true
+        nodes:
+          - id: "client"
+            label: "Client"
+            sub: "browser / app"
+            lane: "request"
+      - id: "row-2"
+        arrow: true
+        nodes:
+          - id: "gateway"
+            label: "API gateway"
+            sub: "auth, routing"
+            lane: "request"
+          - id: "limiter"
+            label: "Rate limiter"
+            sub: "token budget · Redis"
+            lane: "request"
+      - id: "row-3"
+        arrow: true
+        nodes:
+          - id: "cache"
+            label: "Semantic cache"
+            sub: "Redis"
+            lane: "request"
+          - id: "orch"
+            label: "Orchestrator"
+            sub: "Spring Boot"
+            lane: "request"
+      - id: "row-4"
+        arrow: true
+        nodes:
+          - id: "pg"
+            label: "Postgres"
+            sub: "sessions, users"
+            lane: "request"
+          - id: "vector"
+            label: "Vector DB"
+            sub: "pgvector"
+            lane: "request"
+      - id: "row-5"
+        arrow: true
+        nodes:
+          - id: "llmgw"
+            label: "LLM gateway"
+            sub: "retry · breaker · fallback"
+            lane: "request"
+          - id: "model"
+            label: "Model"
+            sub: "the AI"
+            lane: "model"
+            isModel: true
+      - id: "row-6"
+        arrow: false
+        nodes:
+          - id: "sse"
+            label: "Stream"
+            sub: "SSE to client"
+            lane: "request"
+
+  - id: "async"
+    label: "ASYNC · AFTER THE RESPONSE"
+    rows:
+      - id: "row-7"
+        arrow: false
+        nodes:
+          - id: "kafka"
+            label: "Queue"
+            sub: "Kafka"
+            lane: "async"
+          - id: "usage"
+            label: "Usage & cost"
+            sub: "per feature"
+            lane: "async"
+          - id: "evals"
+            label: "Feedback"
+            sub: "evals"
+            lane: "async"
+
+  - id: "ingestion"
+    label: "INGESTION · OFFLINE"
+    rows:
+      - id: "row-8"
+        arrow: false
+        nodes:
+          - id: "docs"
+            label: "New docs"
+            sub: "uploads, CMS"
+            lane: "ingestion"
+          - id: "workers"
+            label: "Embed workers"
+            sub: "chunk + embed"
+            lane: "ingestion"
+          - id: "vector2"
+            label: "→ Vector DB"
+            sub: "idempotent upsert"
+            lane: "ingestion"

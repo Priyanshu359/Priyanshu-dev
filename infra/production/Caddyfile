@@ -1,0 +1,31 @@
+{
+    email {$ACME_EMAIL:priyanshu.kr.sinha74@gmail.com}
+}
+
+api.{$DOMAIN:priyanshu.dev} {
+    # Reverse proxy to the Spring Boot API container
+    reverse_proxy api:8080 {
+        header_up Host {host}
+        header_up X-Real-IP {header.CF-Connecting-IP}
+        header_up X-Forwarded-For {header.CF-Connecting-IP}
+        header_up X-Forwarded-Proto https
+    }
+
+    # Strict transport security and security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "DENY"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Request body size limit: 1MB
+    request_body {
+        max_size 1MB
+    }
+
+    log {
+        output stdout
+        format console
+    }
+}

@@ -1,0 +1,101 @@
+server:
+  port: ${SERVER_PORT:8080}
+  tomcat:
+    max-http-form-post-size: 1MB
+    max-swallow-size: 2MB
+
+spring:
+  application:
+    name: priyanshu-api
+  servlet:
+    multipart:
+      max-file-size: 1MB
+      max-request-size: 1MB
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://${POSTGRES_HOST:localhost}:${POSTGRES_PORT:5432}/${POSTGRES_DB:postgres}?sslmode=prefer}
+    username: ${POSTGRES_USER:postgres}
+    password: ${POSTGRES_PASSWORD:postgres}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      maximum-pool-size: ${HIKARI_MAX_POOL_SIZE:5}
+      minimum-idle: ${HIKARI_MIN_IDLE:0}
+      initialization-fail-timeout: -1
+      idle-timeout: 300000
+      max-lifetime: 600000
+      connection-timeout: 20000
+
+  flyway:
+    enabled: ${FLYWAY_ENABLED:true}
+    schemas: app,lab
+    default-schema: app
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      timeout: 2000ms
+
+  mail:
+    host: ${SMTP_HOST:localhost}
+    port: ${SMTP_PORT:587}
+    username: ${SMTP_USER:}
+    password: ${SMTP_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: false
+          starttls:
+            enable: false
+
+priyanshu:
+  cors:
+    allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:3001,https://priyanshu.dev,https://www.priyanshu.dev}
+  
+  rate-limit:
+    global:
+      capacity: ${RATE_LIMIT_GLOBAL_CAPACITY:60}
+      refill-tokens: ${RATE_LIMIT_GLOBAL_REFILL:60}
+      refill-period-seconds: ${RATE_LIMIT_GLOBAL_PERIOD:60}
+    contact:
+      hourly-ip-limit: ${RATE_LIMIT_CONTACT_IP_HOURLY:3}
+  
+  turnstile:
+    secret-key: ${TURNSTILE_SECRET_KEY:}
+  
+  outbox:
+    stream-name: "app:events"
+    polling-interval-ms: 1000
+    batch-size: 50
+  
+  notification:
+    to-email: ${CONTACT_TO_EMAIL:priyanshu.kr.sinha74@gmail.com}
+    from-email: ${CONTACT_FROM_EMAIL:noreply@priyanshu.dev}
+    log-only: ${NOTIFICATION_LOG_ONLY:true}
+
+  lab:
+    seed:
+      enabled: ${LAB_SEED_ENABLED:false}
+      orders-count: ${LAB_SEED_ORDERS_COUNT:200000}
+
+  ask:
+    semantic-cache:
+      threshold: ${SEMANTIC_CACHE_THRESHOLD:0.90}
+    retrieval:
+      top-k: 3
+    gateway:
+      timeout-ms: 3000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+      probes:
+        enabled: true

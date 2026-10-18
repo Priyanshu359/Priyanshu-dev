@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Priyanshu Sinha — Home</title>
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&amp;family=IBM+Plex+Sans:wght@400;500;600&amp;display=swap">
+<style>
+body{margin:0}
+a:hover{opacity:0.75}
+</style>
+</helmet>
+<div style="background: {{t.bg}}; color: {{t.text}}; font-family: 'IBM Plex Sans', 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 1.6; transition: background 0.25s, color 0.25s">
+
+<header style="border-bottom: 1px solid {{t.border}}">
+<nav aria-label="Main" style="max-width: 1120px; margin: 0 auto; padding: 0 24px; min-height: 72px; display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 16px; flex-wrap: wrap">
+<a href="Main.dc.html" style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-weight: 500; font-size: 15px; text-decoration: none; color: {{t.text}}">priyanshu.dev</a>
+<button type="button" onClick="{{toggleTheme}}" aria-label="{{toggleLabel}}" title="{{toggleLabel}}" style="width: 44px; height: 44px; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 50%; cursor: pointer; background: transparent; color: {{t.text}}; border: 1px solid {{t.border2}}">
+<sc-if value="{{isDark}}" hint-placeholder-val="{{ false }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"></path></svg>
+</sc-if>
+<sc-if value="{{isLight}}" hint-placeholder-val="{{ true }}">
+<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"></path></svg>
+</sc-if>
+</button>
+</div>
+<div style="display: flex; align-items: center; gap: 24px; flex-wrap: wrap; font-size: 15px">
+<a href="RateLimiter.dc.html" style="text-decoration: none; color: {{t.text}}">Lab</a>
+<a href="AI.dc.html" style="text-decoration: none; color: {{t.text}}">AI</a>
+<a href="Journey.dc.html" style="text-decoration: none; color: {{t.text}}">Journey</a>
+<a href="Hire.dc.html" style="text-decoration: none; background: {{t.btnBg}}; color: {{t.btnText}}; padding: 10px 16px; border-radius: 6px; font-weight: 500">Let’s talk</a>
+</div>
+</nav>
+</header>
+
+<section aria-label="Introduction" style="max-width: 1120px; margin: 0 auto; padding: 136px 24px 112px; display: flex; flex-direction: column; gap: 28px">
+<p style="margin: 0; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 16px; color: {{t.accent}}">Hi, I’m</p>
+<h1 style="margin: 0; font-size: 84px; line-height: 1; font-weight: 600; letter-spacing: -0.035em">Priyanshu Sinha.</h1>
+<p style="margin: 0; font-size: 44px; line-height: 1.15; font-weight: 500; letter-spacing: -0.02em; color: {{t.muted}}; max-width: 900px">I build the backends that keep products fast — and the AI that runs on top of them.</p>
+<p style="margin: 0; font-size: 19px; color: {{t.body}}; max-width: 640px">Backend engineer at StudyIQ, where I own 20+ Java/Spring Boot microservices serving traffic peaks of 100K+ requests a minute. Outside work, I build web, mobile and backend products for clients.</p>
+<div style="display: flex; flex-wrap: wrap; gap: 12px 40px; padding: 20px 0; border-top: 1px solid {{t.border}}; border-bottom: 1px solid {{t.border}}; font-size: 15px; max-width: 900px">
+<div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; color: {{t.muted}}">NOW</div><div style="font-weight: 500">SDE-1 Backend · StudyIQ</div></div>
+<div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; color: {{t.muted}}">BASED IN</div><div style="font-weight: 500">Gurugram, India</div></div>
+<div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; color: {{t.muted}}">FOCUS</div><div style="font-weight: 500">Distributed systems + AI</div></div>
+<div><div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; color: {{t.muted}}">OPEN TO</div><div style="font-weight: 500; display: flex; align-items: center; gap: 8px"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{t.green}}; display: inline-block"></span>Freelance projects</div></div>
+</div>
+<div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center">
+<a href="#demo" style="background: {{t.btnBg}}; color: {{t.btnText}}; text-decoration: none; padding: 14px 22px; border-radius: 6px; font-weight: 500">See my backend in action ↓</a>
+<a href="Hire.dc.html" style="text-decoration: none; padding: 14px 22px; border-radius: 6px; font-weight: 500; border: 1px solid {{t.border2}}; color: {{t.text}}">Work with me</a>
+<a href="#" style="padding: 14px 10px; font-weight: 500; color: {{t.text}}">GitHub</a>
+<a href="#" style="padding: 14px 10px; font-weight: 500; color: {{t.text}}">LinkedIn</a>
+<a href="#" style="padding: 14px 10px; font-weight: 500; color: {{t.text}}">Résumé</a>
+</div>
+</section>
+
+<section style="border-top: 1px solid {{t.border}}; background: {{t.tint}}">
+<div style="max-width: 1120px; margin: 0 auto; padding: 88px 24px 32px">
+<p style="margin: 0 0 16px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px; color: {{t.muted}}">Backend + AI, live</p>
+<h2 style="margin: 0; font-size: 44px; line-height: 1.1; font-weight: 600; letter-spacing: -0.02em; max-width: 860px">Ask me anything. Then watch your question travel through my backend.</h2>
+<p style="margin: 20px 0 0; font-size: 19px; color: {{t.muted}}; max-width: 680px">Every AI answer is a backend problem: rate limits, caches, retrieval, streaming. Send a question and see each hop. Then ask the same one again.</p>
+</div>
+</section>
+
+<section id="demo" aria-label="Live request journey" style="background: {{t.tint}}">
+<div style="max-width: 1120px; margin: 0 auto; padding: 0 24px 96px">
+<div style="background: {{t.surface}}; border: 1px solid {{t.border}}; border-radius: 14px; padding: 28px; display: flex; flex-direction: column; gap: 28px">
+
+<div style="display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap">
+<div style="display: flex; align-items: center; gap: 10px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.green}}"><span style="width: 8px; height: 8px; border-radius: 50%; background: {{t.green}}; display: inline-block"></span>LIVE · POST /api/ask</div>
+<div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px 24px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.muted}}">
+<span>requests: <span style="color: {{t.text}}">{{total}}</span></span>
+<span>cache hits: <span style="color: {{t.green}}">{{hits}}</span></span>
+<span>tokens left: <span style="color: {{t.text}}">{{remaining}}/5</span></span>
+<button type="button" onClick="{{toggleSpeed}}" aria-pressed="{{realPressed}}" style="min-height: 36px; padding: 0 12px; border-radius: 999px; border: 1px solid {{t.border2}}; background: transparent; color: {{t.text}}; font: inherit; cursor: pointer">{{speedLabel}}</button>
+</div>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center">
+<sc-for list="{{questions}}" as="q" hint-placeholder-count="3">
+<button type="button" onClick="{{q.pick}}" style="min-height: 44px; padding: 0 16px; border-radius: 999px; font: inherit; font-size: 15px; cursor: pointer; border: 1px solid {{q.border}}; background: {{q.bg}}; color: {{q.color}}">{{q.text}}</button>
+</sc-for>
+<button type="button" onClick="{{run}}" style="min-height: 44px; padding: 0 22px; border: none; border-radius: 6px; background: {{t.accent}}; color: {{t.accentBtnText}}; font: inherit; font-weight: 500; cursor: pointer; margin-left: auto">{{runLabel}}</button>
+</div>
+
+<div style="display: flex; flex-wrap: wrap; gap: 10px">
+<sc-for list="{{stages}}" as="st" hint-placeholder-count="6">
+<div style="flex: 1 1 150px; border: {{st.border}}; background: {{st.bg}}; border-radius: 8px; padding: 14px; display: flex; flex-direction: column; gap: 2px">
+<div style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 11px; color: {{t.muted}}">{{st.num}}</div>
+<div style="font-weight: 600; font-size: 15px">{{st.name}}</div>
+<div style="font-size: 13px; color: {{t.muted}}">{{st.sub}}</div>
+<div style="margin-top: 6px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 12px; font-weight: 500; color: {{st.labelColor}}">{{st.label}}</div>
+</div>
+</sc-for>
+</div>
+
+<div aria-hidden="true" style="position: relative; height: 14px; margin: -14px 6px 0">
+<div style="position: absolute; left: 0; right: 0; top: 6px; height: 2px; background: {{t.border}}"></div>
+<div style="position: absolute; top: 1px; left: {{dotLeft}}; width: 12px; height: 12px; margin-left: -6px; border-radius: 50%; background: {{dotColor}}; box-shadow: 0 0 0 4px {{dotHalo}}; transition: left {{dotSpeed}} ease"></div>
+</div>
+
+<div style="background: {{t.term}}; color: #E8EAED; border-radius: 10px; padding: 20px 22px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px; min-height: 200px; overflow-x: auto">
+<div>HTTP/1.1 <span style="color: {{statusColor}}">{{status}}</span></div>
+<div style="color: #B8BDC4">X-Cache: <span style="color: #8FB4FF">{{cacheHeader}}</span></div>
+<div style="color: #B8BDC4">X-RateLimit-Remaining: <span style="color: #F2B263">{{remaining}}</span></div>
+<div style="color: #B8BDC4">X-Response-Time: {{time}}</div>
+<div style="height: 1px; background: #2A2F36; margin: 14px 0"></div>
+<div style="font-family: 'IBM Plex Sans', 'Helvetica Neue', sans-serif; font-size: 16px; line-height: 1.6; color: #F3F4F6; white-space: pre-wrap">{{answer}}</div>
+</div>
+
+<p style="margin: 0; font-size: 14px; color: {{t.muted}}">Try it: send a question, then send the same one again — the cache answers it without touching the model. Spam it and the rate limiter steps in. Stages are slowed down so you can see them; the labels show real timings. Switch to real speed to see how fast it actually is.</p>
+</div>
+</div>
+</section>
+
+<section aria-label="For developers" style="max-width: 1120px; margin: 0 auto; padding: 96px 24px; display: flex; flex-wrap: wrap; gap: 40px; align-items: center">
+<div style="flex: 1 1 340px">
+<p style="margin: 0 0 12px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px; color: {{t.muted}}">For developers</p>
+<h2 style="margin: 0 0 16px; font-size: 36px; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em">Prefer the terminal? So do I.</h2>
+<p style="margin: 0; font-size: 18px; color: {{t.muted}}">My whole profile is an API. Fetch it, pipe it through jq, or hire me straight from the command line.</p>
+</div>
+<div style="flex: 999 1 520px; min-width: 0; background: {{t.term}}; color: #E8EAED; border-radius: 10px; padding: 22px 24px; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 14px; line-height: 1.7; overflow-x: auto; white-space: pre"><span style="color: #9AA0A8">$</span> curl priyanshu.dev/api/me
+{
+  <span style="color: #8FB4FF">"name"</span>: <span style="color: #7FD1A5">"Priyanshu Sinha"</span>,
+  <span style="color: #8FB4FF">"role"</span>: <span style="color: #7FD1A5">"Backend Engineer (SDE-1)"</span>,
+  <span style="color: #8FB4FF">"stack"</span>: [<span style="color: #7FD1A5">"Java"</span>, <span style="color: #7FD1A5">"Spring Boot"</span>, <span style="color: #7FD1A5">"Kafka"</span>, <span style="color: #7FD1A5">"Redis"</span>],
+  <span style="color: #8FB4FF">"openTo"</span>: <span style="color: #7FD1A5">"freelance"</span>,
+  <span style="color: #8FB4FF">"hireMe"</span>: <span style="color: #7FD1A5">"POST /api/hire-me"</span>
+}</div>
+</section>
+
+<section aria-label="Sections" style="max-width: 1120px; margin: 0 auto; padding: 0 24px 96px">
+<div style="display: flex; flex-wrap: wrap; gap: 24px">
+<a href="RateLimiter.dc.html" style="flex: 1 1 320px; text-decoration: none; color: {{t.text}}; background: {{t.surface}}; border: 1px solid {{t.border}}; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.accent}}">01 / The Lab</span>
+<span style="font-size: 24px; font-weight: 600">Backend concepts, running live</span>
+<span style="color: {{t.muted}}">Rate limiting, caching, locks, retries — each with a diagram, a live demo and the code.</span>
+</a>
+<a href="AI.dc.html" style="flex: 1 1 320px; text-decoration: none; color: {{t.text}}; background: {{t.surface}}; border: 1px solid {{t.border}}; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.accent}}">02 / AI</span>
+<span style="font-size: 24px; font-weight: 600">How I design AI-powered systems</span>
+<span style="color: {{t.muted}}">RAG, LLM gateways and voice pipelines, explained from the backend up.</span>
+</a>
+<a href="Journey.dc.html" style="flex: 1 1 320px; text-decoration: none; color: {{t.text}}; background: {{t.surface}}; border: 1px solid {{t.border}}; border-radius: 10px; padding: 32px; display: flex; flex-direction: column; gap: 12px">
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.accent}}">03 / Journey</span>
+<span style="font-size: 24px; font-weight: 600">The person behind the code</span>
+<span style="color: {{t.muted}}">Every phase so far — the wins, the hard years and what they taught me.</span>
+</a>
+</div>
+</section>
+
+<section style="border-top: 1px solid {{t.border}}; background: {{t.surface}}">
+<div style="max-width: 1120px; margin: 0 auto; padding: 96px 24px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 16px; flex-wrap: wrap; margin-bottom: 32px">
+<h2 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.01em">Inside the Lab</h2>
+<a href="RateLimiter.dc.html" style="font-weight: 500; color: {{t.accent}}">Start with rate limiting →</a>
+</div>
+<div style="display: flex; flex-direction: column; border-top: 1px solid {{t.border}}">
+<a href="RateLimiter.dc.html" style="text-decoration: none; color: {{t.text}}; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid {{t.border}}">
+<span style="font-weight: 600; flex: 1 1 260px">Rate limiting</span>
+<span style="color: {{t.muted}}; flex: 999 1 400px">Spam a button, watch the token bucket drain and the 429s arrive.</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.green}}">LIVE</span>
+</a>
+<a href="Database.dc.html" style="text-decoration: none; color: {{t.text}}; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid {{t.border}}">
+<span style="font-weight: 600; flex: 1 1 260px">Databases</span>
+<span style="color: {{t.muted}}; flex: 999 1 400px">Query plans and indexes, the N+1 problem, and a race condition that pays out twice.</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.green}}">LIVE</span>
+</a>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid {{t.border}}">
+<span style="font-weight: 600; flex: 1 1 260px">Caching</span>
+<span style="color: {{t.muted}}; flex: 999 1 400px">Same request twice — see the latency drop and X-Cache flip to HIT.</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.muted}}">SOON</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid {{t.border}}">
+<span style="font-weight: 600; flex: 1 1 260px">Flash sale without overselling</span>
+<span style="color: {{t.muted}}; flex: 999 1 400px">Hundreds of buyers, ten items, one distributed lock.</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.muted}}">SOON</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid {{t.border}}">
+<span style="font-weight: 600; flex: 1 1 260px">Idempotent payments</span>
+<span style="color: {{t.muted}}; flex: 999 1 400px">Double-click “Pay” and still get charged once.</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.muted}}">SOON</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid {{t.border}}">
+<span style="font-weight: 600; flex: 1 1 260px">Circuit breaker</span>
+<span style="color: {{t.muted}}; flex: 999 1 400px">Break a downstream service and watch it fail fast, then recover.</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.muted}}">SOON</span>
+</div>
+<div style="display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 24px; padding: 20px 0; border-bottom: 1px solid {{t.border}}">
+<span style="font-weight: 600; flex: 1 1 260px">Queues, retries and dead letters</span>
+<span style="color: {{t.muted}}; flex: 999 1 400px">Messages fail, back off, retry, and land safely in a DLQ.</span>
+<span style="font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.muted}}">SOON</span>
+</div>
+</div>
+</div>
+</section>
+
+<section style="max-width: 1120px; margin: 0 auto; padding: 96px 24px; display: flex; flex-wrap: wrap; gap: 48px">
+<div style="flex: 1 1 300px">
+<h2 style="margin: 0; font-size: 32px; font-weight: 600; letter-spacing: -0.01em">About</h2>
+</div>
+<div style="flex: 999 1 520px; min-width: 0; display: flex; flex-direction: column; gap: 16px; font-size: 18px; color: {{t.body}}">
+<p style="margin: 0">I started as a backend intern on a U.S. healthcare platform and now run production services at StudyIQ. On the side I take on freelance projects — web, mobile and the backends behind them.</p>
+<p style="margin: 0">I care about the parts of software nobody sees until they break: queues, caches, transactions, and what happens at peak traffic. I build AI-powered features the same way — backend first.</p>
+<a href="#" style="font-weight: 500; color: {{t.accent}}">Download résumé (PDF)</a>
+</div>
+</section>
+
+<footer style="background: {{t.foot}}; color: {{t.footText}}">
+<div style="max-width: 1120px; margin: 0 auto; padding: 88px 24px 56px; display: flex; flex-direction: column; gap: 28px">
+<h2 style="margin: 0; font-size: 40px; font-weight: 600; letter-spacing: -0.02em; max-width: 720px">Need a backend built — or fixed? Let’s talk.</h2>
+<div style="display: flex; gap: 12px; flex-wrap: wrap">
+<a href="Hire.dc.html" style="background: {{t.footBtnBg}}; color: {{t.footBtnText}}; text-decoration: none; padding: 14px 22px; border-radius: 6px; font-weight: 500">Work with me</a>
+<a href="#" style="color: {{t.footText}}; text-decoration: none; padding: 14px 22px; border-radius: 6px; font-weight: 500; border: 1px solid {{t.footBorder}}">GitHub</a>
+<a href="#" style="color: {{t.footText}}; text-decoration: none; padding: 14px 22px; border-radius: 6px; font-weight: 500; border: 1px solid {{t.footBorder}}">LinkedIn</a>
+</div>
+<p style="margin: 24px 0 0; font-family: 'IBM Plex Mono', ui-monospace, monospace; font-size: 13px; color: {{t.footMuted}}">served today: [live count] · cache hits: [live count] · rate limits triggered: [live count]</p>
+</div>
+</footer>
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":1280,"height":4500}}'>
+class Component extends DCLogic {
+  themes() {
+    const light = { surface: '#FFFFFF', btnText: '#FFFFFF', accentBtnText: '#FFFFFF', footText: '#FFFFFF', footMuted: '#A9AEB6', footBorder: '#5B616B', footBtnBg: '#FFFFFF', doneBg: '#EEF6F2', skipBorder: '#B9B9B4', blockedBg: '#FBEFE9', blocked: '#B4400E' };
+    return [
+      Object.assign({}, light, { name: 'Ink & Blue', swatch: '#1F4FD1', bg: '#FBFBFA', tint: '#F4F4F2', text: '#111418', body: '#3A3F47', muted: '#4A5059', border: '#E6E6E3', border2: '#D4D4D0', accent: '#1F4FD1', btnBg: '#111418', green: '#0F6B52', foot: '#111418', footBtnText: '#111418', term: '#111418', activeBg: '#EEF2FD', skipBg: '#F4F4F2' }),
+      { name: 'Midnight', swatch: '#0B0D10', bg: '#0B0D10', surface: '#14171C', tint: '#101318', text: '#E8EAED', body: '#C9CDD3', muted: '#A3A9B3', border: '#262B33', border2: '#3A404A', accent: '#7AA2FF', btnBg: '#E8EAED', btnText: '#0B0D10', accentBtnText: '#0B0D10', green: '#5FD39B', foot: '#05070A', footText: '#E8EAED', footMuted: '#A3A9B3', footBorder: '#3A404A', footBtnBg: '#E8EAED', footBtnText: '#0B0D10', term: '#05070A', activeBg: '#18213A', doneBg: '#12261D', skipBg: '#191C21', skipBorder: '#3A404A', blockedBg: '#2E1A14', blocked: '#FF9A7A' }
+    ];
+  }
+  qs() {
+    return [
+      { text: 'What does Priyanshu work on?', answer: 'Priyanshu is a backend engineer at StudyIQ. He owns 20+ Java/Spring Boot microservices and works on caching, Kafka pipelines and production reliability for high-traffic exam platforms.' },
+      { text: 'How does he handle traffic spikes?', answer: 'Redis caching on read-heavy paths, Kafka for async work, connection-pool tuning and Kubernetes autoscaling. You can try the same patterns live in the Lab.' },
+      { text: 'Has he built AI systems?', answer: 'Yes: a speech-to-text, LLM and text-to-speech pipeline for automating support calls, plus AI meeting insights. He designs them backend-first, with gateways, streaming, caching and fallbacks.' }
+    ];
+  }
+  defs() {
+    return [
+      { name: 'API gateway', sub: 'auth + routing', ms: '2 ms' },
+      { name: 'Rate limiter', sub: 'Redis token bucket', ms: '1 ms' },
+      { name: 'Cache', sub: 'Redis lookup', ms: '1 ms' },
+      { name: 'Retriever', sub: 'vector search, top-3', ms: '38 ms' },
+      { name: 'LLM', sub: 'generate answer', ms: '840 ms' },
+      { name: 'Stream', sub: 'SSE to browser', ms: 'streamed' }
+    ];
+  }
+  fresh() {
+    return { theme: 0, q: 0, statuses: ['idle', 'idle', 'idle', 'idle', 'idle', 'idle'], answer: 'Pick a question and send it.', running: false, cache: {}, remaining: 5, total: 0, hits: 0, status: '—', cacheHeader: '—', time: '—', lastHit: false, realSpeed: false };
+  }
+  componentDidMount() {
+    this.timers = [];
+    this.setState(this.fresh());
+    this.refill = setInterval(() => {
+      this.setState((p) => ({ remaining: Math.min(5, (p.remaining ?? 5) + 1) }));
+    }, 3000);
+  }
+  componentWillUnmount() {
+    clearInterval(this.refill);
+    (this.timers || []).forEach((t) => clearTimeout(t));
+  }
+  later(fn, ms) {
+    this.timers.push(setTimeout(fn, ms * (this.speedF || 1)));
+  }
+  setStage(i, v) {
+    this.setState((p) => {
+      const a = (p.statuses || []).slice();
+      a[i] = v;
+      return { statuses: a };
+    });
+  }
+  run() {
+    const s = Object.assign(this.fresh(), this.state || {});
+    if (s.running) return;
+    this.speedF = s.realSpeed ? 0.04 : 1;
+    const q = s.q;
+    const hit = !!s.cache[q];
+    const blocked = s.remaining <= 0;
+    const answer = this.qs()[q].answer;
+    this.setState({ running: true, statuses: ['active', 'idle', 'idle', 'idle', 'idle', 'idle'], answer: '', status: '…', cacheHeader: '…', time: '…', total: s.total + 1, lastHit: hit });
+    this.later(() => { this.setStage(0, 'done'); this.setStage(1, 'active'); }, 300);
+    if (blocked) {
+      this.later(() => {
+        this.setStage(1, 'blocked');
+        this.setState({ status: '429 Too Many Requests', cacheHeader: '—', time: '3 ms', answer: 'Whoa, slow down. Retry-After: 3s. (That was the rate limiter protecting the model from you.)', running: false });
+      }, 650);
+      return;
+    }
+    this.later(() => {
+      this.setStage(1, 'done');
+      this.setStage(2, 'active');
+      this.setState((p) => ({ remaining: Math.max(0, p.remaining - 1) }));
+    }, 650);
+    if (hit) {
+      this.later(() => {
+        this.setStage(2, 'done');
+        this.setStage(3, 'skipped');
+        this.setStage(4, 'skipped');
+        this.setStage(5, 'active');
+        this.setState({ answer: answer });
+      }, 1000);
+      this.later(() => {
+        this.setStage(5, 'done');
+        this.setState((p) => ({ status: '200 OK', cacheHeader: 'HIT', time: '6 ms', hits: p.hits + 1, running: false }));
+      }, 1250);
+      return;
+    }
+    this.later(() => { this.setStage(2, 'done'); this.setStage(3, 'active'); }, 1000);
+    this.later(() => { this.setStage(3, 'done'); this.setStage(4, 'active'); }, 1600);
+    this.later(() => { this.setStage(4, 'done'); this.setStage(5, 'active'); }, 2700);
+    const words = answer.split(' ');
+    words.forEach((w, k) => {
+      this.later(() => this.setState({ answer: words.slice(0, k + 1).join(' ') }), 2750 + k * 45);
+    });
+    this.later(() => {
+      this.setStage(5, 'done');
+      this.setState((p) => {
+        const c = Object.assign({}, p.cache);
+        c[q] = true;
+        return { status: '200 OK', cacheHeader: 'MISS', time: '884 ms', cache: c, running: false };
+      });
+    }, 2850 + words.length * 45);
+  }
+  renderVals() {
+    const s = Object.assign(this.fresh(), this.state || {});
+    const all = this.themes();
+    const t = all[s.theme] || all[0];
+    const isDark = s.theme === 1;
+    const stages = this.defs().map((d, i) => {
+      const st = s.statuses[i];
+      let border = '1px solid ' + t.border2, bg = t.surface, label = 'waiting', labelColor = t.muted;
+      if (st === 'active') { border = '2px solid ' + t.accent; bg = t.activeBg; label = 'running…'; labelColor = t.accent; }
+      if (st === 'done') {
+        border = '1px solid ' + t.green; bg = t.doneBg; labelColor = t.green;
+        label = i === 2 ? ((s.lastHit ? 'HIT' : 'MISS') + ' · 1 ms') : d.ms;
+      }
+      if (st === 'skipped') { border = '1px dashed ' + t.skipBorder; bg = t.skipBg; label = 'skipped · cached'; labelColor = t.muted; }
+      if (st === 'blocked') { border = '2px solid ' + t.blocked; bg = t.blockedBg; label = '429 · blocked'; labelColor = t.blocked; }
+      return { num: '0' + (i + 1), name: d.name, sub: d.sub, border: border, bg: bg, label: label, labelColor: labelColor };
+    });
+    const questions = this.qs().map((q, i) => {
+      const on = s.q === i;
+      return {
+        text: q.text,
+        border: on ? t.text : t.border2,
+        bg: on ? t.text : t.surface,
+        color: on ? t.bg : t.text,
+        pick: () => { if (!(this.state || {}).running) this.setState({ q: i }); }
+      };
+    });
+    let pos = 0, dotColor = t.accent;
+    s.statuses.forEach((st, i) => { if (st !== 'idle' && st !== 'skipped') pos = i; if (st === 'blocked') dotColor = t.blocked; });
+    const statusColor = s.status.indexOf('200') === 0 ? '#7FD1A5' : (s.status.indexOf('429') === 0 ? '#FF9A7A' : '#B8BDC4');
+    return {
+      t: t,
+      isDark: isDark,
+      isLight: !isDark,
+      toggleLabel: isDark ? 'Switch to light mode' : 'Switch to dark mode',
+      toggleTheme: () => this.setState((p) => ({ theme: p.theme === 1 ? 0 : 1 })),
+      stages: stages,
+      questions: questions,
+      answer: s.answer,
+      status: s.status,
+      statusColor: statusColor,
+      cacheHeader: s.cacheHeader,
+      time: s.time,
+      remaining: s.remaining,
+      total: s.total,
+      hits: s.hits,
+      runLabel: s.running ? 'Sending…' : 'Send request →',
+      dotLeft: (pos / 5 * 100) + '%',
+      dotColor: dotColor,
+      dotHalo: s.running ? t.activeBg : 'transparent',
+      dotSpeed: s.realSpeed ? '0.05s' : '0.3s',
+      speedLabel: s.realSpeed ? 'Playback: real speed' : 'Playback: slow-mo',
+      realPressed: s.realSpeed ? 'true' : 'false',
+      toggleSpeed: () => this.setState((p) => ({ realSpeed: !p.realSpeed })),
+      run: () => this.run()
+    };
+  }
+}
+</script>
+</body>
+</html>

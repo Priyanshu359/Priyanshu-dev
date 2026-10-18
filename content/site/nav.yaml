@@ -1,0 +1,14 @@
+brand: "priyanshu.dev"
+items:
+  - label: "Lab"
+    href: "/lab/rate-limiting"
+  - label: "AI"
+    href: "/ai"
+  - label: "Journey"
+    href: "/journey"
+cta:
+  label: "Let’s talk"
+  href: "/hire"
+themeToggle:
+  lightLabel: "Switch to dark mode"
+  darkLabel: "Switch to light mode"

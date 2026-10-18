@@ -18,7 +18,8 @@ dist/
 *.tsbuildinfo
 next-env.d.ts
 
-# Gradle & Java
+# Gradle, Maven & Java
+target/
 .gradle/
 build/
 !src/**/build/

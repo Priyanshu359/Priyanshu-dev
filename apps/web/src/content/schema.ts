@@ -407,10 +407,19 @@ export const ConnectClientProjectSchema = z.object({
   testimonialAuthor: z.string(),
 });
 
+export const ConnectTrustReasonSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+});
+
 export const ConnectClientWorkSchema = z.object({
-  heading: z.string(),
-  subheading: z.string(),
-  projects: z.array(ConnectClientProjectSchema),
+  title: z.string().default("Why clients can trust me with their project"),
+  reasons: z.array(ConnectTrustReasonSchema).default([]),
+  heading: z.string().optional(),
+  subheading: z.string().optional(),
+  projects: z.array(ConnectClientProjectSchema).optional(),
+  note: z.string().optional(),
 });
 
 export const ConnectDeveloperCardSchema = z.object({

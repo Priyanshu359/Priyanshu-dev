@@ -21,9 +21,10 @@ segments:
     emailLabel: "Email"
     projectTypeLabel: "What do you need?"
     projectTypes:
+      - "AI Agents & Autonomous Workflows"
       - "Full app (web or mobile)"
       - "Backend / APIs"
-      - "AI feature"
+      - "AI features / RAG over documents"
       - "Performance fix"
       - "Something else"
     timelineLabel: "Timeline"

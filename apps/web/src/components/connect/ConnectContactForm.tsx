@@ -68,19 +68,24 @@ export function ConnectContactFormView({ content }: ConnectContactFormProps) {
     }
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const segmentDetails: Record<string, string> = {};
+    if (state.segment === "recruiter") {
+      if (state.formData.company?.trim()) segmentDetails.company = state.formData.company.trim();
+      if (state.formData.role?.trim()) segmentDetails.role = state.formData.role.trim();
+    } else if (state.segment === "client") {
+      if (state.formData.projectType?.trim()) segmentDetails.projectType = state.formData.projectType.trim();
+      if (state.formData.timeline?.trim()) segmentDetails.timeline = state.formData.timeline.trim();
+    } else if (state.segment === "student") {
+      if (state.formData.stage?.trim()) segmentDetails.stage = state.formData.stage.trim();
+      if (state.formData.topic?.trim()) segmentDetails.topic = state.formData.topic.trim();
+    }
+
     const payload = {
       type: state.segment,
       name: state.formData.name.trim(),
       email: state.formData.email.trim(),
       message: state.formData.message.trim(),
-      details: {
-        company: state.formData.company,
-        role: state.formData.role,
-        projectType: state.formData.projectType,
-        timeline: state.formData.timeline,
-        stage: state.formData.stage,
-        topic: state.formData.topic,
-      },
+      details: segmentDetails,
       turnstileToken: turnstileToken || undefined,
     };
 

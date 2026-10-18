@@ -2,7 +2,7 @@ hero:
   greeting: "Hi, I’m"
   name: "Priyanshu Sinha."
   tagline: "I build the backends that keep products fast — and the AI that runs on top of them."
-  bio: "Backend engineer at StudyIQ, where I own 20+ Java/Spring Boot microservices serving traffic peaks of 100K+ requests a minute. Outside work, I build web, mobile and backend products for clients."
+  bio: "Backend engineer at StudyIQ, where I maintain and am responsible for 20+ Java/Spring Boot microservices within a 35+ microservices infrastructure, serving traffic peaks of 100K+ requests a minute. Outside work, I build AI Agents, web, mobile and backend products for clients."
   facts:
     - tag: "NOW"
       value: "SDE-1 Backend · StudyIQ"
@@ -22,9 +22,9 @@ hero:
       href: "/hire"
     socials:
       - label: "GitHub"
-        href: "https://github.com"
+        href: "https://github.com/Priyanshu359"
       - label: "LinkedIn"
-        href: "https://linkedin.com"
+        href: "https://www.linkedin.com/in/priyanshu7"
       - label: "Résumé"
         href: "/resume.pdf"
 
@@ -73,7 +73,7 @@ footer:
     href: "/hire"
   secondaryLinks:
     - label: "GitHub"
-      href: "https://github.com"
+      href: "https://github.com/Priyanshu359"
     - label: "LinkedIn"
-      href: "https://linkedin.com"
+      href: "https://www.linkedin.com/in/priyanshu7"
   telemetryFormat: "served today: [live count] · cache hits: [live count] · rate limits triggered: [live count]"

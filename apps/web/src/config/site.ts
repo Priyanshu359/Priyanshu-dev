@@ -8,8 +8,8 @@ export const siteConfig = {
     return process.env.NEXT_PUBLIC_API_URL || `https://${this.apiDomain}`;
   },
   socials: {
-    github: "https://github.com",
-    linkedin: "https://linkedin.com",
+    github: "https://github.com/Priyanshu359",
+    linkedin: "https://www.linkedin.com/in/priyanshu7",
     email: "priyanshu.kr.sinha74@gmail.com",
     resume: "/resume.pdf",
   },

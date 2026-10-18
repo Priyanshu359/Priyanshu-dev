@@ -63,7 +63,7 @@ codeSection:
     redis.call('HSET', KEYS[1], 'tokens', tokens - 1, 'ts', ARGV[3])
     return {1, tokens - 1}
   githubLinkText: "Full source on GitHub →"
-  githubUrl: "https://github.com"
+  githubUrl: "https://github.com/Priyanshu359/Priyanshu-dev"
 tradeOffsHeading: "Trade-offs I weighed"
 tradeOffs:
   - title: "Token bucket"

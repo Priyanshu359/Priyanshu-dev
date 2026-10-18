@@ -1,9 +1,11 @@
 categories:
-  - id: "frontend"
-    tag: "FRONTEND"
+  - id: "ai"
+    tag: "AI & AGENTS"
     items:
-      - "React"
-      - "Flutter"
+      - "Autonomous AI Agents"
+      - "Tool Calling & Reasoning"
+      - "RAG & Vector Search"
+      - "LangChain"
   - id: "backend"
     tag: "BACKEND"
     items:
@@ -16,6 +18,12 @@ categories:
       - "MySQL"
       - "PostgreSQL"
       - "Redis"
+      - "pgvector"
+  - id: "frontend"
+    tag: "FRONTEND"
+    items:
+      - "React"
+      - "Flutter"
   - id: "cloud"
     tag: "CLOUD"
     items:

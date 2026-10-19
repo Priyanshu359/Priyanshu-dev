@@ -78,14 +78,14 @@ The site supports two primary themes, plus an editorial warm variation for the J
 ## 4. Page-by-Page Specifications & Interactive Widgets
 
 ### 4.1 Home (`/` — `Main.dc.html`)
-* **Header / Nav**: Site logo `priyanshu.dev`, theme toggle button (Sun/Moon SVG icon), links: `Lab`, `AI`, `Journey`, and CTA button `Let’s talk`.
+* **Header / Nav**: Site logo `priyanshu.dev`, theme toggle button (Sun/Moon SVG icon), links: `Lab`, `AI`, `Journey`, `Services`, and CTA button `Let’s talk`.
 * **Hero Section**:
   * Mono badge: `"Hi, I'm"`
   * Title: `"Priyanshu Sinha."`
   * Subheading: *"I build the backends that keep products fast — and the AI that runs on top of them."*
-  * Bio paragraph: Backend engineer at StudyIQ (20+ microservices, 100K+ req/min peaks).
+  * Bio paragraph: Backend engineer at StudyIQ, where I own 20+ Java/Spring Boot microservices in a 35+ service ecosystem, handling traffic peaks of 100K+ requests a minute. Outside work, I help businesses launch web and mobile apps, AI agents and reliable backends.
   * Quick-facts bar: NOW (`SDE-1 Backend · StudyIQ`), BASED IN (`Gurugram, India`), FOCUS (`Distributed systems + AI`), OPEN TO (`● Freelance projects`).
-  * CTAs: `"See my backend in action ↓"`, `"Work with me"`, GitHub, LinkedIn, Résumé.
+  * CTAs: `"See my backend in action ↓"`, `"Start a project" → /services`, GitHub, LinkedIn, Résumé.
 * **Interactive Widget — Live Request Journey (`#demo`)**:
   * **Demonstration**: Visualizes a request traversing a modern AI backend pipeline step-by-step.
   * **State & Metrics**: Tracks total requests, cache hits, and remaining tokens (`remaining/5`).
@@ -105,6 +105,15 @@ The site supports two primary themes, plus an editorial warm variation for the J
     * Stage cards change styles based on status: `waiting`, `active` (accent highlight), `done` (green), `skipped` (dashed border for cache hits), or `blocked` (red for 429).
     * Terminal display: Shows HTTP status (`200 OK` or `429 Too Many Requests`), headers (`X-Cache: HIT/MISS`, `X-RateLimit-Remaining: N`, `X-Response-Time`), and streamed response text.
     * Token bucket refills automatically over time (refill interval: 3s).
+* **For Businesses Section**:
+  * Label: `For businesses`
+  * Heading: *"Building something? The same engineering, for your product."*
+  * Subline: *"I take on a few client projects alongside my job. Fixed quote up front, pay per milestone, and you own the code."*
+  * 3 Cards linking to `/services`:
+    1. *Launch your web or mobile app* — React and Flutter apps with the backend, database and admin panel behind them.
+    2. *Automate with AI* — Agents on WhatsApp or your website that answer customers and book appointments.
+    3. *Fix slow or crashing systems* — Find the bottleneck, fix it, and show before-and-after numbers.
+  * CTAs: `"Get a fixed quote" → /connect?type=client#contact` and `"Services, timelines & FAQ →" → /services`.
 * **Terminal Curl Section ("For developers")**:
   * Mock terminal showing `curl priyanshu.dev/api/me` returning JSON with name, role, stack, openTo, and `POST /api/hire-me`.
 * **Section Index Cards**:
@@ -112,7 +121,7 @@ The site supports two primary themes, plus an editorial warm variation for the J
 * **Inside the Lab List**:
   * Lists upcoming and live lab experiments (Rate limiting `LIVE`, Databases `LIVE`, Caching `SOON`, Flash sale `SOON`, Idempotent payments `SOON`, Circuit breaker `SOON`, Queues & DLQ `SOON`).
 * **About & Footer**:
-  * Summary, résumé download link, work with me links, and live telemetry counter placeholder (`served today`, `cache hits`, `rate limits triggered`).
+  * Summary, résumé download link, footer button (`"Start a project" → /services`), and live telemetry counter placeholder (`served today`, `cache hits`, `rate limits triggered`).
 
 ---
 
@@ -191,40 +200,79 @@ The site supports two primary themes, plus an editorial warm variation for the J
 
 ---
 
-### 4.5 Let’s Talk / Contact (`/hire` — `Hire.dc.html`)
-* **Audience Paths**:
-  1. `Recruiters & hiring managers`: "We're hiring" → 30-second snapshot.
-  2. `Clients & founders`: "We need something built" → Services breakdown.
-  3. `Students & developers`: "Just saying hi" → Informal networking.
-* **Recruiter Snapshot Details**:
-  * Current role: SDE-1 Backend · StudyIQ (Gurugram).
-  * Experience: 1.5+ years production backend.
-  * Core stack: Java, Spring Boot, Kafka, Redis, AWS.
-  * Metrics: 20+ microservices owned, 100K+ req/min observed peaks, 92%+ cache hit rate.
-  * Download Résumé CTA, Email CTA, LinkedIn CTA.
-* **Client Services Breakdown**:
-  * 6 Service cards: Full product builds (React + Flutter + Spring Boot), Backend & APIs, AI features, Performance rescue, Database design, Deployment & DevOps.
-  * 4-Stage Process: Discovery call → Plan & quote → Build in sprints → Launch & handover.
-  * NDA Client Case Study cards.
+### 4.5 Let’s Talk / Contact (`/connect` & `/hire` — `Hire.dc.html`)
+* **Intro Header**: *"Thinking of hiring me, need something built, or just want to talk backend? Pick the path that fits and I’ll take it from there."*
+* **Audience Paths (Plain Questions)**:
+  1. `01 · Recruiters & hiring managers`: *"Considering me for a role?"* → My 30-second snapshot, résumé, and the fastest way to reach me (`#recruiters`).
+  2. `02 · Clients & founders`: *"Need something built?"* → Web, mobile and backend projects — what I build and how we’d work (`#clients`).
+  3. `03 · Students & developers`: *"Just want to say hi?"* → Fellow learner? No agenda needed — let’s just talk (`#students`).
+* **Recruiter Section**:
+  * Label: `FOR RECRUITERS & HIRING MANAGERS`
+  * Heading: *"Considering me for your team? Here’s my 30-second snapshot"*
+  * Subline: *"Everything you’d check first about me, in one place. Want the depth? The Lab shows how I actually build."*
+  * Snapshot Details: Current role (`SDE-1 Backend · StudyIQ`), Experience (`1.5+ years, production backend`), Core stack (`Java, Spring Boot, Kafka, Redis, AWS`), Metrics (`20+ microservices owned, 100K+ req/min peaks, 92%+ cache hits`).
+  * CTAs: Download Résumé, Email, LinkedIn, Lab link.
+* **Client Section**:
+  * 6 Services cards, tech stack row, 4-step process.
+  * Heading: *"Why clients can trust me with their project"* followed by *"Services, a sample project plan and answers to common questions are on the Services page →"* (linking to `/services`).
+  * 6 Trust cards.
 * **Adaptive Contact Form**:
+  * URL query param preselection: `?type=client|recruiter|student` automatically selects the audience segment.
+  * Founding client offer: When accessed via `?type=client&offer=founding#contact`, displays the note *"Founding client offer: 20% off your first project"* above the message field and includes `offer: "founding"` in the message details payload.
   * Segmented selector: `Recruiter` | `Client` | `Student / developer`.
-  * Dynamic form fields:
-    * Recruiter: Name, Work email, Company, Role / Job link, Message, *"Send to Priyanshu"*.
-    * Client: Name, Email, Project type dropdown, Timeline dropdown, Project description, *"Request a quote"*.
-    * Student: Name, Email, Stage dropdown (Student, Fresher, Developer), Topic dropdown, Message, *"Say hi"*.
-  * Submission state: Displays `202 Accepted · queued for delivery` confirmation card.
+  * Dynamic form fields and submission state: Displays `202 Accepted · queued for delivery` confirmation card.
 
 ---
 
-### 4.6 Journey (`/journey` — `Journey.dc.html`)
-* **Editorial Layout**: Warm aesthetic (`#F6F1E9`), elegant `Newsreader` typography, personal essay tone.
-* **6 Chapters**:
-  * *Chapter 01: Where it began* (Hometown, curiosity about computing).
-  * *Chapter 02: Four years, one scholarship, a lot of late nights* (Chandigarh University 2021–2025, 8.02 CGPA, 50% scholarship, first real programs).
-  * *Chapter 03: A new city, and real code for real people* (Ahmedabad 2025, Meditab Software healthcare internship, Node.js/PostgreSQL/RabbitMQ, first production bugs).
-  * *Chapter 04: The chapter that tested me* (Resilience through adversity, lessons learned).
-  * *Chapter 05: The first real job* (StudyIQ in Gurugram, high-scale Java microservices, on-call ownership).
-  * *Chapter 06: Still being written* (Invitation to connect).
+### 4.6 Services (`/services` — `WorkWithMe.dc.html`)
+The dedicated client path page for founders and businesses looking to hire Priyanshu for full-cycle development, reliable backends, and AI agent workflows.
+* **1. Hero**:
+  * Status badge (green dot): *"Taking on new projects"*
+  * Headline: *"Need something built? I’ll build it like it has to survive production — because that’s my day job."*
+  * Subline: *"Web and mobile apps, AI agents and backends for startups and small businesses. Fixed quote up front, pay per milestone, and you own the code."*
+  * Buttons: `"Get a fixed quote" → /connect?type=client#contact` and `"See how I build ↓" → #work`.
+* **2. Services (What I Can Do)**:
+  * Heading: *"What I can do for your business"*
+  * Subline: *"Tell me the problem in plain words. I’ll suggest the simplest thing that solves it."*
+  * 4 Cards (with timeline bracketed placeholders and tech stacks):
+    1. *Launch your web or mobile app* (`[6–10 weeks]` · React · Flutter · Spring Boot / Node)
+    2. *Automate with AI* (`[2–4 weeks]` · AI agents · WhatsApp · Google Calendar)
+    3. *Build reliable backends & APIs* (`[3–6 weeks]` · Spring Boot · Node · Postgres · Redis)
+    4. *Fix a slow or crashing system* (`[1–2 weeks]` · profiling · caching · query tuning)
+  * Fixed-quote strip: *"Every project gets a fixed quote"* / *"Priced on what you actually need, once I understand your request — no hourly surprises."* / `"Get my quote" → /connect?type=client#contact`.
+* **3. How a Project Works**:
+  * 4 Sequential Steps: `01 Send your request`, `02 Fixed quote & plan`, `03 Build, demo, pay`, `04 Launch & handover` (`[30 days]` free bug fixes).
+* **4. Proof of How I Build (`#work`)**:
+  * Heading: *"Proof of how I build"*
+  * 3 Proof Cards: Mentors Buddy sole backend developer, 100K+ req/min StudyIQ systems, and live interactive Lab demos.
+  * Sample Project Plan Panel: Real milestone breakdown for an AI booking agent clinic project.
+  * Founding Client Offer Banner: Controlled by `enabled: true` in `proof.yaml` (20% off first project).
+* **5. Why You Can Trust Me With Your Project**:
+  * 6 Cards: Production experience, see before you pay, IP ownership, NDA confidentiality, live testable Lab proof, plain-English updates.
+* **6. Working Together Strip**:
+  * 4 Metrics: Time zone (India IST), Payments (INR, USD, EUR, GBP), Response time (`[within 24 hours]`), Paperwork (written agreement, invoices, NDA).
+* **7. FAQ**:
+  * Accessible accordion: Single open item, keyboard accessible, 8 client questions addressing costs, timelines, IP ownership, NDA, and post-launch support.
+* **8. Footer CTA**:
+  * Dark band: *"Tell me what you want to build. You’ll get a fixed quote, not a sales pitch."* / `"Get a fixed quote" → /connect?type=client#contact`.
+
+---
+
+### 4.7 Journey (`/journey` — `Journey.dc.html`)
+* **Editorial Layout**: Warm aesthetic (`#F6F1E9`), elegant `Newsreader` serif typography, personal memoir tone. Maintains its warm palette across both site themes (never flips to dark mode, except Chapter 4's dark band).
+* **Content Hierarchy**:
+  * **Hero**: *"Not everything I’ve built runs on a server."* Subline: *"The chapters of my life so far — the good days, the hard years, and the people who got me through them."*
+  * **Prologue** (`Patratu, Jharkhand`): Printed photo effect with white frame, soft drop shadow, rotated −2.5° (or paper-coloured card when no photo is uploaded), italic caption, and story of home before code.
+  * **Chapter 01** (`palette: blue`, `#E8EEF2`): *"A borrowed keyboard and my father’s phone"* (`Patratu, Jharkhand · Age 15 · Curious`). Home setup photo, Python from textbooks, pullquote lesson: *"You don’t need the right tools to start. You start with whatever you have."*
+  * **Chapter 02** (`palette: sand`, `#F3E6C8`): *"Four years, one scholarship, and a loan worth every rupee"* (`Chandigarh · 2021–2025 · Grateful`). Campus photo, Anidex Flutter app, pullquote lesson: *"When your family gives everything to get you there, you make every semester count."*
+  * **Chapter 03** (`palette: green`, `#DDEBDF`): *"A lonely city and my first real bug"* (`Ahmedabad · 2025 · On my own`). Ahmedabad photo, dark-store night shifts, first production bug, pullquote lesson: *"The day you fix a real user’s problem is the day you stop feeling like a student."*
+  * **Chapter 04** (`palette: dark`, `#2F2A33`): *"Seven months that tested everything"* (`2025 · Lost`). Centered text-only band, loan repayment stress, resilience, pullquote lesson below thin divider: *"Doubt doesn’t mean you’re on the wrong road. Sometimes the road is just long."*
+  * **Chapter 05** (`palette: indigo`, `#E3E7F3`): *"I never chose backend. Backend chose me."* (`Gurugram · 2025 – now · Back on track`). Typographic mood card (large Newsreader period, uppercase mono place, italic mood on `#C9D0E6` box), Mentors Buddy launch, 20+ microservices ownership, pullquote lesson: *"Somewhere along the way, I started choosing it back."*
+  * **Ending** (`Chapter 06`): *"Still being written."* Call to action: *"If any of this felt familiar, I’d love to hear your story too."* → Button: *"Say hello"* (`/connect`).
+* **Photo Privacy & Optimization Pipeline**:
+  * Automated script `pnpm journey:photos` runs before build (`prebuild`).
+  * Strips all EXIF metadata and GPS location tags, normalizes orientation, and downscales images to a maximum 2000 px on the long side.
+  * Strict validation: build fails if a photo has no alt text or if its referenced file is missing. Chapters without photos cleanly display typographic mood cards.
 
 ---
 

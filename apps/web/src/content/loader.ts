@@ -19,11 +19,22 @@ import {
   ConnectStackSchema,
   HomeSchema,
   JourneyChapterSchema,
+  JourneyPrologueSchema,
+  JourneyEndingSchema,
   KnowledgeChunkSchema,
   LabSchema,
   LabStorySchema,
   NavSchema,
   ProfileSchema,
+  ServicesCtaSchema,
+  ServicesFaqSchema,
+  ServicesHeroSchema,
+  ServicesListSchema,
+  ServicesProcessSchema,
+  ServicesProofSchema,
+  ServicesQuoteSchema,
+  ServicesTrustSchema,
+  ServicesWorkingSchema,
   type AboutContent,
   type AIConcepts,
   type AIDiagram,
@@ -39,11 +50,23 @@ import {
   type ConnectStack,
   type HomeContent,
   type JourneyChapter,
+  type JourneyPrologue,
+  type JourneyEnding,
+  type JourneyPhoto,
   type KnowledgeChunk,
   type LabContent,
   type LabStoryContent,
   type Nav,
   type ProfileContent,
+  type ServicesCta,
+  type ServicesFaq,
+  type ServicesHero,
+  type ServicesList,
+  type ServicesProcess,
+  type ServicesProof,
+  type ServicesQuote,
+  type ServicesTrust,
+  type ServicesWorking,
 } from "./schema";
 
 /**
@@ -282,42 +305,127 @@ export function getConnectForm(): ConnectContactForm {
 
 // --- Journey Loaders ---
 
-export function getJourneyChapters(): JourneyChapter[] {
+export function validateJourneyPhoto(
+  photo: JourneyPhoto,
+  sourceFile: string
+): void {
+  if (!photo.src || photo.src.trim() === "") {
+    throw new Error(
+      `[Content ValidationError] Photo in "${sourceFile}" must have a valid "src" path.`
+    );
+  }
+  if (!photo.alt || photo.alt.trim() === "") {
+    throw new Error(
+      `[Content ValidationError] Photo in "${sourceFile}" must have a non-empty "alt" description.`
+    );
+  }
+
+  // Validate that the file actually exists on disk in content/journey/images
   const journeyDir = path.join(getContentDir(), "journey");
-  if (!fs.existsSync(journeyDir)) return [];
+  let resolvedFilePath = path.resolve(journeyDir, photo.src);
+  if (!fs.existsSync(resolvedFilePath)) {
+    // Also try direct images folder
+    const directImagesPath = path.join(journeyDir, "images", path.basename(photo.src));
+    if (fs.existsSync(directImagesPath)) {
+      resolvedFilePath = directImagesPath;
+    } else {
+      throw new Error(
+        `[Content ValidationError] Journey photo file does not exist: "${photo.src}" referenced in "${sourceFile}". Target path: ${resolvedFilePath}`
+      );
+    }
+  }
+}
+
+export function formatJourneyPhotoSrc(src: string): string {
+  // Map ./images/file.jpg or images/file.jpg to /content/journey/images/file.jpg
+  const filename = path.basename(src);
+  return `/content/journey/images/${filename}`;
+}
+
+export function getJourneyPrologue(): JourneyPrologue {
+  const filePath = path.join(getContentDir(), "journey", "prologue.mdx");
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`[Content Loader] Journey prologue not found: ${filePath}`);
+  }
+  const raw = fs.readFileSync(filePath, "utf-8");
+  const { data, content } = matter(raw);
+  const validated = parseAndValidate(
+    path.join("journey", "prologue.mdx"),
+    {
+      ...data,
+      content: content.trim(),
+    },
+    JourneyPrologueSchema
+  );
+
+  if (validated.photo) {
+    validateJourneyPhoto(validated.photo, "prologue.mdx");
+  }
+
+  return validated;
+}
+
+export function getJourneyChapters(): JourneyChapter[] {
+  const chaptersDir = path.join(getContentDir(), "journey", "chapters");
+  if (!fs.existsSync(chaptersDir)) {
+    // Fallback: check journey root if chapters/ doesn't exist
+    const journeyDir = path.join(getContentDir(), "journey");
+    if (!fs.existsSync(journeyDir)) return [];
+    return [];
+  }
 
   const files = fs
-    .readdirSync(journeyDir)
+    .readdirSync(chaptersDir)
     .filter((file) => file.endsWith(".mdx"))
     .sort();
 
-  return files
-    .map((file) => {
-      const slug = file.replace(/\.mdx$/, "");
-      const fullPath = path.join(journeyDir, file);
-      const raw = fs.readFileSync(fullPath, "utf-8");
-      const { data, content } = matter(raw);
-      return parseAndValidate(
-        path.join("journey", file),
-        {
-          slug,
-          ...data,
-          content: content.trim(),
-        },
-        JourneyChapterSchema
-      );
-    })
-    .sort((a, b) => a.order - b.order);
+  const chapters = files.map((file) => {
+    const slug = file.replace(/\.mdx$/, "");
+    const fullPath = path.join(chaptersDir, file);
+    const raw = fs.readFileSync(fullPath, "utf-8");
+    const { data, content } = matter(raw);
+
+    const validated = parseAndValidate(
+      path.join("journey", "chapters", file),
+      {
+        slug,
+        ...data,
+        content: content.trim(),
+      },
+      JourneyChapterSchema
+    );
+
+    if (validated.photo) {
+      validateJourneyPhoto(validated.photo, file);
+    }
+
+    // Generate label: CHAPTER 0N · PLACE · PERIOD · MOOD (or CHAPTER 04 · PERIOD · MOOD)
+    const num = String(validated.order).padStart(2, "0");
+    const parts = [`CHAPTER ${num}`];
+    if (validated.place && validated.place.trim().length > 0) {
+      parts.push(validated.place.toUpperCase());
+    }
+    parts.push(validated.period.toUpperCase());
+    parts.push(validated.mood.toUpperCase());
+    validated.label = parts.join(" · ");
+
+    return validated;
+  });
+
+  return chapters.sort((a, b) => a.order - b.order);
 }
 
 export function getJourneyChapter(slug: string): JourneyChapter {
-  const fullPath = path.join(getContentDir(), "journey", `${slug}.mdx`);
+  let fullPath = path.join(getContentDir(), "journey", "chapters", `${slug}.mdx`);
   if (!fs.existsSync(fullPath)) {
-    throw new Error(`[Content Loader] Journey chapter not found: ${fullPath}`);
+    fullPath = path.join(getContentDir(), "journey", `${slug}.mdx`);
+    if (!fs.existsSync(fullPath)) {
+      throw new Error(`[Content Loader] Journey chapter not found: ${slug}`);
+    }
   }
   const raw = fs.readFileSync(fullPath, "utf-8");
   const { data, content } = matter(raw);
-  return parseAndValidate(
+  const validated = parseAndValidate(
     path.join("journey", `${slug}.mdx`),
     {
       slug,
@@ -326,6 +434,83 @@ export function getJourneyChapter(slug: string): JourneyChapter {
     },
     JourneyChapterSchema
   );
+
+  if (validated.photo) {
+    validateJourneyPhoto(validated.photo, `${slug}.mdx`);
+  }
+
+  const num = String(validated.order).padStart(2, "0");
+  const parts = [`CHAPTER ${num}`];
+  if (validated.place && validated.place.trim().length > 0) {
+    parts.push(validated.place.toUpperCase());
+  }
+  parts.push(validated.period.toUpperCase());
+  parts.push(validated.mood.toUpperCase());
+  validated.label = parts.join(" · ");
+
+  return validated;
+}
+
+export function getJourneyEnding(): JourneyEnding {
+  const filePath = path.join(getContentDir(), "journey", "ending.yaml");
+  if (!fs.existsSync(filePath)) {
+    throw new Error(`[Content Loader] Journey ending not found: ${filePath}`);
+  }
+  const raw = fs.readFileSync(filePath, "utf-8");
+  const parsed = yaml.parse(raw);
+  const validated = parseAndValidate(
+    path.join("journey", "ending.yaml"),
+    parsed,
+    JourneyEndingSchema
+  );
+
+  // Normalize button object if buttonLabel / buttonLink are provided
+  if (!validated.button && validated.buttonLabel && validated.buttonLink) {
+    validated.button = {
+      label: validated.buttonLabel,
+      link: validated.buttonLink,
+    };
+  }
+
+  return validated;
+}
+
+// --- Services Loaders ---
+
+export function getServicesHero(): ServicesHero {
+  return readYamlFile("services/hero.yaml", ServicesHeroSchema);
+}
+
+export function getServicesList(): ServicesList {
+  return readYamlFile("services/services.yaml", ServicesListSchema);
+}
+
+export function getServicesQuote(): ServicesQuote {
+  return readYamlFile("services/quote.yaml", ServicesQuoteSchema);
+}
+
+export function getServicesProcess(): ServicesProcess {
+  return readYamlFile("services/process.yaml", ServicesProcessSchema);
+}
+
+export function getServicesProof(): ServicesProof {
+  return readYamlFile("services/proof.yaml", ServicesProofSchema);
+}
+
+export function getServicesTrust(): ServicesTrust {
+  return readYamlFile("services/trust.yaml", ServicesTrustSchema);
+}
+
+export function getServicesWorking(): ServicesWorking {
+  return readYamlFile("services/working.yaml", ServicesWorkingSchema);
+}
+
+export function getServicesFaq(): ServicesFaq {
+  return readYamlFile("services/faq.yaml", ServicesFaqSchema);
+}
+
+export function getServicesCta(): ServicesCta {
+  return readYamlFile("services/cta.yaml", ServicesCtaSchema);
 }
 
 /**
@@ -352,6 +537,17 @@ export function getAllContent() {
     connectClientWork: getConnectClientWork(),
     connectDevelopers: getConnectDevelopers(),
     connectForm: getConnectForm(),
+    journeyPrologue: getJourneyPrologue(),
     journeyChapters: getJourneyChapters(),
+    journeyEnding: getJourneyEnding(),
+    servicesHero: getServicesHero(),
+    servicesList: getServicesList(),
+    servicesQuote: getServicesQuote(),
+    servicesProcess: getServicesProcess(),
+    servicesProof: getServicesProof(),
+    servicesTrust: getServicesTrust(),
+    servicesWorking: getServicesWorking(),
+    servicesFaq: getServicesFaq(),
+    servicesCta: getServicesCta(),
   };
 }

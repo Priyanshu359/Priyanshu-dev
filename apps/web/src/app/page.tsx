@@ -244,6 +244,140 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* For Businesses Section */}
+      {homeData.businesses && (
+        <section
+          aria-label="For businesses"
+          style={{
+            borderTop: "1px solid var(--color-border)",
+            backgroundColor: "var(--color-surface)",
+            padding: "96px 24px",
+          }}
+        >
+          <div
+            style={{
+              maxWidth: "1120px",
+              margin: "0 auto",
+              display: "flex",
+              flexDirection: "column",
+              gap: "36px",
+            }}
+          >
+            <div>
+              <p
+                style={{
+                  margin: "0 0 12px",
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "14px",
+                  color: "var(--color-accent)",
+                  fontWeight: 500,
+                }}
+              >
+                {homeData.businesses.label}
+              </p>
+              <h2
+                style={{
+                  margin: "0 0 16px",
+                  fontSize: "40px",
+                  lineHeight: 1.15,
+                  fontWeight: 600,
+                  letterSpacing: "-0.02em",
+                  maxWidth: "800px",
+                }}
+              >
+                {homeData.businesses.heading}
+              </h2>
+              <p
+                style={{
+                  margin: 0,
+                  fontSize: "19px",
+                  color: "var(--color-muted)",
+                  maxWidth: "760px",
+                  lineHeight: 1.6,
+                }}
+              >
+                {homeData.businesses.subline}
+              </p>
+            </div>
+
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+                gap: "24px",
+              }}
+            >
+              {homeData.businesses.cards.map((card, idx) => (
+                <Link
+                  key={idx}
+                  href={card.href || "/services"}
+                  style={{
+                    backgroundColor: "var(--color-bg)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: "12px",
+                    padding: "28px",
+                    textDecoration: "none",
+                    color: "inherit",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "10px",
+                    transition: "border-color 0.2s",
+                  }}
+                >
+                  <h3 style={{ margin: 0, fontSize: "20px", fontWeight: 600, lineHeight: 1.3 }}>
+                    {card.title}
+                  </h3>
+                  <p
+                    style={{
+                      margin: 0,
+                      color: "var(--color-body)",
+                      fontSize: "15px",
+                      lineHeight: 1.6,
+                    }}
+                  >
+                    {card.description}
+                  </p>
+                </Link>
+              ))}
+            </div>
+
+            <div style={{ display: "flex", gap: "14px", flexWrap: "wrap", alignItems: "center" }}>
+              <Link
+                href={homeData.businesses.actions.primary.href}
+                style={{
+                  backgroundColor: "var(--color-btnBg)",
+                  color: "var(--color-btnText)",
+                  textDecoration: "none",
+                  padding: "14px 22px",
+                  borderRadius: "6px",
+                  fontWeight: 500,
+                  fontSize: "15px",
+                  display: "inline-block",
+                }}
+              >
+                {homeData.businesses.actions.primary.label}
+              </Link>
+
+              <Link
+                href={homeData.businesses.actions.secondary.href}
+                style={{
+                  textDecoration: "none",
+                  padding: "14px 22px",
+                  borderRadius: "6px",
+                  fontWeight: 500,
+                  fontSize: "15px",
+                  border: "1px solid var(--color-border2)",
+                  color: "var(--color-text)",
+                  display: "inline-block",
+                }}
+              >
+                {homeData.businesses.actions.secondary.label}
+              </Link>
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* For Developers Section */}
       <section
         aria-label="For developers"

@@ -6,9 +6,11 @@ items:
     href: "/ai"
   - label: "Journey"
     href: "/journey"
+  - label: "Services"
+    href: "/services"
 cta:
   label: "Let’s talk"
-  href: "/hire"
+  href: "/connect"
 themeToggle:
   lightLabel: "Switch to dark mode"
   darkLabel: "Switch to light mode"

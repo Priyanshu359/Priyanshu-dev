@@ -1,0 +1,8 @@
+label: "CHAPTER 06"
+title: "Still being written."
+text: "If any of this felt familiar, I’d love to hear your story too."
+button:
+  label: "Say hello"
+  link: "/connect"
+buttonLabel: "Say hello"
+buttonLink: "/connect"

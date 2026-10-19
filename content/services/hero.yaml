@@ -1,0 +1,10 @@
+status: "Taking on new projects"
+headline: "Need something built? I’ll build it like it has to survive production — because that’s my day job."
+subline: "Web and mobile apps, AI agents and backends for startups and small businesses. Fixed quote up front, pay per milestone, and you own the code."
+actions:
+  primary:
+    label: "Get a fixed quote"
+    href: "/connect?type=client#contact"
+  secondary:
+    label: "See how I build ↓"
+    href: "#work"

@@ -148,6 +148,7 @@ export function Nav({ data: customData, nav: customNav }: NavProps) {
 
           <Link
             href={data.cta.href}
+            className="nav-cta-btn"
             style={{
               textDecoration: "none",
               backgroundColor: "var(--color-btnBg)",

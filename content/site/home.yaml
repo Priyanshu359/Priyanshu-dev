@@ -2,7 +2,7 @@ hero:
   greeting: "Hi, I’m"
   name: "Priyanshu Sinha."
   tagline: "I build the backends that keep products fast — and the AI that runs on top of them."
-  bio: "Backend engineer at StudyIQ, where I maintain and am responsible for 20+ Java/Spring Boot microservices within a 35+ microservices infrastructure, serving traffic peaks of 100K+ requests a minute. Outside work, I build AI Agents, web, mobile and backend products for clients."
+  bio: "Backend engineer at StudyIQ, where I own 20+ Java/Spring Boot microservices in a 35+ service ecosystem, handling traffic peaks of 100K+ requests a minute. Outside work, I help businesses launch web and mobile apps, AI agents and reliable backends."
   facts:
     - tag: "NOW"
       value: "SDE-1 Backend · StudyIQ"
@@ -18,8 +18,8 @@ hero:
       label: "See my backend in action ↓"
       href: "#demo"
     secondary:
-      label: "Work with me"
-      href: "/hire"
+      label: "Start a project"
+      href: "/services"
     socials:
       - label: "GitHub"
         href: "https://github.com/Priyanshu359"
@@ -37,6 +37,28 @@ demoConfig:
   liveBadge: "LIVE · POST /api/ask"
   note: "Try it: send a question, then send the same one again — the cache answers it without touching the model. Spam it and the rate limiter steps in. Stages are slowed down so you can see them; the labels show real timings. Switch to real speed to see how fast it actually is."
   rateLimitBlockedText: "Whoa, slow down. Retry-After: 3s. (That was the rate limiter protecting the model from you.)"
+
+businesses:
+  label: "For businesses"
+  heading: "Building something? The same engineering, for your product."
+  subline: "I take on a few client projects alongside my job. Fixed quote up front, pay per milestone, and you own the code."
+  cards:
+    - title: "Launch your web or mobile app"
+      description: "React and Flutter apps with the backend, database and admin panel behind them."
+      href: "/services"
+    - title: "Automate with AI"
+      description: "Agents on WhatsApp or your website that answer customers and book appointments."
+      href: "/services"
+    - title: "Fix slow or crashing systems"
+      description: "Find the bottleneck, fix it, and show before-and-after numbers."
+      href: "/services"
+  actions:
+    primary:
+      label: "Get a fixed quote"
+      href: "/connect?type=client#contact"
+    secondary:
+      label: "Services, timelines & FAQ →"
+      href: "/services"
 
 developerTerminal:
   kicker: "For developers"
@@ -69,8 +91,8 @@ labOverview:
 footer:
   heading: "Need a backend built — or fixed? Let’s talk."
   primaryCta:
-    label: "Work with me"
-    href: "/hire"
+    label: "Start a project"
+    href: "/services"
   secondaryLinks:
     - label: "GitHub"
       href: "https://github.com/Priyanshu359"

@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useReducer, useState, useRef, useEffect } from "react";
+import React, { useReducer, useState, useRef, useEffect, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import type { ConnectContactForm } from "@/content/schema";
 import {
   connectSimReducer,
@@ -12,8 +13,25 @@ interface ConnectContactFormProps {
   content: ConnectContactForm;
 }
 
-export function ConnectContactFormView({ content }: ConnectContactFormProps) {
-  const [state, dispatch] = useReducer(connectSimReducer, initialConnectSimState);
+function ConnectContactFormInner({ content }: ConnectContactFormProps) {
+  const searchParams = useSearchParams();
+  const typeParam = searchParams.get("type");
+  const offerParam = searchParams.get("offer");
+
+  const [state, dispatch] = useReducer(connectSimReducer, {
+    ...initialConnectSimState,
+    segment:
+      typeParam === "client" || typeParam === "student" || typeParam === "recruiter"
+        ? typeParam
+        : initialConnectSimState.segment,
+  });
+
+  useEffect(() => {
+    if (typeParam === "client" || typeParam === "recruiter" || typeParam === "student") {
+      dispatch({ type: "SET_SEGMENT", segment: typeParam });
+    }
+  }, [typeParam]);
+
   const turnstileSiteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
   const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
   const turnstileContainerRef = useRef<HTMLDivElement>(null);
@@ -69,6 +87,9 @@ export function ConnectContactFormView({ content }: ConnectContactFormProps) {
 
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
     const segmentDetails: Record<string, string> = {};
+    if (offerParam === "founding") {
+      segmentDetails.offer = "founding";
+    }
     if (state.segment === "recruiter") {
       if (state.formData.company?.trim()) segmentDetails.company = state.formData.company.trim();
       if (state.formData.role?.trim()) segmentDetails.role = state.formData.role.trim();
@@ -507,6 +528,24 @@ export function ConnectContactFormView({ content }: ConnectContactFormProps) {
                 </div>
               )}
 
+              {/* Founding offer banner note if offer=founding */}
+              {offerParam === "founding" && (
+                <div
+                  style={{
+                    padding: "12px 16px",
+                    backgroundColor: "var(--color-doneBg)",
+                    border: "1px solid var(--color-green)",
+                    borderRadius: "6px",
+                    color: "var(--color-green)",
+                    fontFamily: "var(--font-mono)",
+                    fontSize: "13px",
+                    fontWeight: 500,
+                  }}
+                >
+                  {content.foundingOfferNote || "Founding client offer: 20% off your first project"}
+                </div>
+              )}
+
               {/* Message */}
               <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
                 <label htmlFor="c-msg" style={{ fontSize: "14px", fontWeight: 500 }}>
@@ -569,5 +608,13 @@ export function ConnectContactFormView({ content }: ConnectContactFormProps) {
         </div>
       </div>
     </section>
+  );
+}
+
+export function ConnectContactFormView(props: ConnectContactFormProps) {
+  return (
+    <Suspense fallback={null}>
+      <ConnectContactFormInner {...props} />
+    </Suspense>
   );
 }

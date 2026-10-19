@@ -23,30 +23,34 @@ export default config({
     journey: collection({
       label: "Journey Chapters",
       slugField: "title",
-      path: "../../content/journey/*",
+      path: "../../content/journey/chapters/*",
       format: { contentField: "content" },
       schema: {
         title: fields.slug({ name: { label: "Chapter Title" } }),
-        order: fields.integer({ label: "Order", defaultValue: 1 }),
-        place: fields.text({ label: "Place (e.g. Gurugram, Chandigarh)" }),
-        period: fields.text({ label: "Period (e.g. 2021–2025, DEC 2025)" }),
-        mood: fields.text({ label: "Mood" }),
-        moodColor: fields.text({
-          label: "Mood Background Color (Hex, e.g. #F3E6C8)",
+        order: fields.integer({ label: "Order", defaultValue: 1, validation: { isRequired: true } }),
+        place: fields.text({ label: "Place (e.g. Patratu, Chandigarh)" }),
+        period: fields.text({ label: "Period (e.g. 2021–2025, Age 15)", validation: { isRequired: true } }),
+        mood: fields.text({ label: "Mood (e.g. Curious, Grateful)", validation: { isRequired: true } }),
+        lesson: fields.text({ label: "Lesson Pullquote", validation: { isRequired: true } }),
+        palette: fields.select({
+          label: "Palette",
+          options: [
+            { label: "Blue", value: "blue" },
+            { label: "Sand", value: "sand" },
+            { label: "Green", value: "green" },
+            { label: "Dark", value: "dark" },
+            { label: "Indigo", value: "indigo" },
+          ],
+          defaultValue: "blue",
         }),
-        isDark: fields.checkbox({
-          label: "Dark Mode Chapter (Dark background with white text)",
-          defaultValue: false,
+        photo: fields.object({
+          src: fields.image({
+            label: "Chapter Photo",
+            directory: "../../content/journey/images",
+            publicPath: "./images/",
+          }),
+          alt: fields.text({ label: "Photo Alt Description" }),
         }),
-        photo: fields.image({
-          label: "Chapter Photo",
-          directory: "../../content/journey/images",
-          publicPath: "/content/journey/images/",
-        }),
-        photoAlt: fields.text({ label: "Photo Alt Description" }),
-        photoPlaceholder: fields.text({ label: "Photo Placeholder Caption" }),
-        cta: fields.text({ label: "CTA Button Text (e.g. Say hello)" }),
-        ctaHref: fields.text({ label: "CTA Button Link (e.g. /hire)" }),
         content: fields.mdx({
           label: "Chapter Story Content",
           extension: "mdx",
@@ -158,6 +162,45 @@ export default config({
   },
 
   singletons: {
+    // Journey
+    journeyPrologue: singleton({
+      label: "Journey Prologue",
+      path: "../../content/journey/prologue",
+      format: { contentField: "content" },
+      schema: {
+        place: fields.text({ label: "Place (e.g. Patratu, Jharkhand)", validation: { isRequired: true } }),
+        title: fields.text({ label: "Title", validation: { isRequired: true } }),
+        caption: fields.text({ label: "Photo Caption", validation: { isRequired: true } }),
+        photo: fields.object({
+          src: fields.image({
+            label: "Photo Image",
+            directory: "../../content/journey/images",
+            publicPath: "./images/",
+          }),
+          alt: fields.text({ label: "Photo Alt Description" }),
+        }),
+        content: fields.mdx({
+          label: "Prologue Body",
+          extension: "mdx",
+        }),
+      },
+    }),
+
+    journeyEnding: singleton({
+      label: "Journey Ending (Chapter 06)",
+      path: "../../content/journey/ending",
+      format: { data: "yaml" },
+      schema: {
+        label: fields.text({ label: "Label", defaultValue: "CHAPTER 06" }),
+        title: fields.text({ label: "Title", defaultValue: "Still being written." }),
+        text: fields.text({ label: "Text", multiline: true }),
+        button: fields.object({
+          label: fields.text({ label: "Button Label", defaultValue: "Say hello" }),
+          link: fields.text({ label: "Button Link", defaultValue: "/connect" }),
+        }),
+      },
+    }),
+
     // Site
     nav: singleton({
       label: "Navigation Bar",
@@ -254,6 +297,32 @@ export default config({
             }),
           },
           { label: "Demo Config" }
+        ),
+        businesses: fields.object(
+          {
+            label: fields.text({ label: "Label" }),
+            heading: fields.text({ label: "Heading" }),
+            subline: fields.text({ label: "Subline", multiline: true }),
+            cards: fields.array(
+              fields.object({
+                title: fields.text({ label: "Title" }),
+                description: fields.text({ label: "Description", multiline: true }),
+                href: fields.text({ label: "Link" }),
+              }),
+              { label: "Business Cards", itemLabel: (p) => p.fields.title.value }
+            ),
+            actions: fields.object({
+              primary: fields.object({
+                label: fields.text({ label: "Primary Button Label" }),
+                href: fields.text({ label: "Primary Button Link" }),
+              }),
+              secondary: fields.object({
+                label: fields.text({ label: "Secondary Button Label" }),
+                href: fields.text({ label: "Secondary Button Link" }),
+              }),
+            }),
+          },
+          { label: "For Businesses Section" }
         ),
         developerTerminal: fields.object(
           {
@@ -713,6 +782,192 @@ export default config({
           }),
           { label: "Pipeline Stages", itemLabel: (p) => p.fields.name.value }
         ),
+      },
+    }),
+
+    // Services
+    servicesHero: singleton({
+      label: "Services: Hero",
+      path: "../../content/services/hero",
+      format: { data: "yaml" },
+      schema: {
+        status: fields.text({ label: "Status Badge" }),
+        headline: fields.text({ label: "Headline", multiline: true }),
+        subline: fields.text({ label: "Subline", multiline: true }),
+        actions: fields.object({
+          primary: fields.object({
+            label: fields.text({ label: "Primary Button Label" }),
+            href: fields.text({ label: "Primary Button Link" }),
+          }),
+          secondary: fields.object({
+            label: fields.text({ label: "Secondary Button Label" }),
+            href: fields.text({ label: "Secondary Button Link" }),
+          }),
+        }),
+      },
+    }),
+
+    servicesList: singleton({
+      label: "Services: What I Can Do",
+      path: "../../content/services/services",
+      format: { data: "yaml" },
+      schema: {
+        heading: fields.text({ label: "Heading" }),
+        subline: fields.text({ label: "Subline", multiline: true }),
+        items: fields.array(
+          fields.object({
+            number: fields.text({ label: "Number (e.g. 01)" }),
+            title: fields.text({ label: "Title" }),
+            description: fields.text({ label: "Description", multiline: true }),
+            goodFor: fields.text({ label: "Good for" }),
+            timeline: fields.text({ label: "Typical timeline" }),
+            tech: fields.text({ label: "Tech line" }),
+          }),
+          { label: "Services Offerings", itemLabel: (p) => p.fields.title.value }
+        ),
+      },
+    }),
+
+    servicesQuote: singleton({
+      label: "Services: Fixed Quote Strip",
+      path: "../../content/services/quote",
+      format: { data: "yaml" },
+      schema: {
+        heading: fields.text({ label: "Heading" }),
+        text: fields.text({ label: "Description", multiline: true }),
+        button: fields.object({
+          label: fields.text({ label: "Button Label" }),
+          href: fields.text({ label: "Button Link" }),
+        }),
+      },
+    }),
+
+    servicesProcess: singleton({
+      label: "Services: How a Project Works",
+      path: "../../content/services/process",
+      format: { data: "yaml" },
+      schema: {
+        heading: fields.text({ label: "Heading" }),
+        steps: fields.array(
+          fields.object({
+            number: fields.text({ label: "Step Number (e.g. 01)" }),
+            title: fields.text({ label: "Step Title" }),
+            description: fields.text({ label: "Description", multiline: true }),
+          }),
+          { label: "Process Steps", itemLabel: (p) => p.fields.title.value }
+        ),
+      },
+    }),
+
+    servicesProof: singleton({
+      label: "Services: Proof of How I Build",
+      path: "../../content/services/proof",
+      format: { data: "yaml" },
+      schema: {
+        anchor: fields.text({ label: "Anchor (e.g. work)" }),
+        heading: fields.text({ label: "Heading" }),
+        subline: fields.text({ label: "Subline", multiline: true }),
+        cards: fields.array(
+          fields.object({
+            label: fields.text({ label: "Card Label" }),
+            title: fields.text({ label: "Title" }),
+            text: fields.text({ label: "Text", multiline: true }),
+            link: fields.object({
+              label: fields.text({ label: "Link Label" }),
+              href: fields.text({ label: "Link Href" }),
+            }),
+          }),
+          { label: "Proof Cards", itemLabel: (p) => p.fields.title.value }
+        ),
+        samplePlan: fields.object({
+          label: fields.text({ label: "Panel Label" }),
+          title: fields.text({ label: "Title" }),
+          subline: fields.text({ label: "Subline", multiline: true }),
+          milestones: fields.array(
+            fields.object({
+              milestone: fields.text({ label: "Milestone Tag (e.g. MILESTONE 1)" }),
+              title: fields.text({ label: "Milestone Title" }),
+              description: fields.text({ label: "Description", multiline: true }),
+            }),
+            { label: "Plan Milestones", itemLabel: (p) => p.fields.title.value }
+          ),
+        }),
+        foundingOffer: fields.object({
+          enabled: fields.checkbox({ label: "Founding Offer Enabled", defaultValue: true }),
+          title: fields.text({ label: "Title" }),
+          text: fields.text({ label: "Banner Text", multiline: true }),
+          button: fields.object({
+            label: fields.text({ label: "Button Label" }),
+            href: fields.text({ label: "Button Link" }),
+          }),
+        }),
+      },
+    }),
+
+    servicesTrust: singleton({
+      label: "Services: Why You Can Trust Me",
+      path: "../../content/services/trust",
+      format: { data: "yaml" },
+      schema: {
+        heading: fields.text({ label: "Heading" }),
+        cards: fields.array(
+          fields.object({
+            id: fields.text({ label: "ID" }),
+            title: fields.text({ label: "Title" }),
+            description: fields.text({ label: "Description", multiline: true }),
+            link: fields.object({
+              label: fields.text({ label: "Link Text" }),
+              href: fields.text({ label: "Link Href" }),
+            }),
+          }),
+          { label: "Trust Cards", itemLabel: (p) => p.fields.title.value }
+        ),
+      },
+    }),
+
+    servicesWorking: singleton({
+      label: "Services: Working Together Strip",
+      path: "../../content/services/working",
+      format: { data: "yaml" },
+      schema: {
+        heading: fields.text({ label: "Heading" }),
+        items: fields.array(
+          fields.object({
+            label: fields.text({ label: "Label" }),
+            value: fields.text({ label: "Value" }),
+          }),
+          { label: "Working Items", itemLabel: (p) => p.fields.label.value }
+        ),
+      },
+    }),
+
+    servicesFaq: singleton({
+      label: "Services: Questions Clients Ask (FAQ)",
+      path: "../../content/services/faq",
+      format: { data: "yaml" },
+      schema: {
+        heading: fields.text({ label: "Heading" }),
+        items: fields.array(
+          fields.object({
+            id: fields.text({ label: "ID" }),
+            question: fields.text({ label: "Question" }),
+            answer: fields.text({ label: "Answer", multiline: true }),
+          }),
+          { label: "FAQ Items", itemLabel: (p) => p.fields.question.value }
+        ),
+      },
+    }),
+
+    servicesCta: singleton({
+      label: "Services: Footer CTA",
+      path: "../../content/services/cta",
+      format: { data: "yaml" },
+      schema: {
+        heading: fields.text({ label: "Heading" }),
+        button: fields.object({
+          label: fields.text({ label: "Button Label" }),
+          href: fields.text({ label: "Button Link" }),
+        }),
       },
     }),
   },

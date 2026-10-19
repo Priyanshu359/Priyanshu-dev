@@ -1,0 +1,4 @@
+heading: "Tell me what you want to build. You’ll get a fixed quote, not a sales pitch."
+button:
+  label: "Get a fixed quote"
+  href: "/connect?type=client#contact"

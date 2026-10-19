@@ -6,7 +6,7 @@ clientHeader: "client · priyanshu.dev/ask"
 inputPlaceholder: "Type any question…"
 buttonLabel: "Send"
 samplePrompts:
-  - "What does he do at StudyIQ?"
+  - "What Priyanshu do?"
   - "How does he use Redis?"
   - "Who won the cricket match yesterday?"
 metaDefault: "Type a question and press Send. Nothing is answered — you’ll see how it flows."

@@ -31,6 +31,29 @@ export const HomeSectionIndexItemSchema = z.object({
   href: z.string(),
 });
 
+export const HomeBusinessCardSchema = z.object({
+  title: z.string(),
+  description: z.string(),
+  href: z.string().default("/services"),
+});
+
+export const HomeBusinessesSchema = z.object({
+  label: z.string(),
+  heading: z.string(),
+  subline: z.string(),
+  cards: z.array(HomeBusinessCardSchema),
+  actions: z.object({
+    primary: z.object({
+      label: z.string(),
+      href: z.string(),
+    }),
+    secondary: z.object({
+      label: z.string(),
+      href: z.string(),
+    }),
+  }),
+});
+
 export const HomeSchema = z.object({
   hero: z.object({
     greeting: z.string(),
@@ -65,6 +88,7 @@ export const HomeSchema = z.object({
     note: z.string(),
     rateLimitBlockedText: z.string(),
   }),
+  businesses: HomeBusinessesSchema.optional(),
   developerTerminal: z.object({
     kicker: z.string(),
     title: z.string(),
@@ -415,6 +439,8 @@ export const ConnectTrustReasonSchema = z.object({
 
 export const ConnectClientWorkSchema = z.object({
   title: z.string().default("Why clients can trust me with their project"),
+  linkText: z.string().optional(),
+  linkHref: z.string().optional(),
   reasons: z.array(ConnectTrustReasonSchema).default([]),
   heading: z.string().optional(),
   subheading: z.string().optional(),
@@ -441,6 +467,7 @@ export const ConnectContactFormSchema = z.object({
   directEmailPrefix: z.string(),
   emailAddress: z.string().email(),
   rateLimitNotice: z.string(),
+  foundingOfferNote: z.string().optional(),
   commonLabels: z.object({
     nameLabel: z.string(),
   }),
@@ -489,21 +516,194 @@ export const ConnectContactFormSchema = z.object({
 
 // --- Journey Schemas ---
 
+export const JourneyPaletteEnum = z.enum(["blue", "sand", "green", "dark", "indigo"]);
+export type JourneyPalette = z.infer<typeof JourneyPaletteEnum>;
+
+export const JourneyPhotoSchema = z.object({
+  src: z.string().min(1, "Photo src is required"),
+  alt: z.string().min(1, "Photo alt is required whenever src is set"),
+});
+export type JourneyPhoto = z.infer<typeof JourneyPhotoSchema>;
+
+export const JourneyPrologueSchema = z.object({
+  place: z.string().min(1, "Place is required"),
+  title: z.string().min(1, "Title is required"),
+  caption: z.string().min(1, "Caption is required"),
+  photo: JourneyPhotoSchema.optional(),
+  content: z.string(),
+});
+export type JourneyPrologue = z.infer<typeof JourneyPrologueSchema>;
+
 export const JourneyChapterSchema = z.object({
   slug: z.string(),
-  title: z.string(),
   order: z.number(),
   place: z.string().optional(),
-  period: z.string().optional(),
-  mood: z.string().optional(),
-  moodColor: z.string().optional(),
-  isDark: z.boolean().optional(),
-  photo: z.string().optional(),
-  photoAlt: z.string().optional(),
-  photoPlaceholder: z.string().optional(),
-  cta: z.string().optional(),
-  ctaHref: z.string().optional(),
+  period: z.string(),
+  mood: z.string(),
+  title: z.string(),
+  lesson: z.string(),
+  palette: JourneyPaletteEnum,
+  photo: JourneyPhotoSchema.optional(),
   content: z.string(),
+  label: z.string().optional(),
+});
+export type JourneyChapter = z.infer<typeof JourneyChapterSchema>;
+
+export const JourneyEndingSchema = z.object({
+  label: z.string(),
+  title: z.string(),
+  text: z.string(),
+  button: z
+    .object({
+      label: z.string(),
+      link: z.string(),
+    })
+    .optional(),
+  buttonLabel: z.string().optional(),
+  buttonLink: z.string().optional(),
+});
+export type JourneyEnding = z.infer<typeof JourneyEndingSchema>;
+
+// --- Services Schemas ---
+
+export const ServicesHeroActionSchema = z.object({
+  label: z.string(),
+  href: z.string(),
+});
+
+export const ServicesHeroSchema = z.object({
+  status: z.string(),
+  headline: z.string(),
+  subline: z.string(),
+  actions: z.object({
+    primary: ServicesHeroActionSchema,
+    secondary: ServicesHeroActionSchema,
+  }),
+});
+
+export const ServicesItemSchema = z.object({
+  number: z.string(),
+  title: z.string(),
+  description: z.string(),
+  goodFor: z.string(),
+  timeline: z.string(),
+  tech: z.string(),
+});
+
+export const ServicesListSchema = z.object({
+  heading: z.string(),
+  subline: z.string(),
+  items: z.array(ServicesItemSchema),
+});
+
+export const ServicesQuoteSchema = z.object({
+  heading: z.string(),
+  text: z.string(),
+  button: z.object({
+    label: z.string(),
+    href: z.string(),
+  }),
+});
+
+export const ServicesProcessStepSchema = z.object({
+  number: z.string(),
+  title: z.string(),
+  description: z.string(),
+});
+
+export const ServicesProcessSchema = z.object({
+  heading: z.string(),
+  steps: z.array(ServicesProcessStepSchema),
+});
+
+export const ServicesProofCardSchema = z.object({
+  label: z.string(),
+  title: z.string(),
+  text: z.string(),
+  link: z
+    .object({
+      label: z.string(),
+      href: z.string(),
+    })
+    .optional(),
+});
+
+export const ServicesSampleMilestoneSchema = z.object({
+  milestone: z.string(),
+  title: z.string(),
+  description: z.string(),
+});
+
+export const ServicesSamplePlanSchema = z.object({
+  label: z.string(),
+  title: z.string(),
+  subline: z.string(),
+  milestones: z.array(ServicesSampleMilestoneSchema),
+});
+
+export const ServicesFoundingOfferSchema = z.object({
+  enabled: z.boolean(),
+  title: z.string(),
+  text: z.string(),
+  button: z.object({
+    label: z.string(),
+    href: z.string(),
+  }),
+});
+
+export const ServicesProofSchema = z.object({
+  anchor: z.string().default("work"),
+  heading: z.string(),
+  subline: z.string(),
+  cards: z.array(ServicesProofCardSchema),
+  samplePlan: ServicesSamplePlanSchema,
+  foundingOffer: ServicesFoundingOfferSchema,
+});
+
+export const ServicesTrustCardSchema = z.object({
+  id: z.string(),
+  title: z.string(),
+  description: z.string(),
+  link: z
+    .object({
+      label: z.string(),
+      href: z.string(),
+    })
+    .optional(),
+});
+
+export const ServicesTrustSchema = z.object({
+  heading: z.string(),
+  cards: z.array(ServicesTrustCardSchema),
+});
+
+export const ServicesWorkingItemSchema = z.object({
+  label: z.string(),
+  value: z.string(),
+});
+
+export const ServicesWorkingSchema = z.object({
+  heading: z.string(),
+  items: z.array(ServicesWorkingItemSchema),
+});
+
+export const ServicesFaqItemSchema = z.object({
+  id: z.string(),
+  question: z.string(),
+  answer: z.string(),
+});
+
+export const ServicesFaqSchema = z.object({
+  heading: z.string(),
+  items: z.array(ServicesFaqItemSchema),
+});
+
+export const ServicesCtaSchema = z.object({
+  heading: z.string(),
+  button: z.object({
+    label: z.string(),
+    href: z.string(),
+  }),
 });
 
 // Inferred TypeScript Types
@@ -526,4 +726,12 @@ export type ConnectProcess = z.infer<typeof ConnectProcessSchema>;
 export type ConnectClientWork = z.infer<typeof ConnectClientWorkSchema>;
 export type ConnectDevelopers = z.infer<typeof ConnectDevelopersSchema>;
 export type ConnectContactForm = z.infer<typeof ConnectContactFormSchema>;
-export type JourneyChapter = z.infer<typeof JourneyChapterSchema>;
+export type ServicesHero = z.infer<typeof ServicesHeroSchema>;
+export type ServicesList = z.infer<typeof ServicesListSchema>;
+export type ServicesQuote = z.infer<typeof ServicesQuoteSchema>;
+export type ServicesProcess = z.infer<typeof ServicesProcessSchema>;
+export type ServicesProof = z.infer<typeof ServicesProofSchema>;
+export type ServicesTrust = z.infer<typeof ServicesTrustSchema>;
+export type ServicesWorking = z.infer<typeof ServicesWorkingSchema>;
+export type ServicesFaq = z.infer<typeof ServicesFaqSchema>;
+export type ServicesCta = z.infer<typeof ServicesCtaSchema>;

@@ -3,6 +3,7 @@ subheading: "Tell me who you are and the form adapts to what I need to know."
 directEmailPrefix: "Or email directly:"
 emailAddress: "priyanshu.kr.sinha74@gmail.com"
 rateLimitNotice: "This form is rate-limited too. Of course it is."
+foundingOfferNote: "Founding client offer: 20% off your first project"
 commonLabels:
   nameLabel: "Name"
 segments:

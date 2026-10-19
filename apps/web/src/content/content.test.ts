@@ -17,12 +17,24 @@ import {
   getHome,
   getJourneyChapter,
   getJourneyChapters,
+  getJourneyPrologue,
+  getJourneyEnding,
+  validateJourneyPhoto,
   getKnowledgeChunk,
   getKnowledgeChunks,
   getLab,
   getLabs,
   getNav,
   getProfile,
+  getServicesCta,
+  getServicesFaq,
+  getServicesHero,
+  getServicesList,
+  getServicesProcess,
+  getServicesProof,
+  getServicesQuote,
+  getServicesTrust,
+  getServicesWorking,
 } from "./loader";
 import { LabSchema, ProfileSchema } from "./schema";
 
@@ -40,14 +52,18 @@ describe("Content System Validation", () => {
     expect(all.aiConcepts.items).toHaveLength(9);
     expect(all.askPresets.presets).toHaveLength(3);
     expect(all.knowledgeChunks).toHaveLength(14);
-    expect(all.journeyChapters).toHaveLength(6);
+    expect(all.journeyChapters).toHaveLength(5);
+    expect(all.journeyPrologue.title).toBe("Before the code, there was home.");
+    expect(all.journeyEnding.label).toBe("CHAPTER 06");
+    expect(all.servicesList.items).toHaveLength(4);
+    expect(all.servicesFaq.items).toHaveLength(8);
   });
 
   describe("Site Content", () => {
     it("loads nav with valid structure", () => {
       const nav = getNav();
       expect(nav.brand).toBe("priyanshu.dev");
-      expect(nav.items.map((i) => i.label)).toEqual(["Lab", "AI", "Journey"]);
+      expect(nav.items.map((i) => i.label)).toEqual(["Lab", "AI", "Journey", "Services"]);
       expect(nav.cta.label).toBe("Let’s talk");
     });
 
@@ -187,19 +203,141 @@ describe("Content System Validation", () => {
   });
 
   describe("Journey Content", () => {
-    it("loads 6 chapters in chronological order", () => {
+    it("loads prologue with valid place, title, caption and text", () => {
+      const prologue = getJourneyPrologue();
+      expect(prologue.place).toBe("Patratu, Jharkhand");
+      expect(prologue.title).toBe("Before the code, there was home.");
+      expect(prologue.caption).toBe(
+        "My mother, father, grandmother, sister and me, at ten."
+      );
+      expect(prologue.content).toContain("This is our first family photo.");
+      expect(prologue.photo?.src).toBe("./images/00-family.jpg");
+      expect(prologue.photo?.alt).toBe(
+        "My mother, father, grandmother, sister and me, at ten."
+      );
+    });
+
+    it("loads 5 chapters in chronological order with generated labels and palettes", () => {
       const chapters = getJourneyChapters();
-      expect(chapters).toHaveLength(6);
-      expect(chapters.map((c) => c.order)).toEqual([1, 2, 3, 4, 5, 6]);
-      expect(chapters[0].title).toBe("Where it began");
-      expect(chapters[3].isDark).toBe(true);
-      expect(chapters[5].title).toBe("Still being written.");
+      expect(chapters).toHaveLength(5);
+      expect(chapters.map((c) => c.order)).toEqual([1, 2, 3, 4, 5]);
+
+      // Chapter 01
+      expect(chapters[0].title).toBe("A borrowed keyboard and my father’s phone");
+      expect(chapters[0].palette).toBe("blue");
+      expect(chapters[0].label).toBe(
+        "CHAPTER 01 · PATRATU, JHARKHAND · AGE 15 · CURIOUS"
+      );
+      expect(chapters[0].photo?.src).toBe("./images/01-home-setup.jpg");
+      expect(chapters[0].photo?.alt).toBe("My home setup at 21");
+
+      // Chapter 02
+      expect(chapters[1].title).toBe(
+        "Four years, one scholarship, and a loan worth every rupee"
+      );
+      expect(chapters[1].palette).toBe("sand");
+      expect(chapters[1].label).toBe(
+        "CHAPTER 02 · CHANDIGARH · 2021–2025 · GRATEFUL"
+      );
+      expect(chapters[1].photo?.alt).toBe("Chandigarh University campus");
+
+      // Chapter 03
+      expect(chapters[2].title).toBe("A lonely city and my first real bug");
+      expect(chapters[2].palette).toBe("green");
+      expect(chapters[2].label).toBe(
+        "CHAPTER 03 · AHMEDABAD · 2025 · ON MY OWN"
+      );
+      expect(chapters[2].photo?.alt).toBe("Ahmedabad");
+
+      // Chapter 04 (Dark, no photo, no place)
+      expect(chapters[3].title).toBe("Seven months that tested everything");
+      expect(chapters[3].palette).toBe("dark");
+      expect(chapters[3].place).toBeUndefined();
+      expect(chapters[3].label).toBe("CHAPTER 04 · 2025 · LOST");
+      expect(chapters[3].photo).toBeUndefined();
+
+      // Chapter 05 (Indigo, with photo 05-gurugram.jpg)
+      expect(chapters[4].title).toBe("I never chose backend. Backend chose me.");
+      expect(chapters[4].palette).toBe("indigo");
+      expect(chapters[4].label).toBe(
+        "CHAPTER 05 · GURUGRAM · 2025 – NOW · BACK ON TRACK"
+      );
+      expect(chapters[4].photo?.src).toBe("./images/05-gurugram.jpg");
+      expect(chapters[4].photo?.alt).toBe("Gurugram");
     });
 
     it("loads specific chapter by slug", () => {
-      const ch1 = getJourneyChapter("01-where-it-began");
-      expect(ch1.place).toBe("[HOMETOWN]");
-      expect(ch1.photoPlaceholder).toBe("[Childhood photo]");
+      const ch1 = getJourneyChapter("01-patratu");
+      expect(ch1.place).toBe("Patratu, Jharkhand");
+      expect(ch1.lesson).toBe(
+        "You don’t need the right tools to start. You start with whatever you have."
+      );
+    });
+
+    it("loads journey ending with chapter 06 and call to action", () => {
+      const ending = getJourneyEnding();
+      expect(ending.label).toBe("CHAPTER 06");
+      expect(ending.title).toBe("Still being written.");
+      expect(ending.text).toBe(
+        "If any of this felt familiar, I’d love to hear your story too."
+      );
+      expect(ending.button?.label).toBe("Say hello");
+      expect(ending.button?.link).toBe("/connect");
+    });
+  });
+
+  describe("Services Content", () => {
+    it("loads services hero with headline and actions", () => {
+      const hero = getServicesHero();
+      expect(hero.status).toBe("Taking on new projects");
+      expect(hero.headline).toContain("Need something built?");
+      expect(hero.actions.primary.href).toBe("/connect?type=client#contact");
+      expect(hero.actions.secondary.href).toBe("#work");
+    });
+
+    it("loads services list with 4 offerings and timeline placeholders", () => {
+      const list = getServicesList();
+      expect(list.items).toHaveLength(4);
+      expect(list.items[0].timeline).toBe("[6–10 weeks]");
+      expect(list.items[1].timeline).toBe("[2–4 weeks]");
+      expect(list.items[2].timeline).toBe("[3–6 weeks]");
+      expect(list.items[3].timeline).toBe("[1–2 weeks]");
+    });
+
+    it("loads quote strip with fixed quote messaging", () => {
+      const quote = getServicesQuote();
+      expect(quote.heading).toBe("Every project gets a fixed quote");
+      expect(quote.button.href).toBe("/connect?type=client#contact");
+    });
+
+    it("loads process steps with 4 sequential stages", () => {
+      const proc = getServicesProcess();
+      expect(proc.steps).toHaveLength(4);
+      expect(proc.steps[0].number).toBe("01");
+      expect(proc.steps[3].description).toContain("[30 days]");
+    });
+
+    it("loads proof panel with cards, sample plan, and founding offer banner", () => {
+      const proof = getServicesProof();
+      expect(proof.cards).toHaveLength(3);
+      expect(proof.samplePlan.milestones).toHaveLength(3);
+      expect(proof.foundingOffer.enabled).toBe(true);
+      expect(proof.foundingOffer.button.href).toBe("/connect?type=client&offer=founding#contact");
+    });
+
+    it("loads trust reasons and working together strip", () => {
+      const trust = getServicesTrust();
+      expect(trust.cards).toHaveLength(6);
+      const working = getServicesWorking();
+      expect(working.items).toHaveLength(4);
+      expect(working.items[2].value).toContain("[within 24 hours]");
+    });
+
+    it("loads FAQ with 8 items and footer CTA", () => {
+      const faq = getServicesFaq();
+      expect(faq.items).toHaveLength(8);
+      const cta = getServicesCta();
+      expect(cta.button.href).toBe("/connect?type=client#contact");
     });
   });
 
@@ -255,6 +393,33 @@ describe("Content System Validation", () => {
 
     it("fails when required fields are missing", () => {
       expect(() => LabSchema.parse({ title: "Incomplete" })).toThrow();
+    });
+
+    it("fails when a journey photo has missing or empty alt text", () => {
+      expect(() =>
+        validateJourneyPhoto(
+          { src: "./images/01-home-setup.jpg", alt: "" },
+          "test-chapter.mdx"
+        )
+      ).toThrow(/non-empty "alt" description/);
+    });
+
+    it("fails when a journey photo file is missing on disk", () => {
+      expect(() =>
+        validateJourneyPhoto(
+          { src: "./images/nonexistent-file.jpg", alt: "Valid alt description" },
+          "test-chapter.mdx"
+        )
+      ).toThrow(/photo file does not exist/);
+    });
+
+    it("succeeds when a journey photo has both alt text and valid file", () => {
+      expect(() =>
+        validateJourneyPhoto(
+          { src: "./images/01-home-setup.jpg", alt: "My home setup at 21" },
+          "01-patratu.mdx"
+        )
+      ).not.toThrow();
     });
   });
 });

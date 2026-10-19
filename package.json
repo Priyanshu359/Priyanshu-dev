@@ -13,6 +13,7 @@
     "test:web": "pnpm --filter web test",
     "dev:api": "cd services/api && ./gradlew bootRun",
     "test:api": "cd services/api && ./gradlew test",
-    "tokens": "pnpm --filter web tokens"
+    "tokens": "pnpm --filter web tokens",
+    "journey:photos": "node scripts/process-journey-photos.mjs"
   }
 }

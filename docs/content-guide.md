@@ -27,55 +27,100 @@ When running `pnpm --filter web build` or running tests, every content file is l
 
 ---
 
-## 1. How to Add a Journey Chapter
+## 1. How to Add or Edit Journey Chapters
 
-Journey chapters live in `content/journey/` as individual `.mdx` files sorted chronologically by their `order` frontmatter property.
+Journey narrative content lives in `content/journey/`:
+- `prologue.mdx`: Prologue opening story, childhood place, family photo/caption.
+- `chapters/NN-slug.mdx`: Individual autobiographical chapters sorted chronologically by `order`.
+- `ending.yaml`: Chapter 06 conclusion and call to action.
+- `images/`: High-resolution photographs.
 
-### Step 1: Create the MDX File
-Create a new file in `content/journey/` with a descriptive name, e.g. `07-new-city.mdx`:
+### Chapter Frontmatter Reference
+
+Each file in `content/journey/chapters/NN-slug.mdx` has the following frontmatter:
 
 ```mdx
 ---
-title: "The Next Frontier"
-order: 7
-place: "Bengaluru, India"
-period: "2026–PRESENT"
-mood: "Focused, building at scale"
-moodColor: "#EAE7DF"
-isDark: false
-photo: "/content/journey/images/bengaluru-chapter.jpg"
-photoAlt: "Engineering workstation in Bengaluru"
-photoPlaceholder: "[Workstation setup]"
-cta: "Read architecture logs"
-ctaHref: "/ai"
+order: 1
+place: "Patratu, Jharkhand"
+period: "Age 15"
+mood: "Curious"
+title: "A borrowed keyboard and my father’s phone"
+lesson: "You don’t need the right tools to start. You start with whatever you have."
+palette: "blue" # one of blue | sand | green | dark | indigo
+photo:
+  src: "./images/01-home-setup.jpg"
+  alt: "My home setup at 21"
 ---
 
-## What Changed
-
-Write the chapter story here using Markdown or MDX.
-
-Paragraphs capture the personal and technical context of this phase in your engineering career.
+Write chapter narrative here in Markdown or MDX.
 ```
-
-### Frontmatter Reference
 
 | Field | Type | Required | Description |
 |---|---|---|---|
-| `title` | string | Yes | The chapter title. |
-| `order` | integer | Yes | Sequence number for chronological sorting (1, 2, 3...). |
-| `place` | string | Yes | Geographic location or milestone place (e.g. `Gurugram`, `Chandigarh`). |
-| `period` | string | Yes | Time period label (e.g. `2021–2025`, `DEC 2025`). |
-| `mood` | string | Yes | One-line phrase summarizing the mood of this chapter. |
-| `moodColor` | hex string | Yes | Background hex color used for the card / section (e.g. `#F3E6C8`, `#111111`). |
-| `isDark` | boolean | No | If `true`, renders with dark background and light text (defaults to `false`). |
-| `photo` | string | No | Path to photo under `/content/journey/images/`. |
-| `photoAlt` | string | No | Accessible description for the photo. |
-| `photoPlaceholder` | string | No | Bracketed placeholder text if photo is pending (e.g. `[Childhood photo]`). |
-| `cta` | string | No | Optional button label (e.g. `Say hello`). |
-| `ctaHref` | string | No | Optional button destination link (e.g. `/hire`). |
+| `order` | integer | Yes | Chronological sequence (1, 2, 3, 4, 5...). |
+| `place` | string | No | Hometown or city (e.g. `Patratu, Jharkhand`, `Chandigarh`). Optional (e.g. Chapter 4 omits place). |
+| `period` | string | Yes | Time period or age (e.g. `Age 15`, `2021–2025`, `2025 – now`). |
+| `mood` | string | Yes | Mood keyword (e.g. `Curious`, `Grateful`, `On my own`, `Lost`, `Back on track`). |
+| `title` | string | Yes | Chapter headline. |
+| `lesson` | string | Yes | Pullquote takeaway displayed with a vertical rule in the chapter's ink color. |
+| `palette` | enum | Yes | Color scheme: `blue` (#E8EEF2), `sand` (#F3E6C8), `green` (#DDEBDF), `dark` (#2F2A33), `indigo` (#E3E7F3). |
+| `photo` | object | No | Optional `{ src, alt }`. If omitted, the chapter automatically displays the typographic mood card. |
+| `photo.src` | string | If photo | Path to file, e.g. `./images/01-home-setup.jpg`. File must exist in `content/journey/images/`. |
+| `photo.alt` | string | If photo | Accessible description of the photograph (required whenever `photo.src` is specified). |
 
-### Adding Images
-Store all chapter images in `content/journey/images/`. No external storage or third-party buckets are used; images are committed to the repository and served locally through `next/image`.
+The uppercase label is generated automatically: `"CHAPTER 0N · PLACE · PERIOD · MOOD"` (or `"CHAPTER 04 · PERIOD · MOOD"` if place is omitted).
+
+---
+
+## 1.1 Adding or changing Journey photos
+
+Journey chapters support photographic memories or automatically fall back to typographic mood cards when no photograph is provided.
+
+### Two Ways to Add or Change a Photo
+
+#### A) In Keystatic CMS (No Code)
+1. Open Keystatic at `/keystatic` in your browser.
+2. Select **Journey Chapters** and click on the chapter you wish to update (or **Journey Prologue** for the prologue).
+3. Scroll down to the **Chapter Photo** field.
+4. Click **Upload** and select your image file from your computer.
+5. In the **Photo Alt Description** field, type a concise, descriptive description of what appears in the image.
+6. Click **Save** in the bottom bar.
+7. Keystatic commits the image and text change, and the site rebuilds automatically.
+
+#### B) By Hand (Git / File System)
+1. Copy your image into `content/journey/images/` with a descriptive filename, e.g. `01-home-setup.jpg`.
+2. Open the corresponding chapter file in `content/journey/chapters/NN-slug.mdx`.
+3. Add or update the `photo` block in the frontmatter:
+   ```yaml
+   photo:
+     src: "./images/01-home-setup.jpg"
+     alt: "My home setup at 21"
+   ```
+4. Run `pnpm dev` in your terminal to inspect the photo on `http://localhost:3000/journey`.
+5. Commit and push your changes to GitHub.
+
+### Recommended Image Sizes
+- **Chapters**: At least 1200 px wide (landscape or 4:3 aspect ratio).
+- **Prologue**: At least 800 px wide (older, vintage family scans and smaller historic photos work beautifully in the rotated print frame).
+
+### Privacy & Photo Optimization Pipeline
+- Before each production build, the automated image pipeline (`pnpm journey:photos`) processes every image in `content/journey/images/`:
+  - **EXIF & GPS Stripping**: Permanently removes all camera metadata, embedded GPS coordinates, timestamps, and device identifiers to protect privacy.
+  - **Auto-Orientation**: Normalizes image rotation according to initial orientation tags before stripping.
+  - **Downscaling**: Proportionally resizes images to a maximum of 2000 px on the long side.
+- Never commit unneeded sensitive photos.
+
+### What to Avoid
+- **Faces without consent**: Do not upload photos showing friends, classmates, or colleagues without their explicit permission.
+- **Identification & Addresses**: Avoid photos containing readable house numbers, street signs, vehicle number plates, badges, IDs, or diplomas with registration numbers.
+- **Proprietary Work**: Avoid photos of computer screens showing internal employer/client code, Slack conversations, or confidential infrastructure.
+
+### How to Remove a Photo
+- To switch a chapter back to the typographic mood card (or tilted paper card in Prologue):
+  1. Remove the `photo:` block completely from the chapter's frontmatter (or clear the photo field in Keystatic).
+  2. (Optional) Delete the unused image file from `content/journey/images/`.
+  3. Save and rebuild. When no photo is configured, the chapter renders the palette's typographic mood card.
 
 ---
 
@@ -233,7 +278,47 @@ At StudyIQ, microservice telemetry is instrumented using Micrometer and exported
 
 ---
 
-## 5. Editing via Keystatic CMS
+## 5. Services Content & Founding Offer Configuration
+
+All copy for the `/services` page lives under `content/services/` in nine validated YAML singletons:
+
+```
+content/services/
+├── hero.yaml      # Status badge, headline, subline, primary and secondary CTAs
+├── services.yaml  # 4 offerings with "Good for", timeline placeholders, and tech stack
+├── quote.yaml     # Fixed-quote guarantee strip and CTA
+├── process.yaml   # 4-stage project workflow (Send request → Fixed quote → Build → Handover)
+├── proof.yaml     # StudyIQ scale proof, Lab proof, sample project plan, founding offer
+├── trust.yaml     # 6 client trust cards (production engineering, IP ownership, NDA...)
+├── working.yaml   # Operational details strip (Time zone, Payments, Response time, Paperwork)
+├── faq.yaml       # 8 common client questions in an accessible accordion
+└── cta.yaml       # Dark band footer closing CTA
+```
+
+### How to Turn the Founding Client Offer On or Off
+The founding client offer banner (giving 20% off for the first project) is conditionally rendered:
+1. Open `content/services/proof.yaml` (or edit **Services: Proof of How I Build** in Keystatic).
+2. Set `enabled` under `foundingOffer` to `false`:
+   ```yaml
+   foundingOffer:
+     enabled: false
+     title: "Founding client offer"
+     text: "..."
+   ```
+3. When `enabled: false`, the banner is completely omitted from the `/services` page at build and render time. Setting it back to `true` instantly re-enables it.
+
+### How to Edit Bracketed Placeholders
+All bracketed placeholders are meant to be updated with real data as timelines or policies evolve:
+- **Service Timelines**: In `content/services/services.yaml`, update `timeline: "[6–10 weeks]"`, `"[2–4 weeks]"`, etc.
+- **Bug Fix Period**: In `content/services/process.yaml` step 04, update `[30 days]`.
+- **Response Time**: In `content/services/working.yaml`, update `[within 24 hours]`.
+- **Notice Period & Location**: In `content/connect/recruiters.yaml`, update `[open to relocate]`, `[30 days]`.
+
+All placeholders can also be edited through the browser at `http://localhost:3000/keystatic`.
+
+---
+
+## 6. Editing via Keystatic CMS
 
 You can manage all site content through the visual CMS interface.
 
@@ -246,7 +331,7 @@ You can manage all site content through the visual CMS interface.
    ```
    http://localhost:3000/keystatic
    ```
-3. All collections (**Journey Chapters**, **Knowledge Chunks**, **Interactive Labs**, **Lab Deep-Dive Stories**) and singletons (**Home Page**, **Navigation Bar**, **Developer Profile**, **About**, **Connect**, **AI Walkthrough**, **Architecture Diagram**, etc.) are listed in the sidebar.
+3. All collections (**Journey Chapters**, **Knowledge Chunks**, **Interactive Labs**, **Lab Deep-Dive Stories**) and singletons (**Home Page**, **Services Pages**, **Navigation Bar**, **Developer Profile**, **About**, **Connect**, **AI Walkthrough**, **Architecture Diagram**, etc.) are listed in the sidebar.
 4. When you edit and save changes in local mode, Keystatic modifies the YAML and Markdown files in `content/` directly.
 
 ### GitHub Mode (Production)

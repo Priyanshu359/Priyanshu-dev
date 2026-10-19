@@ -4,13 +4,15 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "prebuild": "node ../../scripts/process-journey-photos.mjs",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "test": "vitest run",
     "test:e2e": "playwright test",
     "typecheck": "tsc --noEmit",
-    "tokens": "node scripts/generate-tokens.mjs"
+    "tokens": "node scripts/generate-tokens.mjs",
+    "journey:photos": "node ../../scripts/process-journey-photos.mjs"
   },
   "dependencies": {
     "@keystatic/core": "^0.6.9",
@@ -31,6 +33,7 @@
     "@types/react-dom": "19.0.4",
     "eslint": "9.22.0",
     "eslint-config-next": "15.2.1",
+    "sharp": "^0.35.5",
     "typescript": "5.8.2",
     "vitest": "^5.0.5"
   }

@@ -47,7 +47,7 @@ export default function ConnectPage() {
             Whoever you are, there’s a way in.
           </h1>
           <p style={{ margin: "24px 0 0", fontSize: "19px", color: "var(--color-muted)", maxWidth: "640px" }}>
-            Hiring, building something, or just starting out in backend — pick the path that fits and I’ll take it from there.
+            Thinking of hiring me, need something built, or just want to talk backend? Pick the path that fits and I’ll take it from there.
           </p>
         </section>
 
@@ -72,12 +72,12 @@ export default function ConnectPage() {
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--color-accent)" }}>
                 01 · Recruiters &amp; hiring managers
               </span>
-              <span style={{ fontSize: "24px", fontWeight: 600 }}>“Considering me for a role?”</span>
+              <span style={{ fontSize: "24px", fontWeight: 600 }}>Considering me for a role?</span>
               <span style={{ color: "var(--color-muted)" }}>
-                A 30-second snapshot, my résumé, and the fastest way to reach me.
+                My 30-second snapshot, résumé, and the fastest way to reach me.
               </span>
               <span style={{ marginTop: "8px", fontWeight: 500, color: "var(--color-accent)" }}>
-                See the snapshot ↓
+                See my snapshot ↓
               </span>
             </a>
 
@@ -99,9 +99,9 @@ export default function ConnectPage() {
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--color-green)" }}>
                 02 · Clients &amp; founders
               </span>
-              <span style={{ fontSize: "24px", fontWeight: 600 }}>“We need something built.”</span>
+              <span style={{ fontSize: "24px", fontWeight: 600 }}>Need something built?</span>
               <span style={{ color: "var(--color-muted)" }}>
-                AI agents, web, mobile and backend projects — what I build and how we’d work.
+                Web, mobile and backend projects — what I build and how we’d work.
               </span>
               <span style={{ marginTop: "8px", fontWeight: 500, color: "var(--color-green)" }}>
                 See services ↓
@@ -126,7 +126,7 @@ export default function ConnectPage() {
               <span style={{ fontFamily: "var(--font-mono)", fontSize: "13px", color: "var(--color-warm)" }}>
                 03 · Students &amp; developers
               </span>
-              <span style={{ fontSize: "24px", fontWeight: 600 }}>“Just saying hi.”</span>
+              <span style={{ fontSize: "24px", fontWeight: 600 }}>Just want to say hi?</span>
               <span style={{ color: "var(--color-muted)" }}>
                 Fellow learner? No agenda needed — let’s just talk.
               </span>
@@ -305,10 +305,21 @@ export default function ConnectPage() {
           </div>
 
           {/* Why clients can trust me section */}
-          <div style={{ margin: "72px 0 24px" }}>
+          <div style={{ margin: "72px 0 24px", display: "flex", flexDirection: "column", gap: "8px" }}>
             <h3 style={{ margin: 0, fontSize: "28px", fontWeight: 700, letterSpacing: "-0.02em" }}>
               {clientWork.title || "Why clients can trust me with their project"}
             </h3>
+            <Link
+              href={clientWork.linkHref || "/services"}
+              style={{
+                color: "var(--color-accent)",
+                textDecoration: "none",
+                fontWeight: 500,
+                fontSize: "15px",
+              }}
+            >
+              {clientWork.linkText || "Services, a sample project plan and answers to common questions are on the Services page →"}
+            </Link>
           </div>
 
           <div

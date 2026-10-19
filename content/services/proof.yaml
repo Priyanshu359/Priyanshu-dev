@@ -1,0 +1,37 @@
+anchor: "work"
+heading: "Proof of how I build"
+subline: "Work you can check today: systems running in production at my job, and demos running live on this site."
+cards:
+  - label: "In production · StudyIQ"
+    title: "Mentors Buddy, built end to end as the sole backend developer"
+    text: "A Java 21 / Spring Boot mentorship platform with an ACID-compliant credit wallet, Google Calendar and Meet scheduling, Firebase chat and AI meeting insights."
+  - label: "In production · StudyIQ"
+    title: "Systems that hold up at 100K+ requests a minute"
+    text: "20+ services through flash sales and nationwide live exams: Redis caching, Kafka pipelines, and the incident fixes that keep them running."
+  - label: "Live on this site"
+    title: "The Lab and the AI walkthrough"
+    text: "Rate limiting, database tuning and an AI request pipeline running on my own backend. Open your Network tab and check."
+    link:
+      label: "Try the Lab →"
+      href: "/lab/rate-limiting"
+samplePlan:
+  label: "SAMPLE PROJECT PLAN"
+  title: "What you’d get for an AI booking agent for a clinic"
+  subline: "Every project starts with a plan like this. You see each milestone working on a live link before paying for it."
+  milestones:
+    - milestone: "MILESTONE 1"
+      title: "Foundations"
+      description: "Your calendar and service list connected; booking logic working on a test number."
+    - milestone: "MILESTONE 2"
+      title: "The agent"
+      description: "Answers questions from your own content, checks open slots, books and reschedules. You test it on WhatsApp."
+    - milestone: "MILESTONE 3"
+      title: "Launch"
+      description: "Website chat widget, owner notifications, deployment and a handover guide."
+foundingOffer:
+  enabled: true
+  title: "Founding client offer"
+  text: "I’m taking on a small number of founding clients this year: **20% off your first project**, in exchange for honest feedback when we’re done."
+  button:
+    label: "Claim a spot"
+    href: "/connect?type=client&offer=founding#contact"

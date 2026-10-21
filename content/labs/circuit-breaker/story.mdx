@@ -1,7 +1,26 @@
 ---
-title: "Circuit Breakers & Cascading Failure Protection"
+title: "Circuit Breakers and Cascading Failure Prevention"
 labId: "circuit-breaker"
 order: 6
 ---
 
-Coming soon: Resilience4j circuit breakers, bulkhead isolation, and degradation fallback strategies.
+## Cascading Failures and Thread Starvation
+
+In a microservices architecture, services do not live in isolation. When upstream API requests depend on downstream microservices, third-party payment gateways, or notification vendors, downstream degradation can swiftly bring down the entire fleet.
+
+Consider a downstream service experiencing high latency:
+- Each incoming HTTP request holds a Tomcat container thread for 10 seconds waiting for a response.
+- At 20 requests per second, all 200 Tomcat worker threads are saturated within 10 seconds.
+- Even requests that have nothing to do with the failing service are rejected with `HTTP 500 Connection Refused`.
+
+This failure mode is known as **cascading failure via thread starvation**.
+
+### The Circuit Breaker Tri-State Machine
+
+We implement the Circuit Breaker pattern (pioneered by Michael Nygard in *Release It!* and standardized by Resilience4j):
+
+1. **CLOSED**: All requests pass through to the downstream service. Failures and successes are tracked in a sliding window (e.g., the last 5 calls).
+2. **OPEN**: If the failure rate breaches the configured threshold (e.g. 60%), the breaker trips to OPEN. For the next 5 seconds, all requests **fail fast in <1ms** or invoke a graceful fallback handler without making a network call or holding thread resources.
+3. **HALF-OPEN**: When the wait duration expires, the circuit breaker enters HALF-OPEN state, allowing a single trial probe to test whether downstream health is restored.
+   - If the probe succeeds: The breaker resets to **CLOSED**.
+   - If the probe fails: The breaker trips back to **OPEN** for another backoff period.

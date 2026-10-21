@@ -3,6 +3,7 @@ import Link from "next/link";
 import { Nav } from "./Nav";
 import { LabTabs } from "./LabTabs";
 import { Section } from "./Section";
+import { getLabs } from "@/content";
 import type { Nav as NavData, LabContent as LabData } from "@/content/schema";
 
 interface LabShellProps {
@@ -20,13 +21,21 @@ export function LabShell({
   nextLink,
   children,
 }: LabShellProps) {
+  const allLabs = getLabs().map((l) => ({
+    id: l.id,
+    number: l.number,
+    title: l.title,
+    href: `/lab/${l.id}`,
+    status: l.status,
+  }));
+
   return (
     <div style={{ backgroundColor: "var(--color-bg)", minHeight: "100vh" }}>
       <Nav data={navData} />
-      <LabTabs />
+      <LabTabs labs={allLabs} />
 
       {/* Hero Header */}
-      <section style={{ maxWidth: "1120px", margin: "0 auto", padding: "88px 24px 48px" }}>
+      <section style={{ maxWidth: "1120px", margin: "0 auto", padding: "56px 24px 40px" }}>
         <p
           style={{
             margin: "0 0 16px",

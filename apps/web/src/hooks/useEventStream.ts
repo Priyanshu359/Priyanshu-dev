@@ -44,7 +44,7 @@ export function useEventStream() {
       const controller = new AbortController();
       abortControllerRef.current = controller;
 
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
 
       try {
         const response = await fetch(`${apiUrl}/ask`, {

@@ -5,6 +5,6 @@ items:
   - label: "PAYMENTS"
     value: "Invoices in INR, USD, EUR or GBP · PayPal, Wise or bank transfer"
   - label: "RESPONSE TIME"
-    value: "Replies [within 24 hours] on working days"
+    value: "Replies within 24 hours"
   - label: "PAPERWORK"
     value: "Written agreement, proper invoices, NDA on request"

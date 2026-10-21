@@ -1,7 +1,24 @@
 ---
-title: "Queues, Retries, and Dead Letter Queues"
+title: "Resilient Queues, Retries, and Dead Letter Queues"
 labId: "queues"
 order: 7
 ---
 
-Coming soon: Consumer concurrency tuning, idempotent message keys, exponential backoff, and DLQ replay workflows.
+## The Danger of Poison Pills in Event-Driven Systems
+
+Asynchronous message queues (Kafka, RabbitMQ, AWS SQS) decouple critical user workflows from background tasks like email sending, AI ingestion, or credit card billing.
+
+However, consumers are vulnerable to **Poison Pills** — malformed payloads or unexpected schemas that trigger unhandled exceptions during processing:
+
+- In a naive consumer, an unhandled exception triggers an immediate consumer crash and message rollback.
+- On restart, the consumer reads the exact same offset, crashes again, and enters an infinite crash loop.
+- This creates **Head-of-Line Blocking**: all healthy, valid messages queued behind the poison pill are indefinitely blocked, and consumer lag spikes into the tens of thousands.
+
+### The Dead Letter Queue (DLQ) Architecture
+
+To prevent queue stalls without dropping critical records:
+
+1. **Transient Retries with Exponential Backoff**: Transient network glitches (e.g. database connection timeouts) resolve quickly. We schedule retries with exponential backoff (e.g., $2^1 = 2s$, $2^2 = 4s$, $2^3 = 8s$) plus random jitter.
+2. **Dead Letter Queue (DLQ) Evacuation**: If a record fails after `maxAttempts` (typically 3), the consumer automatically extracts the record, appends failure diagnostic headers (exception class, stack trace, timestamp, original partition), and publishes it to a dedicated dead letter topic (`tasks.dlq`).
+3. **Partition Continuity**: The consumer commits its offset and moves immediately to the next message. The pipeline remains fluid, and overall system throughput is preserved.
+4. **Audited Replay**: Once engineers deploy a fix or schema update, the messages in the DLQ can be redriven back into the primary queue with a single command.

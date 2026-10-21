@@ -30,7 +30,7 @@ export function StatusDashboard() {
   const [lastChecked, setLastChecked] = useState<string>("just now");
   const [loading, setLoading] = useState(true);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
 
   const fetchStatus = React.useCallback(async () => {
     const startTime = performance.now();

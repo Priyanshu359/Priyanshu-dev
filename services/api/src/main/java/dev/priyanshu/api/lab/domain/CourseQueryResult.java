@@ -5,7 +5,7 @@ import java.util.List;
 public record CourseQueryResult(
     String mode,
     int queryCount,
-    long durationMs,
+    double durationMs,
     List<String> sqlLog,
     int coursesCount,
     List<CourseDto> courses

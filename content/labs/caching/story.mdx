@@ -1,7 +1,24 @@
 ---
-title: "Caching Patterns"
+title: "Caching Patterns in Production"
 labId: "caching"
 order: 3
 ---
 
-Coming soon: Interactive exploration of cache-aside, cache-invalidation strategies, TTL tuning, and cache-stampede prevention.
+## Why In-Memory Caching Matters
+
+In high-throughput architectures, the relational database is almost always the primary scalability bottleneck. Reading the same immutable or slowly-changing entity over and over from disk creates contention on Hikari connection pools, CPU locks on table pages, and introduces tens of milliseconds of latency.
+
+By introducing an in-memory caching layer with Redis using the **Cache-Aside** (Lazy Loading) pattern, we protect the primary database and achieve sub-2ms response times.
+
+### The Cache-Aside Lifecycle
+
+1. **Check Cache First**: The application generates a deterministic key (e.g., `lab:cache:user:42:profile`) and queries Redis.
+2. **On Cache Hit**: The data is deserialized directly from Redis memory in under 2ms. The database connection pool is never touched. HTTP response header `X-Cache: HIT` is returned.
+3. **On Cache Miss**: The application falls back to PostgreSQL (incurring ~70–90ms disk I/O and query planning overhead).
+4. **Populate & Set TTL**: The retrieved data is written to Redis alongside an atomic TTL (Time-To-Live). Subsequent identical requests are served straight from memory. HTTP response header `X-Cache: MISS` is returned.
+
+### Handling the Hard Parts
+
+- **Cache Stampede (Thundering Herd)**: When a heavily queried hot key expires, hundreds of concurrent threads may simultaneously miss the cache and hammer the database. We mitigate this using distributed mutexes or probabilistic early recomputation (XFetch).
+- **TTL vs Explicit Invalidation**: Setting a conservative TTL (e.g. 30–60 seconds) prevents stale data from persisting indefinitely if an event-driven cache eviction message is delayed or dropped.
+- **Circuit Breaker Fallback**: If Redis encounters connection timeouts or high memory pressure, the application gracefully degrades to direct database queries without taking down the user-facing service.

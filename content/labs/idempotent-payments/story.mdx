@@ -4,4 +4,22 @@ labId: "idempotent-payments"
 order: 5
 ---
 
-Coming soon: Idempotency keys, distributed transaction state machines, and safe payment gateway retries.
+## The Network Failure Trap in Fintech
+
+In distributed financial systems, networks are inherently unreliable. When a client sends a payment authorization request to an API, three potential points of failure exist:
+
+1. **The request never reaches the server** (Connection dropped).
+2. **The server crashes during execution** (Partial state).
+3. **The transaction succeeds on the server/bank, but the response is lost on the way back to the client**.
+
+In scenario 3, from the user's perspective, the application froze or showed an error. The user naturally taps "Pay" a second time, or their mobile client automatically retries. Without an idempotency mechanism, the customer is double-charged, resulting in customer disputes, chargeback fees, and accounting reconciliation nightmares.
+
+### The Idempotency Key Pattern
+
+To achieve exactly-once semantics over an at-least-once transport layer:
+
+- **Client Header**: The client assigns a unique identifier (UUID v4) to the payment intent and passes it via `Idempotency-Key: <UUID>`.
+- **Atomic State Machine**:
+  - `PENDING`: Stored via Redis `SETNX` or database lock while the bank gateway is being called.
+  - `RESOLVED`: When the gateway returns, the full HTTP status code, headers, and response payload are cached with a 24-hour TTL.
+- **Instant Replay**: Any subsequent request bearing the same key is served directly from cache with `X-Idempotent-Replay: true`, bypassing the billing rail entirely.

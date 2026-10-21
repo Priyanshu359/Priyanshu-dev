@@ -330,7 +330,7 @@ describe("Content System Validation", () => {
       expect(trust.cards).toHaveLength(6);
       const working = getServicesWorking();
       expect(working.items).toHaveLength(4);
-      expect(working.items[2].value).toContain("[within 24 hours]");
+      expect(working.items[2].value).toContain("within 24 hours");
     });
 
     it("loads FAQ with 8 items and footer CTA", () => {

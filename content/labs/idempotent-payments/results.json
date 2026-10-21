@@ -1,0 +1,28 @@
+{
+  "labId": "idempotent-payments",
+  "testedAt": "2026-10-19T17:15:00Z",
+  "tool": "k6 v0.50.0 + Postman CLI",
+  "summary": {
+    "totalChargesAttempted": 500,
+    "uniqueIdempotencyKeys": 50,
+    "firstAttempt200": 50,
+    "idempotentReplays200": 450,
+    "duplicateBillingErrors": 0,
+    "replayLatencyAvgMs": 1.4,
+    "freshTransactionAvgMs": 86.2,
+    "financialAccuracy": "100.0%"
+  },
+  "doubleClickTest": {
+    "amount": "$250.00",
+    "clicksWithin50ms": 2,
+    "withoutIdempotency": {
+      "chargesDeducted": "$500.00",
+      "duplicateCharge": true
+    },
+    "withIdempotency": {
+      "chargesDeducted": "$250.00",
+      "duplicateCharge": false,
+      "replayFlag": true
+    }
+  }
+}

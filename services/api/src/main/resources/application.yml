@@ -1,5 +1,5 @@
 server:
-  port: ${SERVER_PORT:8080}
+  port: ${SERVER_PORT:3333}
   tomcat:
     max-http-form-post-size: 1MB
     max-swallow-size: 2MB

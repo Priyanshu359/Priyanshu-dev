@@ -2,11 +2,77 @@ id: "flash-sale"
 number: "04"
 title: "Flash sale without overselling"
 tagline: "Hundreds of buyers, ten items, one distributed lock."
-status: "soon"
+status: "live"
 order: 4
 kicker: "Lab / 04 · Flash sale"
 headline: "Hundreds of buyers, ten items, one distributed lock."
-intro: "How distributed locks and atomic inventory decrements prevent overselling under high concurrency."
+intro: "When 100 buyers click 'Buy Now' at the exact same millisecond for 10 available items, a naive backend sells 30+ items because transactions read before other transactions commit. An atomic Redis Lua script ensures zero overselling."
+liveBadge: "LIVE · 10 Items Stock · Atomic Distributed Lock"
+settings:
+  capacity: 10
+  refillRateMs: 1000
+  refillTokens: 0
+diagram:
+  title: "Concurrency: Naive vs Atomic Lock"
+  subtitle: "Under naive execution, concurrent threads read stock > 0 simultaneously. With Redis Lua or SELECT FOR UPDATE, execution is serialized."
+  alertNote: "Naive: 10 items in stock → 34 sold (-24 stock!) | Atomic Lock: Exactly 10 sold (0 oversold)"
+  nodes:
+    - id: "buyers"
+      label: "100 Buyers"
+      sub: "Simultaneous clicks"
+    - id: "cluster"
+      label: "Spring Boot Cluster"
+      sub: "Multiple worker threads"
+      highlight: true
+    - id: "redis"
+      label: "Redis Lua / Lock"
+      sub: "Atomic DECRBY"
+      highlight: true
+    - id: "inventory"
+      label: "Inventory DB"
+      sub: "Stock balance"
+  edges:
+    - from: "buyers"
+      to: "cluster"
+      label: "POST /buy"
+    - from: "cluster"
+      to: "redis"
+      label: "Atomic check & decr"
+    - from: "redis"
+      to: "inventory"
+      label: "Persist confirmed (10 max)"
+experimentCopy:
+  simulateNaiveBtn: "Simulate Naive (Race Condition)"
+  simulateAtomicBtn: "Simulate Atomic Lock (Protected)"
+  buyOneBtn: "Buy 1 Item"
+  resetBtn: "Reset Stock (10 Items)"
+  networkHeading: "// Concurrency timeline — order results & stock level"
+  emptyStateText: "Run a simulation to watch how concurrent requests behave."
+  liveNote: "On the live site, simulations fire real concurrent threads against Spring Boot using atomic Redis Lua scripts."
+codeSection:
+  title: "Atomic Stock Decrement in Lua"
+  filename: "flash_sale.lua"
+  code: |
+    -- flash_sale.lua (executed atomically inside Redis single-thread engine)
+    local current = tonumber(redis.call('GET', KEYS[1]) or 0)
+    local requested = tonumber(ARGV[1])
+    
+    if current >= requested then
+        redis.call('DECRBY', KEYS[1], requested)
+        return {1, current - requested}  -- Success: allowed, remaining stock
+    else
+        return {0, current}              -- Failed: out of stock, zero oversold
+    end
+  githubLinkText: "Full source on GitHub →"
+  githubUrl: "https://github.com/Priyanshu359/Priyanshu-dev"
+tradeOffsHeading: "Trade-offs I weighed"
+tradeOffs:
+  - title: "Redis Atomic Decrement vs Database SELECT FOR UPDATE"
+    text: "Pessimistic DB row locking saturates PostgreSQL connection pools at >1,000 req/s. Redis Lua handles 50,000+ atomic operations per second in memory, keeping DB write-behind queues manageable."
+  - title: "Distributed Lock (Redlock) vs Atomic Decrement"
+    text: "Acquiring a full distributed lock for inventory involves multiple network round-trips. An atomic DECRBY or Lua script achieves the same mutual exclusion in a single round-trip."
+  - title: "Inventory Reservation vs Immediate Charge"
+    text: "Reserving stock with a 5-minute TTL allows buyers to complete checkout while freeing up unpurchased stock automatically if payment is abandoned."
 navigation:
   prev:
     label: "← 03 Caching"

@@ -2,11 +2,90 @@ id: "caching"
 number: "03"
 title: "Caching"
 tagline: "Same request twice — see the latency drop and X-Cache flip to HIT."
-status: "soon"
+status: "live"
 order: 3
 kicker: "Lab / 03 · Caching"
 headline: "Same request twice — see the latency drop and X-Cache flip to HIT."
-intro: "Explore how Redis caching slashes database query load and drops p99 latency on read-heavy paths."
+intro: "A cache-aside pattern checks Redis before touching the database. The first request takes 70+ms to query PostgreSQL; subsequent requests hit in-memory Redis in <2ms with an instant X-Cache: HIT."
+liveBadge: "LIVE · TTL 30s · Redis Cache-Aside"
+settings:
+  capacity: 30
+  refillRateMs: 1000
+  refillTokens: 1
+diagram:
+  title: "The cache-aside architecture"
+  subtitle: "Read requests check in-memory Redis first. On a cache miss, data is queried from PostgreSQL and written back to Redis with an atomic TTL."
+  alertNote: "Cache Hit: ~1-2ms | Cache Miss: ~75ms (queries DB + populates cache)"
+  nodes:
+    - id: "client"
+      label: "Client"
+      sub: "browser or curl"
+    - id: "spring"
+      label: "Spring Boot"
+      sub: "CacheLabService"
+      highlight: true
+    - id: "redis"
+      label: "Redis"
+      sub: "In-memory, TTL 30s"
+      highlight: true
+    - id: "postgres"
+      label: "PostgreSQL"
+      sub: "Cold storage / DB"
+  edges:
+    - from: "client"
+      to: "spring"
+      label: "GET /lab/cache/item"
+    - from: "spring"
+      to: "redis"
+      label: "1. Check key"
+    - from: "spring"
+      to: "postgres"
+      label: "2. If MISS, query DB"
+    - from: "spring"
+      to: "redis"
+      label: "3. Write back + TTL"
+experimentCopy:
+  fetchBtn: "Fetch item"
+  purgeBtn: "Purge key (Evict)"
+  warmBtn: "Pre-warm cache"
+  burstBtn: "Burst 5 requests"
+  hitBadge: "X-Cache: HIT"
+  missBadge: "X-Cache: MISS"
+  networkHeading: "// Network inspector — response headers & latency breakdown"
+  emptyStateText: "Click 'Fetch item' to trigger the first cache miss."
+  liveNote: "On the live site, these requests hit real Spring Boot endpoints querying Redis with atomic TTLs and PostgreSQL fallback."
+codeSection:
+  title: "Cache-Aside Implementation"
+  filename: "CacheLabService.java"
+  code: |
+    public CacheItemResult getOrCompute(String key) {
+        String redisKey = "lab:cache:" + key;
+        
+        // 1. Check Redis memory cache
+        String cached = redisTemplate.opsForValue().get(redisKey);
+        if (cached != null) {
+            long ttl = redisTemplate.getExpire(redisKey);
+            return new CacheItemResult(key, parse(cached), true, 1L, ttl, "Redis");
+        }
+        
+        // 2. Cache Miss: Query database (~75ms)
+        Map<String, Object> data = databaseRepository.findById(key);
+        
+        // 3. Populate Redis with atomic TTL (30s)
+        redisTemplate.opsForValue().set(redisKey, toJson(data), Duration.ofSeconds(30));
+        
+        return new CacheItemResult(key, data, false, 75L, 30L, "PostgreSQL");
+    }
+  githubLinkText: "Full source on GitHub →"
+  githubUrl: "https://github.com/Priyanshu359/Priyanshu-dev"
+tradeOffsHeading: "Trade-offs I weighed"
+tradeOffs:
+  - title: "Cache-Aside vs Read-Through"
+    text: "Cache-aside keeps application logic in control of fallback behavior, retry logic, and fallback serialization if Redis is temporarily unreachable."
+  - title: "TTL vs Active Invalidation"
+    text: "A 30s TTL guarantees data eventually becomes consistent even if an invalidation message is dropped during network partitions."
+  - title: "Thundering Herd / Cache Stampede"
+    text: "When high-frequency keys expire, hundreds of concurrent threads can hit the DB simultaneously. Mutex locking or probabilistic early recomputation (XFetch) protects hot keys."
 navigation:
   prev:
     label: "← 02 Databases"

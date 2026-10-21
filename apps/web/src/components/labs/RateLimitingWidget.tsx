@@ -30,9 +30,25 @@ export function RateLimitingWidget({
     return () => clearInterval(timer);
   }, [state.refillRateMs]);
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+  const [connectionError, setConnectionError] = useState<string | null>(null);
 
-  // Real API invocation with fallback to simulator
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
+
+  // Check connection on mount
+  useEffect(() => {
+    fetch(`${apiUrl}/lab/limited`, { method: "GET", headers: { Accept: "application/json" } })
+      .then((res) => {
+        if (res.ok) {
+          setConnectionError(null);
+          setIsReplayMode(false);
+        }
+      })
+      .catch(() => {
+        setConnectionError(`Cannot reach Spring Boot at ${apiUrl}. Ensure backend is running.`);
+      });
+  }, [apiUrl]);
+
+  // Real API invocation against Spring Boot
   const sendRequestReal = useCallback(async () => {
     try {
       const res = await fetch(`${apiUrl}/lab/limited`, {
@@ -40,6 +56,7 @@ export function RateLimitingWidget({
         headers: { Accept: "application/json" },
       });
 
+      setConnectionError(null);
       const remainingHeader = res.headers.get("x-ratelimit-remaining");
       const retryAfterHeader = res.headers.get("retry-after");
       const responseTime = res.headers.get("x-response-time") || "<1ms";
@@ -60,7 +77,6 @@ export function RateLimitingWidget({
         color: is200 ? "var(--color-green)" : "var(--color-blocked)",
       };
 
-      // Dispatch custom manual set action or update local state
       dispatch({
         type: "SET_LIVE_RESULT",
         row,
@@ -69,10 +85,8 @@ export function RateLimitingWidget({
       } as any);
 
       return is200;
-    } catch {
-      // Backend unreachable: fallback to simulated run labeled "replay of a real run"
-      setIsReplayMode(true);
-      dispatch({ type: "SEND_REQUESTS", count: 1 });
+    } catch (err: any) {
+      setConnectionError(`Backend offline: Unable to reach ${apiUrl}/lab/limited. Please ensure Spring Boot is running on port 3333.`);
       return false;
     }
   }, [apiUrl]);
@@ -95,9 +109,12 @@ export function RateLimitingWidget({
 
   const handleReset = async () => {
     try {
-      await fetch(`${apiUrl}/lab/limited/reset`, { method: "POST" });
+      const res = await fetch(`${apiUrl}/lab/limited/reset`, { method: "POST" });
+      if (res.ok) {
+        setConnectionError(null);
+      }
     } catch {
-      // Fallback
+      setConnectionError(`Reset failed: Cannot reach backend at ${apiUrl}`);
     }
     dispatch({ type: "RESET" });
   };
@@ -124,24 +141,61 @@ export function RateLimitingWidget({
             style={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",
-              fontFamily: "var(--font-mono)",
-              fontSize: "13px",
-              color: isReplayMode ? "var(--color-muted)" : "var(--color-green)",
-              fontWeight: 500,
+              justifyContent: "space-between",
+              flexWrap: "wrap",
+              gap: "8px",
             }}
           >
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                fontFamily: "var(--font-mono)",
+                fontSize: "13px",
+                color: connectionError ? "#FF7B72" : "var(--color-green)",
+                fontWeight: 500,
+              }}
+            >
+              <span
+                style={{
+                  width: "8px",
+                  height: "8px",
+                  borderRadius: "50%",
+                  backgroundColor: connectionError ? "#FF7B72" : "var(--color-green)",
+                  display: "inline-block",
+                  boxShadow: connectionError ? "0 0 8px rgba(255,123,114,0.6)" : "0 0 8px rgba(46,160,67,0.6)",
+                }}
+              />
+              {connectionError ? "BACKEND OFFLINE · Spring Boot :3333" : liveBadge}
+            </div>
             <span
               style={{
-                width: "8px",
-                height: "8px",
-                borderRadius: "50%",
-                backgroundColor: isReplayMode ? "#F2B263" : "var(--color-green)",
-                display: "inline-block",
+                fontSize: "11px",
+                fontFamily: "var(--font-mono)",
+                color: "var(--color-muted)",
               }}
-            />
-            {isReplayMode ? "replay of a real run" : liveBadge}
+            >
+              GET /lab/limited
+            </span>
           </div>
+
+          {connectionError && (
+            <div
+              style={{
+                padding: "12px 14px",
+                borderRadius: "var(--radius-md)",
+                backgroundColor: "rgba(255, 123, 114, 0.1)",
+                border: "1px solid rgba(255, 123, 114, 0.3)",
+                color: "#FF7B72",
+                fontSize: "12px",
+                fontFamily: "var(--font-mono)",
+                lineHeight: 1.5,
+              }}
+            >
+              {connectionError}
+            </div>
+          )}
 
           <div>
             <div style={{ fontSize: "14px", color: "var(--color-muted)", marginBottom: "10px" }}>

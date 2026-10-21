@@ -85,7 +85,7 @@ function ConnectContactFormInner({ content }: ConnectContactFormProps) {
       return;
     }
 
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
     const segmentDetails: Record<string, string> = {};
     if (offerParam === "founding") {
       segmentDetails.offer = "founding";

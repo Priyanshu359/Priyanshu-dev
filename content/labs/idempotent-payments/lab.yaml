@@ -2,11 +2,83 @@ id: "idempotent-payments"
 number: "05"
 title: "Idempotent payments"
 tagline: "Double-click “Pay” and still get charged once."
-status: "soon"
+status: "live"
 order: 5
 kicker: "Lab / 05 · Idempotent payments"
 headline: "Double-click “Pay” and still get charged once."
-intro: "Designing idempotent API handlers with unique request keys, status checks, and replay protection."
+intro: "When network jitter causes a mobile client to retry a $250 payment, a standard API charges the customer twice. Idempotency keys in Redis protect against double billing by caching the original response and returning X-Idempotent-Replay: true."
+liveBadge: "LIVE · Replay Cache 5m · Idempotency Keys"
+settings:
+  capacity: 100
+  refillRateMs: 1000
+  refillTokens: 0
+diagram:
+  title: "Idempotent Request Lifecycle"
+  subtitle: "First request generates a UUID idempotency key. Subsequent retries return the cached outcome with X-Idempotent-Replay: true without re-charging the credit card."
+  alertNote: "Double Click without Key: $250 x 2 = $500 charged! | With Idempotency Key: Exactly $250 charged once."
+  nodes:
+    - id: "client"
+      label: "Browser Client"
+      sub: "Double click 'Pay'"
+    - id: "filter"
+      label: "Idempotency Gate"
+      sub: "Redis check key"
+      highlight: true
+    - id: "gateway"
+      label: "Payment Gateway"
+      sub: "Stripe / Banking rail"
+    - id: "ledger"
+      label: "Customer Balance"
+      sub: "Account ledger"
+  edges:
+    - from: "client"
+      to: "filter"
+      label: "Idempotency-Key: uuid"
+    - from: "filter"
+      to: "gateway"
+      label: "If new, charge card"
+    - from: "filter"
+      to: "client"
+      label: "If duplicate, replay response"
+experimentCopy:
+  payBtn: "Click 'Pay $250.00'"
+  doubleClickBtn: "Simulate Rapid Double-Click"
+  toggleIdempotency: "Toggle Idempotency Protection"
+  resetBtn: "Reset Demo ($1,000 Balance)"
+  networkHeading: "// Banking ledger & transaction audit trail"
+  emptyStateText: "Submit a charge or simulate a double-click to test replay protection."
+  liveNote: "On the live site, requests hit real Spring Boot endpoints evaluating Idempotency-Key headers backed by Redis with atomic expiration."
+codeSection:
+  title: "Idempotency Key Handler"
+  filename: "PaymentLabService.java"
+  code: |
+    public PaymentChargeResult processPayment(PaymentChargeRequest req) {
+        String redisKey = "idempotency:" + req.idempotencyKey();
+        
+        // 1. Check if key was already processed
+        String cached = redisTemplate.opsForValue().get(redisKey);
+        if (cached != null) {
+            PaymentChargeResult prev = parse(cached);
+            return prev.withReplayed(true); // Return cached response, 0 double-charge
+        }
+        
+        // 2. Fresh transaction: charge external payment gateway
+        PaymentChargeResult result = stripeClient.charge(req.amountCents());
+        
+        // 3. Store result with 5-minute TTL
+        redisTemplate.opsForValue().set(redisKey, toJson(result), Duration.ofMinutes(5));
+        return result;
+    }
+  githubLinkText: "Full source on GitHub →"
+  githubUrl: "https://github.com/Priyanshu359/Priyanshu-dev"
+tradeOffsHeading: "Trade-offs I weighed"
+tradeOffs:
+  - title: "In-Flight Locking (SETNX PENDING) vs Post-Processing Cache"
+    text: "If two requests with the same key arrive simultaneously, setting a PENDING lock prevents both threads from charging the card while the first is still awaiting the bank gateway."
+  - title: "Payload Fingerprinting vs Key Only"
+    text: "Hashing the request body alongside the key guarantees a client cannot reuse an old idempotency key with different parameters (e.g., changing amount from $10 to $1,000)."
+  - title: "Key Retention Window"
+    text: "A 24-hour TTL in production covers virtually all network retries, webhook re-deliveries, and accidental user double-submits without growing Redis memory unboundedly."
 navigation:
   prev:
     label: "← 04 Flash sale"

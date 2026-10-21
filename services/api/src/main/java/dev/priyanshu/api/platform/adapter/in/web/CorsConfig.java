@@ -33,7 +33,15 @@ public class CorsConfig {
             RateLimitingFilter.RATELIMIT_LIMIT_HEADER,
             RateLimitingFilter.RATELIMIT_REMAINING_HEADER,
             RateLimitingFilter.RETRY_AFTER_HEADER,
-            "X-Query-Count"
+            "X-Query-Count",
+            "X-Cache",
+            "X-Cache-TTL",
+            "X-Cache-Source",
+            "X-Idempotent-Replay",
+            "X-Circuit-State",
+            "X-Fallback-Used",
+            "X-Lab-Replay",
+            "X-Response-Time"
         ));
         config.setAllowCredentials(true);
         config.setMaxAge(3600L);

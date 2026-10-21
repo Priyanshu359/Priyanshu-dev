@@ -1,7 +1,30 @@
 ---
-title: "Flash Sale Distributed Locking"
+title: "Flash Sales Without Overselling"
 labId: "flash-sale"
 order: 4
 ---
 
-Coming soon: Distributed locks with Redis Redlock, queue-based buffering, and database balance guarantees.
+## The Concurrency Challenge: The Check-Then-Act Race Condition
+
+In high-demand ecommerce events (such as flash sales, sneaker drops, or festival ticket sales), hundreds or thousands of buyers attempt to purchase a very small inventory within the same fractional second.
+
+A standard check-then-act query in a web framework looks deceptively innocent:
+
+```java
+int stock = inventoryRepository.getStock(itemId);
+if (stock > 0) {
+    inventoryRepository.decrementStock(itemId);
+    orderRepository.createOrder(userId, itemId);
+}
+```
+
+Under heavy concurrency across multiple application servers, dozens of threads execute `getStock(itemId)` simultaneously before any thread executes `decrementStock`. Every single thread reads `stock = 10` and concludes there is sufficient inventory. As a result, 30, 50, or even 100 orders are confirmed for only 10 physical items.
+
+### The Solution: Redis Single-Threaded Lua Scripting
+
+To eliminate race conditions without exhausting database connection pools, we offload inventory gating to Redis:
+
+1. **Atomic Execution**: Redis executes Lua scripts sequentially on its single main execution thread. No two scripts or commands can interleave.
+2. **Deterministic Evaluation**: The script checks the available stock and decrements it in a single atomic memory operation.
+3. **Instant Rejection**: Once the counter reaches zero, all subsequent attempts are rejected in sub-millisecond time (`{0, 0}`), preventing unnecessary database writes.
+4. **Asynchronous Order Settlement**: Orders that successfully claim inventory publish an event to a transactional outbox or Kafka queue to persist the order record asynchronously.

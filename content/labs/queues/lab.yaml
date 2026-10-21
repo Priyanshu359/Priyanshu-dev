@@ -2,15 +2,91 @@ id: "queues"
 number: "07"
 title: "Queues, retries and dead letters"
 tagline: "Messages fail, back off, retry, and land safely in a DLQ."
-status: "soon"
+status: "live"
 order: 7
 kicker: "Lab / 07 · Queues"
 headline: "Messages fail, back off, retry, and land safely in a DLQ."
-intro: "Building resilient Kafka consumer pipelines with exponential backoff, poison pill isolation, and Dead Letter Queues."
+intro: "When asynchronous background tasks fail, a naive consumer crashes in an infinite loop, blocking all downstream traffic. An event-driven DLQ architecture retries with exponential backoff and isolates poison pills without message loss."
+liveBadge: "LIVE · Max 3 Retries · Exponential Backoff & DLQ"
+settings:
+  capacity: 3
+  refillRateMs: 1000
+  refillTokens: 0
+diagram:
+  title: "Dead Letter Queue Lifecycle"
+  subtitle: "Main Queue → Consumer attempts processing → on failure, moves to Retry Queue with backoff (2s, 4s, 8s) → after 3 attempts, moves to Dead Letter Queue (DLQ)."
+  alertNote: "Poison Pill: 3 retries with backoff → safely parked in DLQ | Zero head-of-line blocking for healthy messages"
+  nodes:
+    - id: "producer"
+      label: "Producer"
+      sub: "API / Webhook"
+    - id: "mainQueue"
+      label: "Main Queue"
+      sub: "tasks.inbox"
+      highlight: true
+    - id: "retryQueue"
+      label: "Retry Queue"
+      sub: "Exponential backoff"
+    - id: "consumer"
+      label: "Worker Consumer"
+      sub: "Async processor"
+      highlight: true
+    - id: "dlq"
+      label: "Dead Letter Queue"
+      sub: "tasks.dlq (Safe park)"
+      highlight: true
+  edges:
+    - from: "producer"
+      to: "mainQueue"
+      label: "Publish event"
+    - from: "mainQueue"
+      to: "consumer"
+      label: "Consume task"
+    - from: "consumer"
+      to: "retryQueue"
+      label: "Attempt 1 & 2 fail"
+    - from: "consumer"
+      to: "dlq"
+      label: "Attempt 3 fails (DLQ)"
+experimentCopy:
+  publishHealthyBtn: "Enqueue Healthy Message"
+  publishPoisonBtn: "Enqueue Poison Pill"
+  processStepBtn: "Process Next Queue Step"
+  replayDlqBtn: "Replay DLQ Messages"
+  resetBtn: "Reset All Queues"
+  networkHeading: "// Pipeline queues & message inspect"
+  emptyStateText: "Publish messages to watch the retry cycle and Dead Letter Queue routing."
+  liveNote: "On the live site, messages are routed through real Spring Boot event channels with exponential backoff and replay capabilities."
+codeSection:
+  title: "Spring Kafka / Consumer DLQ Handler"
+  filename: "QueueConsumerConfig.java"
+  code: |
+    @Bean
+    public DefaultErrorHandler errorHandler(KafkaTemplate<String, Object> template) {
+        // Exponential backoff: 1s initial, 2.0x multiplier, max 3 attempts
+        ExponentialBackOff backOff = new ExponentialBackOff(1000L, 2.0);
+        backOff.setMaxAttempts(3);
+        
+        DeadLetterPublishingRecoverer recoverer = new DeadLetterPublishingRecoverer(template,
+            (record, ex) -> new TopicPartition("tasks.dlq", record.partition())
+        );
+        
+        return new DefaultErrorHandler(recoverer, backOff);
+    }
+  githubLinkText: "Full source on GitHub →"
+  githubUrl: "https://github.com/Priyanshu359/Priyanshu-dev"
+tradeOffsHeading: "Trade-offs I weighed"
+tradeOffs:
+  - title: "In-Memory Retries vs Dedicated Retry Topics"
+    text: "Retrying in memory with Thread.sleep blocks the Kafka consumer partition, preventing other messages from advancing. Publishing failed records to dedicated retry topics maintains pipeline throughput."
+  - title: "At-Least-Once Delivery vs At-Most-Once"
+    text: "At-least-once with idempotent consumer processing ensures zero data loss during broker rebalances or node failures, whereas at-most-once drops messages whenever consumers restart."
+  - title: "Manual DLQ Redrive vs Automatic Reprocessing"
+    text: "Poison pills caused by schema drift or bugs require code fixes before redriving. Manual, audited replay tools ensure fixed messages do not fail a second time."
 navigation:
   prev:
     label: "← 06 Circuit breaker"
     href: "/lab/circuit-breaker"
   next:
-    label: "← All demos"
-    href: "/"
+    label: "Next: why backend is the hero of AI →"
+    href: "/ai"

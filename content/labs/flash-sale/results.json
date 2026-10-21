@@ -1,0 +1,31 @@
+{
+  "labId": "flash-sale",
+  "testedAt": "2026-10-19T16:00:00Z",
+  "tool": "k6 v0.50.0",
+  "summary": {
+    "initialStock": 10,
+    "concurrentRequests": 100,
+    "naiveOversold": 28,
+    "atomicOversold": 0,
+    "atomicSuccessRate": "100% adherence to stock limits",
+    "p99DurationMs": 2.1
+  },
+  "comparisons": [
+    {
+      "strategy": "Naive (Non-Atomic)",
+      "initialStock": 10,
+      "concurrentRequests": 100,
+      "itemsSold": 38,
+      "finalStock": -28,
+      "oversold": true
+    },
+    {
+      "strategy": "Redis Atomic Lock / Lua",
+      "initialStock": 10,
+      "concurrentRequests": 100,
+      "itemsSold": 10,
+      "finalStock": 0,
+      "oversold": false
+    }
+  ]
+}

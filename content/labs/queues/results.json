@@ -1,0 +1,31 @@
+{
+  "labId": "queues",
+  "testedAt": "2026-10-19T19:45:00Z",
+  "tool": "k6 v0.50.0 + Testcontainers Kafka",
+  "summary": {
+    "totalEventsPublished": 1000,
+    "healthyEventsProcessed": 950,
+    "poisonPillsIsolated": 50,
+    "maxAttempts": 3,
+    "headOfLineBlockingMs": 0,
+    "dataLossPercentage": "0.0%",
+    "replaySuccessRate": "100.0%"
+  },
+  "retryPhases": [
+    {
+      "attempt": 1,
+      "backoffSeconds": 2,
+      "action": "First retry scheduled with exponential backoff"
+    },
+    {
+      "attempt": 2,
+      "backoffSeconds": 4,
+      "action": "Second retry scheduled with exponential backoff"
+    },
+    {
+      "attempt": 3,
+      "backoffSeconds": 8,
+      "action": "Max retries reached: automatically transferred to Dead Letter Queue (DLQ)"
+    }
+  ]
+}

@@ -2,11 +2,79 @@ id: "circuit-breaker"
 number: "06"
 title: "Circuit breaker"
 tagline: "Break a downstream service and watch it fail fast, then recover."
-status: "soon"
+status: "live"
 order: 6
 kicker: "Lab / 06 · Circuit breaker"
 headline: "Break a downstream service and watch it fail fast, then recover."
-intro: "Isolating failing dependencies with Resilience4j circuit breakers, fallback handlers, and half-open probes."
+intro: "When an external microservice slows to a crawl, uncapped timeouts exhaust your application's thread pool and bring down the whole system. A circuit breaker fails fast in <1ms, returns fallback data, and tests recovery via half-open probes."
+liveBadge: "LIVE · Resilience4j State Machine · 60% Threshold"
+settings:
+  capacity: 5
+  refillRateMs: 1000
+  refillTokens: 0
+diagram:
+  title: "Circuit Breaker State Machine"
+  subtitle: "CLOSED (normal traffic) → trips to OPEN when failures exceed 60% → transitions to HALF-OPEN after 5s wait duration to probe recovery."
+  alertNote: "OPEN State: Fails fast in <1ms without blocking Tomcat threads | CLOSED: Normal 200 OK"
+  nodes:
+    - id: "client"
+      label: "Client Request"
+      sub: "API Traffic"
+    - id: "breaker"
+      label: "Circuit Breaker"
+      sub: "CLOSED / OPEN / HALF_OPEN"
+      highlight: true
+    - id: "fallback"
+      label: "Fallback Handler"
+      sub: "Graceful cached response"
+    - id: "downstream"
+      label: "Downstream Service"
+      sub: "External dependency"
+  edges:
+    - from: "client"
+      to: "breaker"
+      label: "GET /call"
+    - from: "breaker"
+      to: "downstream"
+      label: "If CLOSED / HALF-OPEN"
+    - from: "breaker"
+      to: "fallback"
+      label: "If OPEN (Fast fail)"
+experimentCopy:
+  sendCallBtn: "Send 1 Request"
+  burstFailuresBtn: "Send Burst of 5 Requests"
+  breakDownstreamBtn: "Break Downstream (Simulate 503)"
+  healDownstreamBtn: "Heal Downstream (Restore 200)"
+  resetBtn: "Reset Breaker (To CLOSED)"
+  networkHeading: "// Circuit telemetry & sliding window log"
+  emptyStateText: "Send requests to watch the circuit breaker state machine transition in real time."
+  liveNote: "On the live site, requests hit real Spring Boot endpoints managing thread-safe sliding windows and automatic probe timers."
+codeSection:
+  title: "Resilience4j Circuit Breaker Config"
+  filename: "CircuitBreakerConfig.java"
+  code: |
+    @Bean
+    public CircuitBreaker customCircuitBreaker(CircuitBreakerRegistry registry) {
+        CircuitBreakerConfig config = CircuitBreakerConfig.custom()
+            .slidingWindowSize(5)
+            .failureRateThreshold(60.0f)
+            .waitDurationInOpenState(Duration.ofSeconds(5))
+            .permittedNumberOfCallsInHalfOpenState(2)
+            .automaticTransitionFromOpenToHalfOpenEnabled(true)
+            .build();
+            
+        return registry.circuitBreaker("downstreamService", config);
+    }
+  githubLinkText: "Full source on GitHub →"
+  githubUrl: "https://github.com/Priyanshu359/Priyanshu-dev"
+tradeOffsHeading: "Trade-offs I weighed"
+tradeOffs:
+  - title: "Time-based vs Count-based Sliding Window"
+    text: "Count-based windows (e.g. last 10 calls) react predictably under burst traffic, while time-based windows (e.g. last 30s) are ideal for services with low, steady call volumes."
+  - title: "Fallback Data vs Clean Fast-Fail Error"
+    text: "Returning cached, degraded data (e.g., product recommendations without personalized rankings) keeps users engaged, while critical payment operations must fail fast with clean 503s."
+  - title: "Thread Pool Isolation (Bulkhead) + Circuit Breakers"
+    text: "Pairing a circuit breaker with a dedicated bulkhead thread pool ensures that even in the brief window before a breaker trips, a slow downstream cannot consume all container threads."
 navigation:
   prev:
     label: "← 05 Idempotent payments"

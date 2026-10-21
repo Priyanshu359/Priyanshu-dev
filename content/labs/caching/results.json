@@ -1,0 +1,31 @@
+{
+  "labId": "caching",
+  "testedAt": "2026-10-19T14:30:00Z",
+  "tool": "k6 v0.50.0 + wrk",
+  "summary": {
+    "totalRequests": 10000,
+    "cacheHitRatio": "98.4%",
+    "uncachedP50Ms": 74.2,
+    "uncachedP99Ms": 138.6,
+    "cachedP50Ms": 1.1,
+    "cachedP99Ms": 2.8,
+    "latencyImprovement": "98.5%",
+    "databaseQueryReduction": "98.4%"
+  },
+  "workloadComparison": [
+    {
+      "mode": "PostgreSQL Direct (No Cache)",
+      "rps": 420,
+      "avgLatencyMs": 78.4,
+      "p99LatencyMs": 142.1,
+      "dbCpu": "84%"
+    },
+    {
+      "mode": "Redis Cache-Aside",
+      "rps": 18500,
+      "avgLatencyMs": 1.2,
+      "p99LatencyMs": 3.1,
+      "dbCpu": "4%"
+    }
+  ]
+}

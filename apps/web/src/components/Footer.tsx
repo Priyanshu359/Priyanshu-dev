@@ -18,7 +18,7 @@ export function Footer({ data, telemetryOverride }: FooterProps) {
 
   useEffect(() => {
     if (telemetryOverride) return;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
     fetch(`${apiUrl}/stats`)
       .then((res) => (res.ok ? res.json() : null))
       .then((remoteData) => {

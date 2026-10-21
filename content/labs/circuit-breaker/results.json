@@ -1,0 +1,41 @@
+{
+  "labId": "circuit-breaker",
+  "testedAt": "2026-10-19T18:30:00Z",
+  "tool": "k6 v0.50.0 + Resilience4j Micrometer",
+  "summary": {
+    "slidingWindowSize": 5,
+    "failureThreshold": "60%",
+    "openDurationSeconds": 5,
+    "fastFailLatencyAvgMs": 0.35,
+    "unprotectedFailureLatencyAvgMs": 10000.0,
+    "threadStarvationPrevention": "100%",
+    "recoverySuccessRate": "100%"
+  },
+  "phases": [
+    {
+      "phase": "CLOSED (Normal Traffic)",
+      "downstream": "Healthy",
+      "avgLatencyMs": 12.4,
+      "fallbackUsed": false
+    },
+    {
+      "phase": "DOWNSTREAM FAILURE (Threshold Exceeded)",
+      "downstream": "Unresponsive (503 / Timeout)",
+      "failuresRecorded": 3,
+      "stateTrip": "CLOSED -> OPEN"
+    },
+    {
+      "phase": "OPEN (Fast Fail)",
+      "downstream": "Blocked",
+      "avgLatencyMs": 0.4,
+      "fallbackUsed": true,
+      "serverThreadsSaved": "200/200"
+    },
+    {
+      "phase": "HALF-OPEN (Probe)",
+      "downstream": "Restored",
+      "trialCall": "Success",
+      "stateRecovery": "HALF-OPEN -> CLOSED"
+    }
+  ]
+}

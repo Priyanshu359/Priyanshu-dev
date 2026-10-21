@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useReducer, useRef, useState } from "react";
+import React, { useReducer, useRef, useState, useEffect } from "react";
 import { Pill } from "@/components/Pill";
 import {
   databaseLabReducer,
@@ -42,7 +42,19 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
     timersRef.current.push(setTimeout(fn, ms));
   };
 
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+  const [connectionError, setConnectionError] = useState<string | null>(null);
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:3333";
+
+  // Check connection on mount
+  useEffect(() => {
+    fetch(`${apiUrl}/lab/db/courses?mode=fetch`, { method: "GET" })
+      .then((res) => {
+        if (res.ok) setConnectionError(null);
+      })
+      .catch(() => {
+        setConnectionError(`Cannot reach Spring Boot at ${apiUrl}. Ensure backend is running.`);
+      });
+  }, [apiUrl]);
 
   // Run Experiment 1 (Indexes & Query Plans)
   const handleRunIndex = async () => {
@@ -59,16 +71,17 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
       if (!res.ok) throw new Error("Explain query failed");
       const data = await res.json();
 
+      setConnectionError(null);
       setIsIndexReplay(false);
       setLiveIndexStats({
         rows: Number(data.rowsScanned).toLocaleString(),
         time: `~${data.executionTimeMs.toFixed(2)} ms`,
-        plan: data.planSummary || indexStrategyData[state.indexStrategy].plan,
+        plan: data.planText || data.planSummary || indexStrategyData[state.indexStrategy].plan,
       });
 
       dispatch({ type: "FINISH_INDEX_RUN" });
     } catch {
-      // Graceful fallback to real run replay
+      setConnectionError(`Database query failed: could not connect to Spring Boot at ${apiUrl}`);
       setIsIndexReplay(true);
       const fallback = indexStrategyData[state.indexStrategy];
       setLiveIndexStats({
@@ -277,6 +290,60 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
 
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: "56px" }}>
+      {/* Backend Connection Status */}
+      <div style={{ maxWidth: "1120px", margin: "0 auto", padding: "0 24px", width: "100%" }}>
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            flexWrap: "wrap",
+            gap: "8px",
+            padding: "10px 16px",
+            borderRadius: "var(--radius-lg)",
+            backgroundColor: "var(--color-surface)",
+            border: "1px solid var(--color-border)",
+            fontFamily: "var(--font-mono)",
+            fontSize: "12px",
+          }}
+        >
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            <span
+              style={{
+                width: "8px",
+                height: "8px",
+                borderRadius: "50%",
+                backgroundColor: connectionError ? "#FF7B72" : "var(--color-green)",
+                boxShadow: connectionError ? "0 0 8px rgba(255,123,114,0.6)" : "0 0 8px rgba(46,160,67,0.6)",
+                display: "inline-block",
+              }}
+            />
+            <span style={{ color: connectionError ? "#FF7B72" : "var(--color-green)", fontWeight: 500 }}>
+              {connectionError ? "BACKEND OFFLINE" : "CONNECTED TO BACKEND · Spring Boot (:3333) + PostgreSQL"}
+            </span>
+          </div>
+          <span style={{ color: "var(--color-muted)", fontSize: "11px" }}>
+            Real EXPLAIN ANALYZE · Hibernate Queries · Concurrency Race
+          </span>
+        </div>
+        {connectionError && (
+          <div
+            style={{
+              marginTop: "8px",
+              padding: "10px 14px",
+              borderRadius: "var(--radius-md)",
+              backgroundColor: "rgba(255, 123, 114, 0.1)",
+              border: "1px solid rgba(255, 123, 114, 0.3)",
+              color: "#FF7B72",
+              fontSize: "12px",
+              fontFamily: "var(--font-mono)",
+            }}
+          >
+            {connectionError}
+          </div>
+        )}
+      </div>
+
       {/* EXECUTIVE BENCHMARK OVERVIEW BANNER */}
       <section aria-label="Database performance overview" style={{ maxWidth: "1120px", margin: "0 auto", padding: "0 24px", width: "100%" }}>
         <div

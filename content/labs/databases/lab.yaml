@@ -161,5 +161,5 @@ navigation:
     label: "← 01 Rate limiting"
     href: "/lab/rate-limiting"
   next:
-    label: "Next: why backend is the hero of AI →"
-    href: "/ai"
+    label: "Next: 03 Caching →"
+    href: "/lab/caching"

@@ -3,6 +3,8 @@ package dev.priyanshu.api.lab.adapter.in.web;
 import dev.priyanshu.api.lab.application.PaymentLabService;
 import dev.priyanshu.api.lab.domain.PaymentChargeRequest;
 import dev.priyanshu.api.lab.domain.PaymentChargeResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +15,8 @@ import java.util.Map;
 @RestController
 @RequestMapping("/lab/payments")
 public class PaymentLabController {
+
+    private static final Logger log = LoggerFactory.getLogger(PaymentLabController.class);
 
     private final PaymentLabService paymentLabService;
 
@@ -37,6 +41,9 @@ public class PaymentLabController {
         PaymentChargeRequest request = new PaymentChargeRequest(key, customer, amount, currency);
         PaymentChargeResult result = paymentLabService.processPayment(request, enableIdempotency);
 
+        log.info("[LAB-PAYMENTS] POST /charge key='{}' idempotency={} -> status={}, replayed={}, balance={}, latency={}ms",
+            key, enableIdempotency, result.status(), result.replayed(), "$" + (paymentLabService.getBalanceCents() / 100.0), result.latencyMs());
+
         HttpHeaders headers = new HttpHeaders();
         headers.set("X-Idempotent-Replay", String.valueOf(result.replayed()));
         headers.set("X-Response-Time", result.latencyMs() + "ms");
@@ -48,19 +55,20 @@ public class PaymentLabController {
 
     @GetMapping("/audit")
     public ResponseEntity<Map<String, Object>> getAudit() {
-        List<PaymentChargeResult> log = paymentLabService.getAuditLog();
+        List<PaymentChargeResult> auditLog = paymentLabService.getAuditLog();
         long balance = paymentLabService.getBalanceCents();
         return ResponseEntity.ok(Map.of(
             "balanceCents", balance,
             "balanceFormatted", "$" + (balance / 100.0),
-            "totalTransactions", log.size(),
-            "history", log
+            "totalTransactions", auditLog.size(),
+            "history", auditLog
         ));
     }
 
     @PostMapping("/reset")
     public ResponseEntity<Map<String, Object>> reset() {
         paymentLabService.reset();
+        log.info("[LAB-PAYMENTS] POST /reset -> ledger reset to $1,000.00");
         return ResponseEntity.ok(Map.of("message", "Payment demo reset to initial $1000 balance"));
     }
 }

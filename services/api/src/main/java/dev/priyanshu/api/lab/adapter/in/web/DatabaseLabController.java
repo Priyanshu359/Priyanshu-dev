@@ -11,6 +11,8 @@ import dev.priyanshu.api.lab.domain.RaceStrategy;
 import dev.priyanshu.api.lab.domain.WithdrawRaceResult;
 import dev.priyanshu.api.platform.adapter.in.web.RateLimitingFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -28,6 +30,7 @@ import java.util.Map;
 @RequestMapping("/lab/db")
 public class DatabaseLabController {
 
+    private static final Logger log = LoggerFactory.getLogger(DatabaseLabController.class);
     private static final int DB_LAB_RATE_LIMIT_PER_MINUTE = 30;
 
     private final DatabaseExplainService databaseExplainService;
@@ -72,6 +75,10 @@ public class DatabaseLabController {
         String strategyParam = body != null ? body.get("strategy") : null;
         OrderStrategy strategy = OrderStrategy.fromString(strategyParam);
         ExplainResult result = databaseExplainService.explainQuery(strategy);
+
+        log.info("[LAB-DB] EXPLAIN strategy='{}' -> node='{}', rowsScanned={}, execTime={}ms",
+            strategy.getId(), result.nodeType(), result.rowsScanned(), result.executionTimeMs());
+
         return ResponseEntity.ok(result);
     }
 
@@ -86,6 +93,9 @@ public class DatabaseLabController {
 
         CourseMode mode = CourseMode.fromString(modeParam);
         CourseQueryResult result = coursesLabService.getCourses(mode);
+
+        log.info("[LAB-DB] Courses mode='{}' -> queryCount={}, duration={}ms, coursesReturned={}",
+            mode.name().toLowerCase(), result.queryCount(), result.durationMs(), result.coursesCount());
 
         return ResponseEntity.ok()
             .header("X-Query-Count", String.valueOf(result.queryCount()))
@@ -104,6 +114,10 @@ public class DatabaseLabController {
         String strategyParam = body != null ? body.get("strategy") : null;
         RaceStrategy strategy = RaceStrategy.fromString(strategyParam);
         WithdrawRaceResult result = withdrawRaceService.executeRace(strategy);
+
+        log.info("[LAB-DB] Withdraw race strategy='{}' -> finalBalancePaise={}, lostUpdate={}, ok={}, summary='{}'",
+            strategy.name().toLowerCase(), result.finalBalancePaise(), result.lostUpdate(), result.ok(), result.summary());
+
         return ResponseEntity.ok(result);
     }
 }

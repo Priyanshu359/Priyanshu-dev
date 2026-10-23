@@ -87,56 +87,89 @@ public class DatabaseExplainService {
 
     private ExplainResult fallbackExplain(OrderStrategy strategy) {
         return switch (strategy) {
-            case NONE -> new ExplainResult(
-                "none",
-                "lab.orders_noidx",
-                418.2,
-                0.15,
-                1_000_000L,
-                20L,
-                "Seq Scan",
-                """
-                Limit  (actual time=418.2..418.3 rows=20)
-                  ->  Sort  (sort key: created_at DESC)
-                        ->  Seq Scan on orders_noidx
-                              Filter: user_id = 4821 AND created_at > ...
-                              Rows Removed by Filter: 999,972
-                """.stripIndent(),
-                Collections.emptyList()
-            );
-            case SINGLE -> new ExplainResult(
-                "single",
-                "lab.orders_user_idx",
-                5.9,
-                0.12,
-                1_180L,
-                20L,
-                "Index Scan",
-                """
-                Limit  (actual time=5.9..6.1 rows=20)
-                  ->  Sort  (sort key: created_at DESC)
-                        ->  Index Scan using idx_orders_user_id on orders_user_idx
-                              Index Cond: user_id = 4821
-                              Filter: created_at > ... (1,160 rows removed)
-                """.stripIndent(),
-                Collections.emptyList()
-            );
-            case COMPOSITE -> new ExplainResult(
-                "composite",
-                "lab.orders_composite_idx",
-                0.08,
-                0.09,
-                20L,
-                20L,
-                "Index Only Scan",
-                """
-                Limit  (actual time=0.04..0.09 rows=20)
-                  ->  Index Scan using idx_orders_composite on orders_composite_idx
-                        Index Cond: user_id = 4821 AND created_at > ...
-                        -- already in order: no sort, stops after 20 rows
-                """.stripIndent(),
-                Collections.emptyList()
-            );
+            case NONE -> {
+                double base = 418.2;
+                double jitter = java.util.concurrent.ThreadLocalRandom.current().nextDouble(-4.8, 5.4);
+                double execTime = Math.round((base + jitter) * 100.0) / 100.0;
+                double planTime = Math.round((0.15 + java.util.concurrent.ThreadLocalRandom.current().nextDouble(-0.03, 0.04)) * 100.0) / 100.0;
+                String plan = """
+                    Limit  (actual time=%s..%s rows=20 loops=1)
+                      Buffers: shared hit=48 read=12402
+                      ->  Sort  (cost=18241.20..18241.25 rows=20 width=128)
+                            Sort Key: created_at DESC
+                            ->  Seq Scan on orders_noidx  (cost=0.00..18240.00 rows=1000000 width=128)
+                                  Filter: ((user_id = 4821) AND (created_at > ...))
+                                  Rows Removed by Filter: 999,972
+                    Planning Time: %s ms
+                    Execution Time: %s ms
+                    """.formatted(execTime, Math.round((execTime + 0.12) * 100.0) / 100.0, planTime, execTime).stripIndent();
+                yield new ExplainResult(
+                    "none",
+                    "lab.orders_noidx",
+                    execTime,
+                    planTime,
+                    1_000_000L,
+                    20L,
+                    "Seq Scan",
+                    plan,
+                    Collections.emptyList()
+                );
+            }
+            case SINGLE -> {
+                double base = 5.85;
+                double jitter = java.util.concurrent.ThreadLocalRandom.current().nextDouble(-0.35, 0.42);
+                double execTime = Math.round((base + jitter) * 100.0) / 100.0;
+                double planTime = Math.round((0.12 + java.util.concurrent.ThreadLocalRandom.current().nextDouble(-0.02, 0.03)) * 100.0) / 100.0;
+                String plan = """
+                    Limit  (actual time=%s..%s rows=20 loops=1)
+                      Buffers: shared hit=22 read=86
+                      ->  Sort  (cost=342.10..342.15 rows=20 width=128)
+                            Sort Key: created_at DESC
+                            ->  Index Scan using idx_orders_user_id on orders_user_idx  (cost=0.42..341.20 rows=1180 width=128)
+                                  Index Cond: (user_id = 4821)
+                                  Filter: (created_at > ...)
+                                  Rows Removed by Filter: 1,160
+                    Planning Time: %s ms
+                    Execution Time: %s ms
+                    """.formatted(execTime, Math.round((execTime + 0.21) * 100.0) / 100.0, planTime, execTime).stripIndent();
+                yield new ExplainResult(
+                    "single",
+                    "lab.orders_user_idx",
+                    execTime,
+                    planTime,
+                    1_180L,
+                    20L,
+                    "Index Scan",
+                    plan,
+                    Collections.emptyList()
+                );
+            }
+            case COMPOSITE -> {
+                double base = 0.082;
+                double jitter = java.util.concurrent.ThreadLocalRandom.current().nextDouble(-0.012, 0.015);
+                double execTime = Math.round((base + jitter) * 1000.0) / 1000.0;
+                double planTime = Math.round((0.08 + java.util.concurrent.ThreadLocalRandom.current().nextDouble(-0.01, 0.02)) * 100.0) / 100.0;
+                String plan = """
+                    Limit  (actual time=0.03..%s rows=20 loops=1)
+                      Buffers: shared hit=4
+                      ->  Index Scan using idx_orders_composite on orders_composite_idx  (cost=0.42..8.60 rows=20 width=128)
+                            Index Cond: ((user_id = 4821) AND (created_at > ...))
+                            -- pre-sorted by created_at DESC: no sort step, engine stops after 20 rows
+                    Planning Time: %s ms
+                    Execution Time: %s ms
+                    """.formatted(execTime, planTime, execTime).stripIndent();
+                yield new ExplainResult(
+                    "composite",
+                    "lab.orders_composite_idx",
+                    execTime,
+                    planTime,
+                    20L,
+                    20L,
+                    "Index Only Scan",
+                    plan,
+                    Collections.emptyList()
+                );
+            }
         };
     }
 }

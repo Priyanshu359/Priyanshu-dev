@@ -12,12 +12,13 @@ pnpm-debug.log*
 
 # Next.js
 .next/
-out/
+/out/
+/apps/web/out/
+!src/**/out/
 build/
 dist/
 *.tsbuildinfo
 next-env.d.ts
-
 # Gradle, Maven & Java
 target/
 .gradle/

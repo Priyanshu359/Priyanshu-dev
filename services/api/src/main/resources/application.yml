@@ -97,6 +97,9 @@ priyanshu:
       timeout-ms: 3000
 
 management:
+  health:
+    mail:
+      enabled: false
   endpoints:
     web:
       exposure:

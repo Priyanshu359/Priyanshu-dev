@@ -2,7 +2,7 @@
     email {$ACME_EMAIL:priyanshu.kr.sinha74@gmail.com}
 }
 
-api.{$DOMAIN:priyanshu.dev} {
+api.{$DOMAIN:priyanshusinha.dev} {
     # Reverse proxy to the Spring Boot API container
     reverse_proxy api:8080 {
         header_up Host {host}

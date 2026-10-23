@@ -1,0 +1,24 @@
+name: Render Keep-Alive Health Loop
+
+on:
+  schedule:
+    # Run every 10 minutes to prevent Render from idling (Render idle timeout is 15 minutes)
+    - cron: '*/10 * * * *'
+  workflow_dispatch: # Allows manual trigger from GitHub Actions UI
+
+jobs:
+  ping-render:
+    name: Ping API Health Endpoint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Health Endpoint
+        run: |
+          API_URL="${{ secrets.API_HEALTH_URL || 'https://api.priyanshusinha.dev/actuator/health' }}"
+          echo "Pinging ${API_URL} to keep Render container active..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" --max-time 30 "$API_URL" || echo "000")
+          echo "HTTP Response Status: $STATUS"
+          if [ "$STATUS" -ge 200 ] && [ "$STATUS" -lt 400 ]; then
+            echo "API is healthy and awake!"
+          else
+            echo "Warning: API returned status $STATUS"
+          fi

@@ -1,6 +1,22 @@
-# Production Deployment Guide: From Zero to Live (100% Free Tier)
+# Production Deployment Guide: 100% Free Tier (Zero Payment Verification Required)
 
-This guide is a complete, step-by-step numbered checklist designed for deploying the entire `priyanshu.dev` distributed platform to production for the first time. Every step explains **what it does**, **the exact commands to run**, and **how to verify it worked**.
+This guide is a complete, step-by-step checklist designed for deploying the entire **`priyanshusinha.dev`** distributed platform to production. 
+
+> [!TIP]
+> **Zero Credit / Debit Card Verification**: Unlike AWS, Google Cloud, or Oracle Cloud (which mandate credit card validation during registration), every provider in this primary guide (**Render**, **Vercel**, **Supabase**, **Upstash Redis**, **Cloudflare**, and **cron-job.org**) offers a genuine **100% free tier with zero payment verification**.
+
+---
+
+## Production URLs & Domains
+
+| Component | Public URL | Hosting Provider | How It Is Created & Routed |
+|---|---|---|---|
+| **Frontend (Root)** | `https://priyanshusinha.dev` | Vercel (Hobby Free) | Cloudflare DNS-Only CNAME `@` → `cname.vercel-dns.com`. Vercel auto-provisions SSL. |
+| **Frontend (Redirect)** | `https://www.priyanshusinha.dev` | Vercel (Hobby Free) | Cloudflare DNS-Only CNAME `www` → `cname.vercel-dns.com`. Vercel 308 redirects to root. |
+| **Backend API** | `https://api.priyanshusinha.dev` | Render (Free Web Service) | Cloudflare CNAME `api` → `<render-app>.onrender.com`. Render auto-provisions SSL. |
+| **Database** | `aws-0-[REGION].pooler.supabase.com` | Supabase (Free Tier) | Managed PostgreSQL 16 with `pgvector` & Session Pooler (port 5432 / 6543). |
+| **Distributed Cache & Locks**| `[NAME].upstash.io:6379` | Upstash (Free Tier) | Serverless Redis with TLS encryption (10,000 commands/day free). |
+| **Keep-Alive Health Loop** | Background Ping (Every 1m) | cron-job.org / GitHub Actions | Pings `/actuator/health` to keep Render container active 24/7 without sleeping. |
 
 ---
 
@@ -9,373 +25,294 @@ This guide is a complete, step-by-step numbered checklist designed for deploying
 ```
                       ┌─────────────────────────────────────────────────────────────┐
                       │                   Cloudflare DNS & Edge                     │
-                      │       (Domain Registrar, DNS, Edge SSL & Turnstile)         │
+                      │               (DNS Management & Turnstile)                  │
                       └──────────────┬───────────────────────────────┬──────────────┘
                                      │                               │
-                       DNS-Only (Grey Cloud)                   Proxied (Orange Cloud)
+                        CNAME @, www (DNS-Only)                  CNAME api (DNS-Only)
                                      │                               │
                                      ▼                               ▼
                       ┌─────────────────────────────┐ ┌─────────────────────────────┐
-                      │       Vercel (Free)         │ │   Oracle Cloud VM (Free)    │
-                      │    Next.js 15 Frontend      │ │    Ampere A1 ARM64 (24/7)   │
-                      │                             │ │  ┌───────────────────────┐  │
-                      │  https://priyanshu.dev      │ │  │   Caddy HTTPS Proxy   │  │
-                      │  https://www.priyanshu.dev  │ │  └───────────┬───────────┘  │
-                      │                             │ │              │ :8080        │
-                      │                             │ │  ┌───────────▼───────────┐  │
-                      │                             │ │  │   Spring Boot 3.4     │  │
-                      │                             │ │  │      (Modular API)    │  │
-                      │                             │ │  └─────┬───────────┬─────┘  │
-                      │                             │ │        │           │        │
-                      └─────────────────────────────┘ │  ┌─────▼─────┐ ┌───▼─────┐  │
-                                                      │  │  Redis 7  │ │ Outbox  │  │
-                                                      │  │ (Docker)  │ │ Consumer│  │
-                                                      │  └───────────┘ └─────────┘  │
-                                                      └──────────────┬──────────────┘
-                                                                     │ JDBC SSL
-                                                      ┌──────────────▼──────────────┐
-                                                      │   Supabase PostgreSQL 16    │
-                                                      │  (pgvector, app & lab, RLS) │
-                                                      └─────────────────────────────┘
+                      │        Vercel Free          │ │         Render Free         │
+                      │     Next.js 15 Frontend     │ │     Spring Boot 3.4 API     │
+                      │                             │ │                             │
+                      │  https://priyanshusinha.dev │ │ https://api.priyanshusinha  │
+                      │  https://www.priyanshusinha │ │             .dev            │
+                      │              .dev           │ │                             │
+                      └─────────────────────────────┘ └──────┬───────────────┬──────┘
+                                                             │               │
+                                                     TLS     │               │ JDBC SSL
+                                                     ┌───────▼───────┐ ┌─────▼───────────────────────┐
+                                                     │ Upstash Redis │ │    Supabase PostgreSQL 16   │
+                                                     │  (Serverless) │ │   (pgvector, app & lab, RLS)│
+                                                     └───────────────┘ └─────────────────────────────┘
+                                                             ▲
+                                                             │ Every 1 Min Ping
+                                                     ┌───────┴───────┐
+                                                     │ cron-job.org  │
+                                                     │ (Keep-Alive)  │
+                                                     └───────────────┘
 ```
 
 ---
 
 ## Pre-Deployment Checklist & Environment Variables
 
-Replace placeholders with your real values:
-
-| Variable | Description | Example |
+| Variable | Description | Exact Value for Production |
 |---|---|---|
-| `<your-domain>` | Root domain | `priyanshu.dev` |
-| `api.<your-domain>` | API subdomain | `api.priyanshu.dev` |
-| `<vm-ip>` | Public IPv4 of Oracle Cloud VM | `129.153.xx.xx` |
-| `<db-password>` | Supabase database master password | (generated) |
+| `DOMAIN` | Root domain | `priyanshusinha.dev` |
+| `API_DOMAIN` | API subdomain | `api.priyanshusinha.dev` |
+| `NEXT_PUBLIC_SITE_URL` | Frontend URL for metadata / sitemap | `https://priyanshusinha.dev` |
+| `NEXT_PUBLIC_API_URL` | Frontend API Target URL | `https://api.priyanshusinha.dev` |
+| `CORS_ALLOWED_ORIGINS` | Permitted browser origins | `https://priyanshusinha.dev,https://www.priyanshusinha.dev` |
 
 ---
 
-## Step 1: Provision Supabase PostgreSQL Database
+## Step 1: Provision Supabase PostgreSQL Database (No Card Needed)
 
-**What this does**: Sets up a managed PostgreSQL 16 database with the `pgvector` extension, isolated `app` and `lab` schemas, and Row Level Security (RLS). Flyway automatically runs database migrations on API startup.
+**What this does**: Sets up a free PostgreSQL 16 database with the `pgvector` extension, isolated `app` and `lab` schemas, and Row Level Security (RLS). Flyway automatically runs database migrations on API startup.
 
 ### 1.1 Create Project
-1. Log in to [Supabase](https://supabase.com) and click **New project**.
-2. **Name**: `priyanshu-prod`
-3. **Database Password**: Generate a secure password and save it in a password manager.
-4. **Region**: Choose the closest region to your intended Oracle Cloud VM (e.g., `ap-south-1` Mumbai or `us-east-1` N. Virginia).
-5. Click **Create new project** and wait 2 minutes for provisioning.
+1. Log in to [Supabase](https://supabase.com) with GitHub (no credit card required).
+2. Click **New project**.
+3. **Name**: `priyanshusinha-prod`
+4. **Database Password**: Generate a secure password and save it in a password manager.
+5. **Region**: Choose a region close to your users (e.g., `ap-south-1` Mumbai, `us-east-1` N. Virginia, or `eu-central-1` Frankfurt).
+6. Click **Create new project** and wait ~2 minutes.
 
 ### 1.2 Enable Vector Extension
-1. In the Supabase Dashboard, go to **Database** → **Extensions**.
+1. In the Supabase Dashboard, navigate to **Database** → **Extensions**.
 2. Search for `vector` and toggle it **ON**.
 
-### 1.3 Get Connection Details
+### 1.3 Copy Connection String
 1. Go to **Project Settings** → **Database**.
 2. Under **Connection string**, select the **URI** tab.
-3. Switch from "Direct" to **Session pooler** (Port 5432) or use the Direct connection string:
+3. Switch from "Direct" to **Session pooler** (Port 5432):
    ```
    postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres?sslmode=require
    ```
-4. Note the JDBC format for Spring Boot:
+4. Note the Spring Boot JDBC format:
    ```
    jdbc:postgresql://aws-0-[REGION].pooler.supabase.com:5432/postgres?sslmode=require
    ```
 
-### 1.4 Verification
-Verify that the database is accessible:
-```bash
-pg_isready -d "postgresql://postgres.[PROJECT-REF]:[PASSWORD]@aws-0-[REGION].pooler.supabase.com:5432/postgres?sslmode=require"
-# Output should be: ... accepting connections
-```
+---
+
+## Step 2: Provision Upstash Redis (No Card Needed)
+
+**What this does**: Provides serverless Redis 7 with automatic TLS encryption for distributed rate limiting, semantic caching, sliding window metrics, and idempotency locks.
+
+1. Sign up at [Upstash](https://upstash.com) with GitHub (no credit card required).
+2. Click **Create Database**.
+3. **Name**: `priyanshu-redis`
+4. **Type**: Regional (choose the same or closest region as your Supabase database).
+5. **TLS (SSL)**: Enabled.
+6. Click **Create**.
+7. In the database **Details** page, copy:
+   - **Endpoint / Host**: (e.g. `flowing-frog-12345.upstash.io`)
+   - **Port**: `6379`
+   - **Password**: The primary token/password string.
 
 ---
 
-## Step 2: Configure Cloudflare DNS & SSL
+## Step 3: Configure Cloudflare DNS for `priyanshusinha.dev`
 
-**What this does**: Configures DNS routing for the domain. Vercel requires direct DNS records (Grey Cloud / DNS Only) for Let's Encrypt SSL issuance. The backend API is proxied (Orange Cloud) for Cloudflare DDoS protection, CDN edge caching, and Turnstile bot protection.
+**What this does**: Manages DNS routing for `priyanshusinha.dev` and `api.priyanshusinha.dev`.
 
-### 2.1 Set Up Nameservers
-1. In Cloudflare, add your site `<your-domain>`.
-2. Update your registrar's nameservers to Cloudflare's assigned nameservers.
-3. Go to **SSL/TLS** → Overview, and set encryption mode to **Full (strict)**.
+### 3.1 Point Nameservers to Cloudflare
+1. Log in to [Cloudflare](https://dash.cloudflare.com) and click **Add a site** → enter **`priyanshusinha.dev`**.
+2. Select the **Free** plan.
+3. In your domain registrar (Namecheap, GoDaddy, Hostinger, Porkbun, etc.), set nameservers to Cloudflare's two assigned nameservers.
+4. In Cloudflare, navigate to **SSL/TLS** → set encryption mode to **Full** (or **Full (strict)**).
 
-### 2.2 Add DNS Records
-In **Cloudflare** → **DNS** → **Records**, create the following 3 records:
+### 3.2 Add DNS Records
 
-| Type | Name | Content / Target | Proxy status | Purpose |
+In Cloudflare **DNS** → **Records**, create the following records:
+
+| Type | Name | Content / Target | Proxy Status | Purpose |
 |---|---|---|---|---|
-| `CNAME` | `@` | `cname.vercel-dns.com` | **DNS only (Grey Cloud)** | Root frontend |
-| `CNAME` | `www` | `cname.vercel-dns.com` | **DNS only (Grey Cloud)** | WWW redirect |
-| `A` | `api` | `<vm-ip>` | **Proxied (Orange Cloud)** | Backend API |
+| `CNAME` | `@` | `cname.vercel-dns.com` | **DNS Only (Grey Cloud)** | Primary frontend (`https://priyanshusinha.dev`) |
+| `CNAME` | `www` | `cname.vercel-dns.com` | **DNS Only (Grey Cloud)** | WWW redirect (`https://www.priyanshusinha.dev`) |
+| `CNAME` | `api` | `[YOUR-RENDER-APP-NAME].onrender.com` | **DNS Only (Grey Cloud)** | Backend API (`https://api.priyanshusinha.dev`) |
 
 > [!IMPORTANT]
-> **Vercel requires DNS Only (Grey Cloud)** for `@` and `www`. If proxied through Cloudflare, Vercel cannot verify ownership or issue automatic SSL certificates. The `api` record **must be Proxied (Orange Cloud)**.
+> **Use DNS Only (Grey Cloud)** for both Vercel (`@`, `www`) and Render (`api`). This allows Vercel and Render to directly verify domain ownership via Let's Encrypt and automatically issue valid SSL certificates without proxy negotiation issues.
 
-### 2.3 Set Up Cloudflare Turnstile (Bot Protection)
+### 3.3 Set Up Cloudflare Turnstile (Bot Protection)
 1. In Cloudflare dashboard, navigate to **Turnstile** → **Add site**.
 2. **Site name**: `priyanshu-portfolio`
-3. **Domain**: `<your-domain>`
+3. **Domain**: `priyanshusinha.dev`
 4. **Widget Mode**: Managed.
 5. Save your **Site Key** (`0x4AAAAAA...`) and **Secret Key** (`0x4AAAAAA...`).
 
-### 2.4 Verification
-```bash
-dig +short <your-domain>
-# Returns Vercel's Anycast IP addresses (76.76.21.21)
+---
 
-dig +short api.<your-domain>
-# Returns Cloudflare edge proxy IPs
+## Step 4: Deploy Backend to Render (`api.priyanshusinha.dev`)
+
+**What this does**: Builds and deploys the containerized Spring Boot API onto Render's free cloud runtime without requiring any payment verification.
+
+### 4.1 Create Web Service on Render
+1. Log in to [Render](https://render.com) with GitHub (no credit card required).
+2. Click **New +** → **Web Service**.
+3. Select **Build and deploy from a Git repository** → select `Priyanshu359/Priyanshu-dev`.
+4. Configure service settings:
+   - **Name**: `priyanshu-api`
+   - **Region**: Choose closest to your Supabase database (e.g. Frankfurt, Oregon, Ohio, Singapore).
+   - **Branch**: `main` (or your current branch)
+   - **Root Directory**: Leave blank (or `.`)
+   - **Runtime**: **Docker**
+   - **Dockerfile Path**: `./services/api/Dockerfile`
+   - **Instance Type**: **Free** (0.1 CPU, 512 MB RAM)
+
+### 4.2 Add Environment Variables
+In the Render service configuration under **Environment Variables**, add:
+
+| Key | Value | Notes |
+|---|---|---|
+| `PORT` | `8080` | Render forwards external HTTPS to this container port |
+| `SERVER_PORT` | `8080` | Spring Boot HTTP port |
+| `SPRING_PROFILES_ACTIVE` | `prod` | Production Spring profile |
+| `DATABASE_URL` | `jdbc:postgresql://aws-0-[REGION].pooler.supabase.com:5432/postgres?sslmode=require` | From Supabase Session Pooler |
+| `POSTGRES_USER` | `postgres.[PROJECT-REF]` | From Supabase |
+| `POSTGRES_PASSWORD` | `[YOUR_SUPABASE_PASSWORD]` | From Supabase |
+| `FLYWAY_ENABLED` | `true` | Runs database migrations on startup |
+| `REDIS_HOST` | `[NAME].upstash.io` | From Upstash Redis |
+| `REDIS_PORT` | `6379` | Standard Redis port |
+| `REDIS_PASSWORD` | `[YOUR_UPSTASH_PASSWORD]` | From Upstash Redis |
+| `REDIS_SSL` | `true` | Required for Upstash TLS connection |
+| `CORS_ALLOWED_ORIGINS` | `https://priyanshusinha.dev,https://www.priyanshusinha.dev` | Whitelist frontend browser calls |
+| `TURNSTILE_SECRET_KEY` | `0x4AAAAAA...` | From Cloudflare Turnstile |
+| `NOTIFICATION_LOG_ONLY` | `true` | Dispatches contact emails to logs |
+
+5. Click **Create Web Service**. Render will start building the multi-stage Docker image. Once complete, it will report `Service is live`.
+
+### 4.3 Bind Custom Domain `api.priyanshusinha.dev`
+1. In your Render service, go to **Settings** → **Custom Domains**.
+2. Click **Add Custom Domain** and enter **`api.priyanshusinha.dev`**.
+3. Render will display your unique CNAME target (e.g., `priyanshu-api-xyz.onrender.com`).
+4. Ensure your Cloudflare DNS record for `api` has this exact target with **DNS Only (Grey Cloud)**.
+5. Within 1–2 minutes, Render will verify DNS and issue a free Let's Encrypt certificate.
+
+### 4.4 Verify API is Live
+```bash
+curl -i https://api.priyanshusinha.dev/actuator/health
+# HTTP/2 200 OK
+# {"status":"UP","components":{"db":{"status":"UP"},"redis":{"status":"UP"}}}
 ```
 
 ---
 
-## Step 3: Provision Oracle Cloud Always Free VM (Ampere A1 ARM)
+## Step 5: Anti-Sleep Health Loop (Keep Render Awake 24/7)
 
-**What this does**: Deploys an Always Free cloud VM featuring 2 ARM64 OCPUs and 12 GB RAM with Ubuntu 24.04.
+> [!IMPORTANT]
+> **Why this is needed**: Free web services on Render go to sleep after 15 minutes of inactivity. When a user visits a sleeping service, waking up the Spring Boot JVM takes ~40 seconds.
+> 
+> By configuring an external health loop that pings `/actuator/health` every 1 to 5 minutes, **your Render service will never idle and stays awake 24/7 with zero latency cold starts**.
 
-### 3.1 Create Compute Instance
-1. Log in to [Oracle Cloud Console](https://cloud.oracle.com).
-2. Go to **Compute** → **Instances** → **Create instance**.
-3. **Name**: `priyanshu-api-vm`
-4. **Placement**: Choose an Availability Domain showing "Always Free Eligible".
-5. **Image and shape**:
-   - Image: `Canonical Ubuntu 24.04 Minimal aarch64`
-   - Shape: Click **Change shape** → **Ampere** (ARM processor) → `VM.Standard.A1.Flex`
-   - Set **OCPUs**: `2`, **Memory**: `12 GB`. (Always Free allows up to 4 OCPUs and 24 GB).
-6. **Networking**: Create new Virtual Cloud Network (VCN) with public subnet. Select **Assign a public IPv4 address**.
-7. **Add SSH keys**:
-   - Select **Generate a key pair for me** and download both private and public keys, OR paste your existing public key (`~/.ssh/id_ed25519.pub`).
-8. Click **Create** and wait for instance status to show **Running**. Note the **Public IP address**.
+Choose either Method A (recommended for 1-minute precision) or Method B:
 
-### 3.2 Open VCN Security List Ports
-Oracle Cloud blocks external traffic by default in its Virtual Cloud Network:
-1. In the instance details, click on the **Subnet** link under Primary VNIC.
-2. Click on the **Default Security List for...**.
-3. Under **Ingress Rules**, click **Add Ingress Rules**:
-   - **Source CIDR**: `0.0.0.0/0`
-   - **IP Protocol**: `TCP`
-   - **Destination Port Range**: `80,443`
-   - **Description**: `HTTP and HTTPS for Caddy web server`
-4. Click **Add Ingress Rules**.
+### Method A: Free Ping via `cron-job.org` (Every 1 Minute — Recommended)
+1. Sign up for free at [cron-job.org](https://cron-job.org) (100% free, no credit card).
+2. Click **Create Cronjob**.
+3. **Title**: `Priyanshu API Keep-Alive`
+4. **URL**: `https://api.priyanshusinha.dev/actuator/health`
+5. **Execution Schedule**:
+   - Choose: **Every 1 minute** (or **Every 5 minutes**).
+6. **Request Method**: `GET`
+7. Click **Create**.
+8. It will immediately begin firing a lightweight HTTP GET request every 60 seconds, resetting Render's 15-minute timer so it **never sleeps**.
 
-### 3.3 Configure Host Firewall (`ufw`)
-Connect to your VM from your local machine:
-```bash
-ssh -i ~/.ssh/oracle_vps.key ubuntu@<vm-ip>
-```
-Once logged in, open ports in Ubuntu's firewall:
-```bash
-sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 80 -j ACCEPT
-sudo iptables -I INPUT 6 -m state --state NEW -p tcp --dport 443 -j ACCEPT
-sudo netfilter-persistent save
+### Method B: Free Ping via `UptimeRobot` (Every 5 Minutes + Outage Monitoring)
+1. Sign up at [UptimeRobot](https://uptimerobot.com) (free plan includes 50 monitors).
+2. Click **Add New Monitor**:
+   - **Monitor Type**: `HTTP(s)`
+   - **Friendly Name**: `Priyanshu Production API`
+   - **URL**: `https://api.priyanshusinha.dev/actuator/health`
+   - **Monitoring Interval**: `5 minutes`
+3. Click **Create Monitor**.
+4. In addition to keeping Render awake, UptimeRobot will automatically notify you by email if your API ever goes down.
 
-# Or if using ufw:
-sudo ufw allow 22/tcp
-sudo ufw allow 80/tcp
-sudo ufw allow 443/tcp
-sudo ufw enable
-```
-
-### 3.4 Verification
-```bash
-ssh -i ~/.ssh/oracle_vps.key ubuntu@<vm-ip> "echo 'VM SSH Connection Verified'"
-```
+### Method C: GitHub Actions Schedule Workflow (Built-in)
+The repository includes a ready-to-run GitHub Actions workflow at [`.github/workflows/keep-alive.yml`](file:///Users/adda247/Desktop/priyanshu-dev/.github/workflows/keep-alive.yml) which pings `https://api.priyanshusinha.dev/actuator/health` every 10 minutes automatically.
 
 ---
 
-## Step 4: Install Docker & Deploy Backend on the VM
+## Step 6: Deploy Frontend to Vercel (`https://priyanshusinha.dev`)
 
-**What this does**: Installs Docker and Docker Compose on ARM64 Ubuntu, configures the production environment secrets, starts Caddy (which automatically provisions a valid Let's Encrypt SSL certificate for `api.<your-domain>`), the Spring Boot API, and Redis.
+**What this does**: Connects Vercel to your GitHub repository for continuous deployment, builds the Next.js 15 application, and binds both **`priyanshusinha.dev`** and **`www.priyanshusinha.dev`**.
 
-### 4.1 Install Docker Engine on VM
-Run the official Docker convenience script on the VM:
-```bash
-# On the Oracle VM:
-curl -fsSL https://get.docker.com -o get-docker.sh
-sudo sh get-docker.sh
-sudo usermod -aG docker ubuntu
-newgrp docker
-docker --version
-docker compose version
-```
-
-### 4.2 Clone Deployment Files
-```bash
-mkdir -p /home/ubuntu/app
-cd /home/ubuntu/app
-git clone https://github.com/priyanshu-sinha/priyanshu-dev.git .
-cd infra/production
-```
-
-### 4.3 Create `.env` on VM (Never committed to Git)
-Create `/home/ubuntu/app/infra/production/.env`:
-```bash
-cat << 'EOF' > /home/ubuntu/app/infra/production/.env
-DOMAIN=priyanshu.dev
-ACME_EMAIL=priyanshu.kr.sinha74@gmail.com
-
-# Supabase Postgres Connection
-DATABASE_URL=jdbc:postgresql://aws-0-[REGION].pooler.supabase.com:5432/postgres?sslmode=require
-POSTGRES_USER=postgres.[PROJECT-REF]
-POSTGRES_PASSWORD=[YOUR_SUPABASE_PASSWORD]
-
-# Redis Cache
-REDIS_PASSWORD=
-
-# Security & Cloudflare Turnstile
-TURNSTILE_SECRET_KEY=0x4AAAAAA...
-NOTIFICATION_LOG_ONLY=true
-
-# GitHub Container Registry Image
-API_IMAGE=ghcr.io/priyanshu-sinha/priyanshu-dev/api:latest
-EOF
-chmod 600 /home/ubuntu/app/infra/production/.env
-```
-
-### 4.4 Start Services
-```bash
-cd /home/ubuntu/app/infra/production
-docker compose up -d
-```
-
-### 4.5 Verification
-```bash
-# 1. Check container health
-docker compose ps
-# Output: caddy-proxy (Up), priyanshu-api (healthy), priyanshu-redis (healthy)
-
-# 2. Check local health endpoint
-curl -i http://localhost:8080/actuator/health
-# HTTP/1.1 200 OK {"status":"UP"}
-
-# 3. Check public HTTPS endpoint
-curl -i https://api.priyanshu.dev/actuator/health
-# HTTP/2 200 ... {"status":"UP"}
-```
-
----
-
-## Step 5: Deploy Frontend to Vercel
-
-**What this does**: Connects Vercel to your GitHub repository for continuous deployment, builds the Next.js 15 application, and binds `priyanshu.dev` and `www.priyanshu.dev`.
-
-### 5.1 Import Project into Vercel
-1. Log in to [Vercel](https://vercel.com) with GitHub.
+### 6.1 Import Project into Vercel
+1. Log in to [Vercel](https://vercel.com) with GitHub (no credit card required).
 2. Click **Add New...** → **Project**.
-3. Select `priyanshu-dev`.
+3. Select `Priyanshu359/Priyanshu-dev`.
 4. Configure Project Settings:
    - **Framework Preset**: `Next.js`
-   - **Root Directory**: Click edit and select `apps/web`
+   - **Root Directory**: Click edit and select **`apps/web`**
    - **Build Command**: `pnpm --filter web build` (or leave default `next build`)
    - **Install Command**: `pnpm install`
 
-### 5.2 Configure Environment Variables
-In the Vercel project configuration, add:
+### 6.2 Configure Environment Variables in Vercel
+Add the following variables:
 
 | Key | Value | Environment |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | `https://api.<your-domain>` | Production, Preview, Development |
-| `NEXT_PUBLIC_SITE_URL` | `https://<your-domain>` | Production |
-| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | `0x4AAAAAA...` (Turnstile site key) | Production, Preview |
+| `NEXT_PUBLIC_SITE_URL` | `https://priyanshusinha.dev` | Production |
+| `NEXT_PUBLIC_API_URL` | `https://api.priyanshusinha.dev` | Production, Preview, Development |
+| `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | `0x4AAAAAA...` (Turnstile Site Key) | Production, Preview |
 
-5. Click **Deploy**. Vercel will build the frontend and assign an initial `*.vercel.app` URL.
+Click **Deploy**.
 
-### 5.3 Bind Custom Domains
-1. In Vercel, go to **Settings** → **Domains**.
-2. Add `<your-domain>` (e.g. `priyanshu.dev`).
-3. Add `www.<your-domain>`. Select redirect to `priyanshu.dev`.
-4. Vercel will verify the Cloudflare DNS-Only CNAME records created in Step 2. Within 60 seconds, both domains will show green checkmarks (Valid Configuration).
-
-### 5.4 Verification
-Open `https://<your-domain>` in your browser. Verify the home page loads, the theme toggle works, and requests go to `https://api.<your-domain>`.
-
----
-
-## Step 6: Configure GitHub Actions CI/CD Secrets
-
-**What this does**: Automates building multi-arch container images (`linux/amd64` and `linux/arm64`), publishing them to GitHub Container Registry (`ghcr.io`), and automatically running zero-downtime rolling deploys to the Oracle VM whenever code merges into `main`.
-
-1. In GitHub, go to your repository **Settings** → **Secrets and variables** → **Actions**.
-2. Click **New repository secret** and add:
-   - `VM_HOST`: Public IP of your Oracle VM (`<vm-ip>`)
-   - `VM_USER`: `ubuntu`
-   - `VM_SSH_KEY`: The entire private SSH key (`-----BEGIN OPENSSH PRIVATE KEY----- ...`)
-   - `TURNSTILE_SECRET_KEY`: Your Cloudflare Turnstile secret key
-
-### Verification
-Make a commit to `main`. Go to the **Actions** tab in GitHub:
-- `CI` workflow passes (`web`, `api`, `security`).
-- `Deploy API to Oracle Cloud VM` workflow builds the multi-arch image, pushes to `ghcr.io`, SSHs into the VM, pulls the image, and verifies container health.
+### 6.3 Bind Custom Domains in Vercel
+1. In Vercel Project → **Settings** → **Domains**:
+2. Add **`priyanshusinha.dev`**:
+   - Vercel checks the Cloudflare DNS `@` CNAME record (`cname.vercel-dns.com`).
+3. Add **`www.priyanshusinha.dev`**:
+   - Choose: **Redirect to priyanshusinha.dev** (308 Permanent Redirect).
+4. Within 30–60 seconds, both domains will display a green checkmark: **Valid Configuration**.
 
 ---
 
-## Step 7: Observability Setup (Grafana Cloud Free Tier)
+## Step 7: End-to-End Production Verification Checklist
 
-**What this does**: Connects free application telemetry (Spring Boot Micrometer Prometheus metrics, JVM memory, HTTP request rates, and HikariCP connection pools) to Grafana Cloud.
-
-1. Sign up for a free account at [Grafana Cloud](https://grafana.com/products/cloud/).
-2. Under **Connections** → **Add new connection**, select **Hosted Prometheus metrics**.
-3. Generate an API token and copy the Remote Write endpoint URL and credentials.
-4. The Spring Boot backend exposes metrics natively at:
-   ```
-   https://api.<your-domain>/actuator/prometheus
-   ```
-5. In Grafana Cloud, import dashboard ID **12900** (Spring Boot 3 Statistics) or ID **4701** (JVM Micrometer).
-
----
-
-## Step 8: End-to-End Production Verification Checklist
-
-Run these terminal checks to prove production readiness:
+Run these terminal checks from your local machine to verify the live production system:
 
 ```bash
-# 1. API Root Health
-curl -s https://api.<your-domain>/ | jq .
+# 1. Frontend Root Status
+curl -s -I https://priyanshusinha.dev | grep -i HTTP
+# Expected: HTTP/2 200
+
+# 2. WWW Redirect Status
+curl -s -I https://www.priyanshusinha.dev | grep -i -E "HTTP|location"
+# Expected: HTTP/2 308, location: https://priyanshusinha.dev/
+
+# 3. Backend API Root Health
+curl -s https://api.priyanshusinha.dev/ | jq .
 # Expected: { "service": "priyanshu-api", "status": "foundation ok" }
 
-# 2. Public System Stats
-curl -s https://api.<your-domain>/stats | jq .
+# 4. Public System Stats
+curl -s https://api.priyanshusinha.dev/stats | jq .
 # Expected: { "requestsServed": ..., "cacheHits": ..., "rateLimitsTriggered": ... }
 
-# 3. Developer Profile
-curl -s https://api.<your-domain>/me | jq .name
+# 5. Developer Profile
+curl -s https://api.priyanshusinha.dev/me | jq .name
 # Expected: "Priyanshu Sinha"
 
-# 4. Interactive Ask Pipeline (SSE Stream)
-curl -N -X POST https://api.<your-domain>/ask \
+# 6. Interactive Ask Pipeline (SSE Stream)
+curl -N -X POST https://api.priyanshusinha.dev/ask \
   -H "Content-Type: application/json" \
   -d '{"q":"How does he use Redis?"}'
 # Expected: Real-time event stream emitting stage.started, stage.done, pipeline.done
 
-# 5. Public Status Page
-curl -s -I https://<your-domain>/status
-# Expected: HTTP/2 200 OK
+# 7. Interactive Lab Circuit Breaker Call
+curl -s https://api.priyanshusinha.dev/lab/circuit-breaker/call | jq .
+# Expected: { "state": "CLOSED", "downstreamHealthy": true, ... }
 ```
 
 ---
 
-## Plan B: Render Web Service + Upstash Redis Fallback
+## Optional Alternative: Oracle Cloud Always Free VM (For Users with Verified Card)
 
-If Oracle Cloud Always Free ARM capacity is temporarily unavailable in your region, follow this fallback plan:
+If you already possess a credit-card-verified Oracle Cloud account and prefer hosting the backend on a dedicated 24/7 ARM64 VM (`VM.Standard.A1.Flex`, 2 OCPUs, 12 GB RAM) with Caddy reverse proxy:
 
-### 1. Backend on Render (Free Web Service)
-1. Log in to [Render](https://render.com) and click **New** → **Web Service**.
-2. Connect your GitHub repository.
-3. **Environment**: Docker (Runtime uses `services/api/Dockerfile`).
-4. **Root Directory**: `services/api`
-5. **Instance Type**: Free (512 MB RAM, 0.1 CPU).
-6. **Environment Variables**:
-   - `DATABASE_URL`: Your Supabase connection string.
-   - `REDIS_HOST`: Upstash Redis host (e.g., `flowing-frog-12345.upstash.io`).
-   - `REDIS_PORT`: `6379`
-   - `REDIS_PASSWORD`: Upstash Redis token.
-   - `CORS_ALLOWED_ORIGINS`: `https://<your-domain>,https://www.<your-domain>`
-
-### 2. Redis on Upstash (Serverless Free Tier)
-1. Log in to [Upstash](https://upstash.com) and click **Create Database**.
-2. **Name**: `priyanshu-cache`
-3. **Region**: Match your Supabase region.
-4. Copy the Redis endpoint host, port, and password to Render's environment variables.
-
-> [!NOTE]
-> **Render Free Cold Start Handling**: Free web services on Render spin down after 15 minutes of inactivity. The first request after idle can take ~40 seconds. Both the Home Hero and the AI walkthrough frontend explicitly handle this with a fallback labelled **"replay of a real request"**, ensuring visitors never encounter a broken interface while the backend boots up.
+1. Refer to [infra/production/docker-compose.yml](file:///Users/adda247/Desktop/priyanshu-dev/infra/production/docker-compose.yml) and [infra/production/Caddyfile](file:///Users/adda247/Desktop/priyanshu-dev/infra/production/Caddyfile).
+2. Point Cloudflare DNS `api` record (Type `A`) to your VM's public IPv4 address.
+3. Caddy will automatically issue SSL for `api.priyanshusinha.dev` via HTTP-01 ACME challenges.

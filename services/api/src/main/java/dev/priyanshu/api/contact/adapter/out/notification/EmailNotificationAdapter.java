@@ -20,10 +20,18 @@ public class EmailNotificationAdapter implements NotificationPort {
 
     private final PlatformProperties properties;
     private final JavaMailSender mailSender;
+    private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
+    private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
 
-    public EmailNotificationAdapter(PlatformProperties properties, JavaMailSender mailSender) {
+    @org.springframework.beans.factory.annotation.Value("${spring.mail.password:}")
+    private String resendApiKey;
+
+    public EmailNotificationAdapter(PlatformProperties properties,
+                                   JavaMailSender mailSender,
+                                   com.fasterxml.jackson.databind.ObjectMapper objectMapper) {
         this.properties = properties;
         this.mailSender = mailSender;
+        this.objectMapper = objectMapper;
     }
 
     @Override
@@ -35,6 +43,20 @@ public class EmailNotificationAdapter implements NotificationPort {
             return;
         }
 
+        // 1. Prefer native Resend HTTPS REST API (bypasses cloud SMTP port blocks)
+        if (resendApiKey != null && resendApiKey.trim().startsWith("re_")) {
+            try {
+                sendViaResendHttp(message, notifConfig);
+                return;
+            } catch (Exception e) {
+                log.error("Failed to send contact notification via Resend REST API: {}", e.getMessage(), e);
+                log.info("===> [FALLBACK LOG] From: {} ({}) [{}] Message: {}",
+                    message.name(), message.email(), message.type(), message.message());
+                return;
+            }
+        }
+
+        // 2. Fallback to standard JavaMailSender SMTP
         try {
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, MimeMessageHelper.MULTIPART_MODE_MIXED_RELATED, StandardCharsets.UTF_8.name());
@@ -58,6 +80,39 @@ public class EmailNotificationAdapter implements NotificationPort {
             log.error("Failed to send contact notification email via SMTP, falling back to log: {}", e.getMessage(), e);
             log.info("===> [FALLBACK LOG] From: {} ({}) [{}] Message: {}",
                 message.name(), message.email(), message.type(), message.message());
+        }
+    }
+
+    private void sendViaResendHttp(ContactMessage message, PlatformProperties.Notification notifConfig) throws Exception {
+        String typeUpper = message.type().getValue().toUpperCase();
+        String subject = "New Contact Inquiry [" + typeUpper + "] from " + message.name();
+        String htmlBody = buildHtml(message);
+        String textBody = buildPlainText(message);
+
+        java.util.Map<String, Object> payload = java.util.Map.of(
+            "from", "Priyanshu Portfolio <" + notifConfig.getFromEmail() + ">",
+            "to", java.util.List.of(notifConfig.getToEmail()),
+            "reply_to", message.email(),
+            "subject", subject,
+            "html", htmlBody,
+            "text", textBody
+        );
+
+        String json = objectMapper.writeValueAsString(payload);
+
+        java.net.http.HttpRequest request = java.net.http.HttpRequest.newBuilder()
+            .uri(java.net.URI.create("https://api.resend.com/emails"))
+            .header("Authorization", "Bearer " + resendApiKey.trim())
+            .header("Content-Type", "application/json")
+            .POST(java.net.http.HttpRequest.BodyPublishers.ofString(json, StandardCharsets.UTF_8))
+            .timeout(java.time.Duration.ofSeconds(10))
+            .build();
+
+        java.net.http.HttpResponse<String> response = httpClient.send(request, java.net.http.HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() >= 200 && response.statusCode() < 300) {
+            log.info("Contact notification email dispatched successfully via Resend API to {}! Response: {}", notifConfig.getToEmail(), response.body());
+        } else {
+            throw new RuntimeException("Resend API error HTTP " + response.statusCode() + ": " + response.body());
         }
     }
 

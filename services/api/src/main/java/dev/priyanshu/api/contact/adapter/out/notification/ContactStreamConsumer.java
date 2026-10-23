@@ -109,7 +109,7 @@ public class ContactStreamConsumer {
                 }
             }
         } catch (Exception ex) {
-            log.trace("Stream consumer idle: {}", ex.getMessage());
+            log.warn("Contact stream consumer error: {}", ex.getMessage());
         }
     }
 }

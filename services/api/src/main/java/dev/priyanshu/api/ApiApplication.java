@@ -23,5 +23,10 @@ public class ApiApplication {
         public Map<String, String> root() {
             return Map.of("service", "priyanshu-api", "status", "foundation ok");
         }
+
+        @GetMapping(value = {"/favicon.ico", "/favicon.png"})
+        public org.springframework.http.ResponseEntity<Void> favicon() {
+            return org.springframework.http.ResponseEntity.noContent().build();
+        }
     }
 }

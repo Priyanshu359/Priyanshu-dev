@@ -50,13 +50,18 @@ public class GlobalExceptionHandler {
             .body(problem);
     }
 
+    @ExceptionHandler(org.springframework.web.servlet.resource.NoResourceFoundException.class)
+    public ResponseEntity<Void> handleNotFound(org.springframework.web.servlet.resource.NoResourceFoundException ex) {
+        return ResponseEntity.notFound().build();
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public ResponseEntity<ProblemDetail> handleIllegalArgument(IllegalArgumentException ex) {
         ProblemDetail problem = ProblemDetail.forStatusAndDetail(
             HttpStatus.BAD_REQUEST,
             ex.getMessage()
         );
-        problem.setType(URI.create("https://priyanshu.dev/errors/bad-request"));
+        problem.setType(URI.create("https://priyanshusinha.dev/errors/bad-request"));
         problem.setTitle("Bad Request");
         return ResponseEntity.badRequest().body(problem);
     }

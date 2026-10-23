@@ -80,15 +80,14 @@ public class OutboxRelayScheduler {
                         Timestamp.from(Instant.now()),
                         row.id()
                     );
-                    log.debug("Relayed outbox event id: {} to stream: {}", row.id(), streamName);
+                    log.info("Relayed outbox event id: {} ({}) to stream: {}", row.id(), row.eventType(), streamName);
                 } catch (Exception ex) {
                     log.error("Failed to relay outbox event id: {}", row.id(), ex);
                     break; // Stop batch on failure so order is preserved
                 }
             }
         } catch (Exception ex) {
-            // DB might be temporarily unavailable or not initialized yet
-            log.trace("Outbox polling skipped: {}", ex.getMessage());
+            log.warn("Outbox poller exception: {}", ex.getMessage());
         }
     }
 

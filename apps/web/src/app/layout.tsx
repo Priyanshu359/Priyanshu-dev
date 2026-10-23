@@ -5,13 +5,21 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { ConsoleGreeting } from "@/components/ConsoleGreeting";
 
 export const metadata: Metadata = {
-  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://priyanshu.dev"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://priyanshusinha.dev"),
   title: {
     default: "Priyanshu Sinha — Backend Engineer",
     template: "%s · Priyanshu Sinha",
   },
   description:
     "I build the distributed backends that keep products fast — and the AI systems that run on top of them.",
+  icons: {
+    icon: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+    apple: [
+      { url: "/icon.svg", type: "image/svg+xml" },
+    ],
+  },
   keywords: [
     "Backend Engineer",
     "Java",
@@ -23,12 +31,12 @@ export const metadata: Metadata = {
     "System Design",
     "Distributed Systems",
   ],
-  authors: [{ name: "Priyanshu Sinha", url: "https://priyanshu.dev" }],
+  authors: [{ name: "Priyanshu Sinha", url: "https://priyanshusinha.dev" }],
   creator: "Priyanshu Sinha",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://priyanshu.dev",
+    url: "https://priyanshusinha.dev",
     siteName: "Priyanshu Sinha — Backend Engineer",
     title: "Priyanshu Sinha — Backend Engineer",
     description:

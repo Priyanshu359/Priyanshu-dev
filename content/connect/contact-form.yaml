@@ -15,7 +15,7 @@ segments:
     roleLabel: "Role / link to job description"
     msgLabel: "Anything else I should know?"
     sendLabel: "Send to Priyanshu"
-    sentNote: "I’ll get back to you within [X days]. My résumé is linked above if you need it sooner."
+    sentNote: "I’ll get back to you within 24 hours. My résumé is linked above if you need it sooner."
   client:
     id: "client"
     label: "Client"
@@ -35,7 +35,7 @@ segments:
       - "Flexible"
     msgLabel: "Tell me about the project"
     sendLabel: "Request a quote"
-    sentNote: "I’ll reply within [X days] with questions or a rough estimate."
+    sentNote: "I’ll reply within 24 hours with questions or a rough estimate."
   student:
     id: "student"
     label: "Student / developer"

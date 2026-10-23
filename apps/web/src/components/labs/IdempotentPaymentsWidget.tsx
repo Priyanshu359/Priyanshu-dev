@@ -335,7 +335,7 @@ export function IdempotentPaymentsWidget({
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ color: "#9AA0A8" }}>// Bank Transaction Ledger</span>
+            <span style={{ color: "#9AA0A8" }}>{"// Bank Transaction Ledger"}</span>
             {isReplayMode && (
               <span
                 style={{

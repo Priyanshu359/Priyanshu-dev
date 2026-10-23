@@ -488,7 +488,7 @@ export function CachingWidget({
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ color: "#9AA0A8" }}>// Network log & response headers</span>
+            <span style={{ color: "#9AA0A8" }}>{"// Network log & response headers"}</span>
             {isReplayMode && (
               <span
                 style={{
@@ -557,7 +557,7 @@ export function CachingWidget({
           {currentData && (
             <div style={{ marginTop: "12px", borderTop: "1px solid rgba(255, 255, 255, 0.1)", paddingTop: "12px" }}>
               <span style={{ color: "#9AA0A8", fontSize: "11px", display: "block", marginBottom: "6px" }}>
-                // Response Payload ({lastStatus === "HIT" ? "Served from Redis Memory" : "Queried from PostgreSQL"}):
+                {"// Response Payload ("}{lastStatus === "HIT" ? "Served from Redis Memory" : "Queried from PostgreSQL"}{"):"}
               </span>
               <pre
                 style={{

@@ -351,7 +351,7 @@ export function FlashSaleWidget({
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ color: "#9AA0A8" }}>// Concurrency Audit Trail</span>
+            <span style={{ color: "#9AA0A8" }}>{"// Concurrency Audit Trail"}</span>
             {isReplayMode && (
               <span
                 style={{

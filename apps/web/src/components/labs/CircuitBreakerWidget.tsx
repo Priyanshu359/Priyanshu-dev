@@ -379,7 +379,7 @@ export function CircuitBreakerWidget({
           }}
         >
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-            <span style={{ color: "#9AA0A8" }}>// Circuit Breaker Execution Log</span>
+            <span style={{ color: "#9AA0A8" }}>{"// Circuit Breaker Execution Log"}</span>
             {isReplayMode && (
               <span
                 style={{

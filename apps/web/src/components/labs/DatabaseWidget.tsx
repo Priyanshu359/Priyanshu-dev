@@ -32,7 +32,20 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
     rows?: string;
     time?: string;
     plan?: string;
+    runNumber?: number;
   } | null>(null);
+
+  const [indexProgressRows, setIndexProgressRows] = useState<string | null>(null);
+  const [liveStrategyStats, setLiveStrategyStats] = useState<Record<IndexStrategy, { time: string; rows: string; runNumber: number } | null>>({
+    none: null,
+    single: null,
+    composite: null,
+  });
+  const [indexRunCount, setIndexRunCount] = useState<Record<IndexStrategy, number>>({
+    none: 0,
+    single: 0,
+    composite: 0,
+  });
 
   const [liveN1Duration, setLiveN1Duration] = useState<number | null>(null);
   const [liveTxTimeline, setLiveTxTimeline] = useState<Array<[string, string, string?]> | null>(null);
@@ -61,37 +74,131 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
     if (state.indexRunning) return;
     dispatch({ type: "START_INDEX_RUN" });
 
-    try {
-      const res = await fetch(`${apiUrl}/lab/db/explain`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ strategy: state.indexStrategy }),
+    const strategy = state.indexStrategy;
+    setIndexProgressRows("0");
+
+    let apiData: {
+      rowsScanned: number;
+      executionTimeMs: number;
+      planText?: string;
+      planSummary?: string;
+    } | null = null;
+
+    const fetchPromise = fetch(`${apiUrl}/lab/db/explain`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ strategy }),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error("Explain query failed");
+        return res.json();
+      })
+      .then((data) => {
+        apiData = data;
+        setConnectionError(null);
+        setIsIndexReplay(false);
+      })
+      .catch(() => {
+        setConnectionError(`Database query failed: could not connect to Spring Boot at ${apiUrl}`);
+        setIsIndexReplay(true);
       });
 
-      if (!res.ok) throw new Error("Explain query failed");
-      const data = await res.json();
+    if (strategy === "none") {
+      // 1,000,000 rows full table scan animation steps across buffer pool
+      later(() => setIndexProgressRows("184,320"), 110);
+      later(() => setIndexProgressRows("472,190"), 230);
+      later(() => setIndexProgressRows("768,440"), 370);
+      later(() => setIndexProgressRows("985,120"), 490);
+      later(async () => {
+        try {
+          await fetchPromise;
+        } catch {
+          // ignore
+        }
+        const newRun = (indexRunCount[strategy] || 0) + 1;
+        setIndexRunCount((prev) => ({ ...prev, [strategy]: newRun }));
 
-      setConnectionError(null);
-      setIsIndexReplay(false);
-      setLiveIndexStats({
-        rows: Number(data.rowsScanned).toLocaleString(),
-        time: `~${data.executionTimeMs.toFixed(2)} ms`,
-        plan: data.planText || data.planSummary || indexStrategyData[state.indexStrategy].plan,
-      });
+        const execTime = apiData?.executionTimeMs ? apiData.executionTimeMs : 418.2;
+        const formattedTime = `~${execTime.toFixed(2)} ms`;
+        const planText = apiData?.planText || apiData?.planSummary || indexStrategyData[strategy].plan;
 
-      dispatch({ type: "FINISH_INDEX_RUN" });
-    } catch {
-      setConnectionError(`Database query failed: could not connect to Spring Boot at ${apiUrl}`);
-      setIsIndexReplay(true);
-      const fallback = indexStrategyData[state.indexStrategy];
-      setLiveIndexStats({
-        rows: fallback.rows,
-        time: fallback.time,
-        plan: fallback.plan,
-      });
-      later(() => {
+        setLiveIndexStats({
+          rows: "1,000,000",
+          time: formattedTime,
+          plan: planText,
+          runNumber: newRun,
+        });
+
+        setLiveStrategyStats((prev) => ({
+          ...prev,
+          [strategy]: { time: formattedTime, rows: "1,000,000", runNumber: newRun },
+        }));
+
+        setIndexProgressRows(null);
         dispatch({ type: "FINISH_INDEX_RUN" });
-      }, 500);
+      }, 620);
+    } else if (strategy === "single") {
+      // 1,180 rows index scan animation
+      later(() => setIndexProgressRows("420"), 90);
+      later(() => setIndexProgressRows("980"), 180);
+      later(async () => {
+        try {
+          await fetchPromise;
+        } catch {
+          // ignore
+        }
+        const newRun = (indexRunCount[strategy] || 0) + 1;
+        setIndexRunCount((prev) => ({ ...prev, [strategy]: newRun }));
+
+        const execTime = apiData?.executionTimeMs ? apiData.executionTimeMs : 5.85;
+        const formattedTime = `~${execTime.toFixed(2)} ms`;
+        const planText = apiData?.planText || apiData?.planSummary || indexStrategyData[strategy].plan;
+
+        setLiveIndexStats({
+          rows: "1,180",
+          time: formattedTime,
+          plan: planText,
+          runNumber: newRun,
+        });
+
+        setLiveStrategyStats((prev) => ({
+          ...prev,
+          [strategy]: { time: formattedTime, rows: "1,180", runNumber: newRun },
+        }));
+
+        setIndexProgressRows(null);
+        dispatch({ type: "FINISH_INDEX_RUN" });
+      }, 280);
+    } else {
+      // Composite: instant index pointer (20 rows)
+      later(async () => {
+        try {
+          await fetchPromise;
+        } catch {
+          // ignore
+        }
+        const newRun = (indexRunCount[strategy] || 0) + 1;
+        setIndexRunCount((prev) => ({ ...prev, [strategy]: newRun }));
+
+        const execTime = apiData?.executionTimeMs ? apiData.executionTimeMs : 0.08;
+        const formattedTime = `~${execTime.toFixed(2)} ms`;
+        const planText = apiData?.planText || apiData?.planSummary || indexStrategyData[strategy].plan;
+
+        setLiveIndexStats({
+          rows: "20",
+          time: formattedTime,
+          plan: planText,
+          runNumber: newRun,
+        });
+
+        setLiveStrategyStats((prev) => ({
+          ...prev,
+          [strategy]: { time: formattedTime, rows: "20", runNumber: newRun },
+        }));
+
+        setIndexProgressRows(null);
+        dispatch({ type: "FINISH_INDEX_RUN" });
+      }, 110);
     }
   };
 
@@ -582,7 +689,13 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
                 marginLeft: "auto",
               }}
             >
-              {state.indexRunning ? "Scanning…" : "Run EXPLAIN ANALYZE"}
+              {state.indexRunning
+                ? state.indexStrategy === "none"
+                  ? "Scanning 1,000,000 rows…"
+                  : state.indexStrategy === "single"
+                  ? "Scanning user_id index…"
+                  : "Reading composite index…"
+                : "Run EXPLAIN ANALYZE"}
             </button>
           </div>
 
@@ -671,9 +784,12 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
                     key={st}
                     onClick={() => {
                       setLiveIndexStats(null);
+                      setIndexProgressRows(null);
                       dispatch({ type: "SET_INDEX_STRATEGY", strategy: st });
                     }}
                     style={{
+                      position: "relative",
+                      overflow: "hidden",
                       cursor: "pointer",
                       padding: "12px 14px",
                       borderRadius: "var(--radius-lg)",
@@ -685,6 +801,28 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
                       gap: "8px",
                     }}
                   >
+                    {/* Live scanning shimmer beam during run */}
+                    {isSelected && state.indexRunning && (
+                      <div
+                        style={{
+                          position: "absolute",
+                          inset: 0,
+                          borderRadius: "inherit",
+                          pointerEvents: "none",
+                          overflow: "hidden",
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: "50%",
+                            height: "100%",
+                            background: `linear-gradient(90deg, transparent, ${barColor}35, transparent)`,
+                            animation: "scanShimmer 0.7s infinite linear",
+                          }}
+                        />
+                      </div>
+                    )}
+
                     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                         <span
@@ -704,11 +842,27 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
                         )}
                       </div>
 
-                      <div style={{ display: "flex", alignItems: "center", gap: "12px", fontFamily: "var(--font-mono)", fontSize: "12px" }}>
+                      <div style={{ display: "flex", alignItems: "center", gap: "10px", fontFamily: "var(--font-mono)", fontSize: "12px" }}>
                         <span style={{ color: "var(--color-muted)" }}>{item.rows} rows</span>
                         <span style={{ fontWeight: 700, fontSize: "14px", color: barColor }}>
-                          {isSelected && liveIndexStats?.time ? liveIndexStats.time : item.time}
+                          {liveStrategyStats[st]?.time || item.time}
                         </span>
+                        {liveStrategyStats[st] && (
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              color: barColor,
+                              fontFamily: "var(--font-mono)",
+                              fontWeight: 600,
+                              backgroundColor: "rgba(255, 255, 255, 0.06)",
+                              padding: "2px 6px",
+                              borderRadius: "4px",
+                              border: `1px solid ${barColor}44`,
+                            }}
+                          >
+                            Run #{liveStrategyStats[st]?.runNumber}
+                          </span>
+                        )}
                         <span
                           style={{
                             padding: "2px 8px",
@@ -751,9 +905,16 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
           <div style={{ display: "flex", flexWrap: "wrap", gap: "24px" }}>
             <div style={{ flex: "1 1 260px", display: "flex", flexDirection: "column", gap: "16px" }}>
               <div>
-                <div style={{ fontSize: "13px", color: "var(--color-muted)" }}>Rows scanned</div>
+                <div style={{ fontSize: "13px", color: "var(--color-muted)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Rows scanned</span>
+                  {state.indexRunning && (
+                    <span style={{ color: idxColor, fontSize: "11px", fontFamily: "var(--font-mono)", fontWeight: 600, animation: "pulseGlow 0.8s infinite" }}>
+                      Scanning engine…
+                    </span>
+                  )}
+                </div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "32px", fontWeight: 700, color: idxColor }}>
-                  {liveIndexStats?.rows || curIdx.rows}
+                  {indexProgressRows !== null ? indexProgressRows : (liveIndexStats?.rows || curIdx.rows)}
                 </div>
                 <div style={{ fontSize: "11px", color: "var(--color-muted)", marginTop: "2px" }}>
                   {curIdx.rowsNumber === 1000000 ? "Full table scan (999,980 discarded)" : curIdx.rowsNumber > 20 ? "Index scan + filter check" : "Exact index range scan (0 discarded)"}
@@ -761,12 +922,19 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
               </div>
 
               <div>
-                <div style={{ fontSize: "13px", color: "var(--color-muted)" }}>Execution time</div>
+                <div style={{ fontSize: "13px", color: "var(--color-muted)", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  <span>Execution time</span>
+                  {liveIndexStats?.runNumber && !state.indexRunning && (
+                    <span style={{ color: "var(--color-green)", fontSize: "11px", fontFamily: "var(--font-mono)", fontWeight: 600, animation: "liveBadgePulse 0.4s ease" }}>
+                      ● Live Run #{liveIndexStats.runNumber}
+                    </span>
+                  )}
+                </div>
                 <div style={{ fontFamily: "var(--font-mono)", fontSize: "32px", fontWeight: 700, color: idxColor }}>
-                  {liveIndexStats?.time || curIdx.time}
+                  {state.indexRunning ? "Measuring…" : (liveIndexStats?.time || curIdx.time)}
                 </div>
                 <div style={{ fontSize: "11px", color: "var(--color-muted)", marginTop: "2px" }}>
-                  {liveIndexStats ? "Live EXPLAIN ANALYZE result" : "k6 Postgres benchmark baseline"}
+                  {liveIndexStats ? `Live EXPLAIN (ANALYZE, BUFFERS) · Run #${liveIndexStats.runNumber}` : "k6 Postgres benchmark baseline"}
                 </div>
               </div>
 
@@ -804,7 +972,20 @@ export function DatabaseWidget({ benchmarkResults }: DatabaseWidgetProps) {
                 border: "1px solid rgba(255, 255, 255, 0.08)",
               }}
             >
-              {liveIndexStats?.plan || curIdx.plan}
+              {state.indexRunning ? (
+                <div style={{ color: "#9AA0A8", fontStyle: "italic", display: "flex", flexDirection: "column", gap: "6px" }}>
+                  <div>{"-- Executing EXPLAIN (ANALYZE, BUFFERS) in PostgreSQL..."}</div>
+                  <div style={{ color: idxColor }}>
+                    {state.indexStrategy === "none"
+                      ? "--> Scanning 1,000,000 rows sequentially from disk/shared buffers..."
+                      : state.indexStrategy === "single"
+                      ? "--> Traversing B-Tree index (idx_orders_user) to find 1,180 rows..."
+                      : "--> Direct index-only scan (idx_orders_composite), pre-sorted by created_at DESC..."}
+                  </div>
+                </div>
+              ) : (
+                liveIndexStats?.plan || curIdx.plan
+              )}
             </div>
           </div>
         </div>

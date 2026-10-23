@@ -298,7 +298,7 @@ export function CircuitBreakerWidget({
                   cursor: isPending ? "wait" : "pointer",
                 }}
               >
-                Send 1 Request
+                Call Downstream Service
               </button>
 
               <button
@@ -338,7 +338,7 @@ export function CircuitBreakerWidget({
                 cursor: isPending ? "wait" : "pointer",
               }}
             >
-              {downstreamHealthy ? "Break Downstream (Simulate 503 Outage)" : "Heal Downstream (Restore Healthy 200)"}
+              {downstreamHealthy ? "Inject Downstream Failure (Simulate 503)" : "Heal Downstream Service (Restore 200)"}
             </button>
 
             <button

@@ -104,3 +104,10 @@ management:
       show-details: always
       probes:
         enabled: true
+
+logging:
+  level:
+    root: INFO
+    dev.priyanshu.api: INFO
+    org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping: WARN
+

@@ -4,6 +4,8 @@ import dev.priyanshu.api.lab.application.RateLimitLabService;
 import dev.priyanshu.api.lab.application.RateLimitLabService.LabRateLimitResult;
 import dev.priyanshu.api.platform.adapter.in.web.RateLimitingFilter;
 import jakarta.servlet.http.HttpServletRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +20,8 @@ import java.util.Map;
 @RequestMapping("/lab")
 public class RateLimitLabController {
 
+    private static final Logger log = LoggerFactory.getLogger(RateLimitLabController.class);
+
     private final RateLimitLabService rateLimitLabService;
 
     public RateLimitLabController(RateLimitLabService rateLimitLabService) {
@@ -28,6 +32,9 @@ public class RateLimitLabController {
     public ResponseEntity<Map<String, Object>> getLimited(HttpServletRequest request) {
         String clientIp = RateLimitingFilter.extractClientIp(request);
         LabRateLimitResult result = rateLimitLabService.tryConsume(clientIp);
+
+        log.info("[LAB-RATE-LIMIT] Consume token for IP={} -> allowed={}, remaining={}/{}, retryAfter={}s",
+            clientIp, result.allowed(), result.remaining(), result.limit(), result.retryAfterSeconds());
 
         HttpHeaders headers = new HttpHeaders();
         headers.set(RateLimitingFilter.RATELIMIT_LIMIT_HEADER, String.valueOf(result.limit()));

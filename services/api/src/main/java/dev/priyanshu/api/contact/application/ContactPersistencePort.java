@@ -9,4 +9,5 @@ public interface ContactPersistencePort {
     Optional<UUID> findIdByContentHash(String contentHash);
     void saveMessageAndOutboxEvent(ContactMessage message, String eventPayload);
     boolean markDeliveredIfQueued(UUID messageId);
+    java.util.List<ContactMessage> findQueuedMessagesOlderThan(int seconds);
 }

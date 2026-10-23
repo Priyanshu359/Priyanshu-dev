@@ -86,4 +86,36 @@ public class ContactPersistenceAdapter implements ContactPersistencePort {
         int updated = jdbcTemplate.update(sql, messageId);
         return updated > 0;
     }
+
+    @Override
+    public java.util.List<ContactMessage> findQueuedMessagesOlderThan(int seconds) {
+        String sql = """
+            SELECT id, type, name, email, message, details, content_hash, ip_hash, status, created_at
+            FROM app.contact_message
+            WHERE status = 'queued' AND created_at < NOW() - (? * INTERVAL '1 second')
+            ORDER BY created_at ASC
+            LIMIT 10
+            """;
+        return jdbcTemplate.query(sql, (rs, rowNum) -> {
+            java.util.Map<String, Object> details = java.util.Map.of();
+            try {
+                String dJson = rs.getString("details");
+                if (dJson != null && !dJson.isBlank()) {
+                    details = objectMapper.readValue(dJson, new com.fasterxml.jackson.core.type.TypeReference<java.util.Map<String, Object>>() {});
+                }
+            } catch (Exception ignored) {}
+            return new ContactMessage(
+                rs.getObject("id", UUID.class),
+                dev.priyanshu.api.contact.domain.ContactType.fromString(rs.getString("type")),
+                rs.getString("name"),
+                rs.getString("email"),
+                rs.getString("message"),
+                details,
+                rs.getString("content_hash"),
+                rs.getString("ip_hash"),
+                rs.getString("status"),
+                rs.getTimestamp("created_at").toInstant()
+            );
+        }, seconds);
+    }
 }

@@ -23,7 +23,7 @@ public class EmailNotificationAdapter implements NotificationPort {
     private final com.fasterxml.jackson.databind.ObjectMapper objectMapper;
     private final java.net.http.HttpClient httpClient = java.net.http.HttpClient.newHttpClient();
 
-    @org.springframework.beans.factory.annotation.Value("${spring.mail.password:}")
+    @org.springframework.beans.factory.annotation.Value("${RESEND_API_KEY:${spring.mail.password:}}")
     private String resendApiKey;
 
     public EmailNotificationAdapter(PlatformProperties properties,
@@ -32,6 +32,13 @@ public class EmailNotificationAdapter implements NotificationPort {
         this.properties = properties;
         this.mailSender = mailSender;
         this.objectMapper = objectMapper;
+    }
+
+    @jakarta.annotation.PostConstruct
+    public void logStatus() {
+        boolean hasResendKey = resendApiKey != null && resendApiKey.trim().startsWith("re_");
+        log.info("EmailNotificationAdapter ready. Resend HTTPS REST API configured: {} (to: {}, from: {})",
+            hasResendKey, properties.getNotification().getToEmail(), properties.getNotification().getFromEmail());
     }
 
     @Override

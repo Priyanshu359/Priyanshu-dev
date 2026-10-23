@@ -49,15 +49,16 @@ public class ContactStreamConsumer {
     public void initOffset() {
         try {
             String saved = redisTemplate.opsForValue().get(OFFSET_KEY);
-            if (saved != null && !saved.isBlank()) {
+            if (saved != null && !saved.isBlank() && !"$".equals(saved)) {
                 this.lastOffset = saved;
                 log.info("Initialized ContactStreamConsumer offset from Redis: {}", this.lastOffset);
             } else {
-                this.lastOffset = "$";
+                this.lastOffset = "0-0";
+                log.info("ContactStreamConsumer offset initialized to 0-0 (reading all unread stream events)");
             }
         } catch (Exception e) {
-            log.warn("Could not retrieve stream offset from Redis, using latest: {}", e.getMessage());
-            this.lastOffset = "$";
+            log.warn("Could not retrieve stream offset from Redis, using 0-0: {}", e.getMessage());
+            this.lastOffset = "0-0";
         }
     }
 
@@ -73,6 +74,8 @@ public class ContactStreamConsumer {
             if (records == null || records.isEmpty()) {
                 return;
             }
+
+            log.info("ContactStreamConsumer received {} event(s) from stream: {}", records.size(), streamKey);
 
             for (MapRecord<String, Object, Object> record : records) {
                 String recordId = record.getId().getValue();
@@ -101,6 +104,8 @@ public class ContactStreamConsumer {
                             String dedupKey = NOTIF_SENT_PREFIX + message.id();
                             redisTemplate.opsForValue().set(dedupKey, "1", Duration.ofDays(7));
 
+                            log.info("Contact notification dispatching for message {} [{}] from {}",
+                                message.id(), message.type(), message.email());
                             notificationPort.sendNotification(message);
                         } catch (Exception ex) {
                             log.error("Failed to parse or notify contact event: {}", payloadJson, ex);
@@ -110,6 +115,25 @@ public class ContactStreamConsumer {
             }
         } catch (Exception ex) {
             log.warn("Contact stream consumer error: {}", ex.getMessage());
+        }
+    }
+
+    @Scheduled(fixedDelay = 15000)
+    public void sweepQueuedMessages() {
+        try {
+            List<ContactMessage> queued = persistencePort.findQueuedMessagesOlderThan(10);
+            if (!queued.isEmpty()) {
+                log.info("Sweeper found {} unhandled queued contact message(s) in database", queued.size());
+            }
+            for (ContactMessage msg : queued) {
+                if (persistencePort.markDeliveredIfQueued(msg.id())) {
+                    log.info("Delivering queued contact message via sweeper fallback: {} [{}] from {}",
+                        msg.id(), msg.type(), msg.email());
+                    notificationPort.sendNotification(msg);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Sweeper fallback exception: {}", e.getMessage());
         }
     }
 }

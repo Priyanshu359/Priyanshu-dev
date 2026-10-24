@@ -44,6 +44,7 @@ public class RateLimitingFilter extends OncePerRequestFilter {
         return path.startsWith("/actuator")
             || path.equals("/")
             || path.startsWith("/favicon")
+            || path.startsWith("/api/v1/analytics")
             || path.equals("/lab/limited")
             || path.startsWith("/ask");
     }

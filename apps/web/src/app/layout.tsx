@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import "./globals.css";
 import "@/styles/tokens.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
 import { ConsoleGreeting } from "@/components/ConsoleGreeting";
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://priyanshusinha.dev"),
@@ -78,6 +80,9 @@ export default function RootLayout({
       <body>
         <ThemeProvider>
           <ConsoleGreeting />
+          <Suspense fallback={null}>
+            <AnalyticsTracker />
+          </Suspense>
           {children}
         </ThemeProvider>
       </body>

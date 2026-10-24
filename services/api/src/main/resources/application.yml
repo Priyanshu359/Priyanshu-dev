@@ -83,6 +83,9 @@ priyanshu:
     from-email: ${CONTACT_FROM_EMAIL:contact@priyanshusinha.dev}
     log-only: ${NOTIFICATION_LOG_ONLY:false}
 
+  analytics:
+    admin-key: ${ADMIN_SECRET_KEY:priyanshu-admin-secret-2026}
+
   lab:
     seed:
       enabled: ${LAB_SEED_ENABLED:false}

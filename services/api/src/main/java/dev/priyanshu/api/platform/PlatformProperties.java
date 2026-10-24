@@ -14,6 +14,7 @@ public class PlatformProperties {
     private Outbox outbox = new Outbox();
     private Notification notification = new Notification();
     private Lab lab = new Lab();
+    private Analytics analytics = new Analytics();
 
     public Cors getCors() {
         return cors;
@@ -53,6 +54,14 @@ public class PlatformProperties {
 
     public void setLab(Lab lab) {
         this.lab = lab;
+    }
+
+    public Analytics getAnalytics() {
+        return analytics;
+    }
+
+    public void setAnalytics(Analytics analytics) {
+        this.analytics = analytics;
     }
 
     public static class Cors {
@@ -220,6 +229,18 @@ public class PlatformProperties {
             public void setOrdersCount(int ordersCount) {
                 this.ordersCount = ordersCount;
             }
+        }
+    }
+
+    public static class Analytics {
+        private String adminKey = "priyanshu-admin-secret-2026";
+
+        public String getAdminKey() {
+            return adminKey;
+        }
+
+        public void setAdminKey(String adminKey) {
+            this.adminKey = adminKey;
         }
     }
 }

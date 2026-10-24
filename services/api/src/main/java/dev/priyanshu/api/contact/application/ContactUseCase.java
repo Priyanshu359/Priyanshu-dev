@@ -21,6 +21,7 @@ public class ContactUseCase {
     private static final Logger log = LoggerFactory.getLogger(ContactUseCase.class);
 
     private final ContactPersistencePort persistencePort;
+    private final NotificationPort notificationPort;
     private final StringRedisTemplate redisTemplate;
     private final ObjectMapper objectMapper;
     private final PlatformProperties properties;
@@ -29,10 +30,12 @@ public class ContactUseCase {
     private String turnstileSecretKey;
 
     public ContactUseCase(ContactPersistencePort persistencePort,
+                          NotificationPort notificationPort,
                           StringRedisTemplate redisTemplate,
                           ObjectMapper objectMapper,
                           PlatformProperties properties) {
         this.persistencePort = persistencePort;
+        this.notificationPort = notificationPort;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
         this.properties = properties;
@@ -84,6 +87,18 @@ public class ContactUseCase {
 
         // 4. Save message and outbox event in one transaction
         persistencePort.saveMessageAndOutboxEvent(message, eventPayload);
+
+        // 5. Asynchronously trigger notification immediately (zero Redis polling needed)
+        java.util.concurrent.CompletableFuture.runAsync(() -> {
+            try {
+                if (persistencePort.markDeliveredIfQueued(message.id())) {
+                    log.info("Dispatching immediate notification for contact message {}", message.id());
+                    notificationPort.sendNotification(message);
+                }
+            } catch (Exception ex) {
+                log.error("Immediate notification failed, sweeper will retry: {}", ex.getMessage());
+            }
+        });
 
         log.info("Saved contact message {} [{}] from {}", messageId, type.getValue(), request.email());
         return new ContactResponse(messageId, "queued", "Thanks — your message is in.");

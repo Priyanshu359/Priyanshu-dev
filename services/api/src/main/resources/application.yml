@@ -75,7 +75,7 @@ priyanshu:
   
   outbox:
     stream-name: "app:events"
-    polling-interval-ms: 1000
+    polling-interval-ms: 30000
     batch-size: 50
   
   notification:

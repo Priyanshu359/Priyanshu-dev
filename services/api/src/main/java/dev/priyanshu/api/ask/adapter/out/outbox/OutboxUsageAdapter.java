@@ -46,17 +46,24 @@ public class OutboxUsageAdapter implements UsageEventOutboxPort {
                 log.trace("Outbox event table insert fallback: {}", e.getMessage());
             }
 
-            // 2. Publish to Redis Stream
+            // 2. Direct write to app.usage_event (costs 0 Redis commands)
             try {
-                redisTemplate.opsForStream().add(StreamRecords.newRecord()
-                    .in(STREAM_NAME)
-                    .ofMap(Map.of(
-                        "eventType", "USAGE_LOGGED",
-                        "requestId", event.requestId(),
-                        "payload", payloadJson
-                    )));
+                String sql = """
+                    INSERT INTO app.usage_event (request_id, session_id, prompt_tokens, cache_hit, context_chunks, blocked, created_at)
+                    VALUES (?, ?, ?, ?, ?, ?, now())
+                    ON CONFLICT (request_id) DO NOTHING
+                    """;
+                jdbcTemplate.update(
+                    sql,
+                    event.requestId(),
+                    event.sessionId(),
+                    event.promptTokens(),
+                    event.cacheHit(),
+                    event.contextChunks(),
+                    event.blocked()
+                );
             } catch (Exception e) {
-                log.trace("Redis stream add fallback: {}", e.getMessage());
+                log.trace("app.usage_event direct write fallback: {}", e.getMessage());
             }
         } catch (Exception ex) {
             log.error("Failed to serialize or publish usage event: {}", ex.getMessage());

@@ -36,7 +36,8 @@ public class UsageStreamConsumer {
         this.objectMapper = objectMapper;
     }
 
-    @Scheduled(fixedDelay = 5000)
+    // Polling disabled: OutboxUsageAdapter writes directly to app.usage_event in Postgres.
+    // This saves 17,280 Redis commands per day against Upstash.
     public void consumeUsageEvents() {
         try {
             List<MapRecord<String, Object, Object>> records = redisTemplate.opsForStream().read(

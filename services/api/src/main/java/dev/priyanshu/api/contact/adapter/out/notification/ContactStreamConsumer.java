@@ -62,63 +62,9 @@ public class ContactStreamConsumer {
         }
     }
 
-    @Scheduled(fixedDelay = 2000)
-    public void consumeContactEvents() {
-        String streamKey = properties.getOutbox().getStreamName();
-        try {
-            List<MapRecord<String, Object, Object>> records = redisTemplate.opsForStream().read(
-                StreamReadOptions.empty().count(10),
-                StreamOffset.create(streamKey, org.springframework.data.redis.connection.stream.ReadOffset.from(lastOffset))
-            );
-
-            if (records == null || records.isEmpty()) {
-                return;
-            }
-
-            log.info("ContactStreamConsumer received {} event(s) from stream: {}", records.size(), streamKey);
-
-            for (MapRecord<String, Object, Object> record : records) {
-                String recordId = record.getId().getValue();
-                this.lastOffset = recordId;
-                try {
-                    redisTemplate.opsForValue().set(OFFSET_KEY, recordId);
-                } catch (Exception ignored) {}
-
-                Map<Object, Object> value = record.getValue();
-                String eventType = (String) value.get("eventType");
-
-                if ("CONTACT_RECEIVED".equalsIgnoreCase(eventType)) {
-                    String payloadJson = (String) value.get("payload");
-                    if (payloadJson != null) {
-                        try {
-                            ContactMessage message = objectMapper.readValue(payloadJson, ContactMessage.class);
-
-                            // 1. Atomic DB lock: only send if status in Postgres is still 'queued'
-                            boolean shouldDeliver = persistencePort.markDeliveredIfQueued(message.id());
-                            if (!shouldDeliver) {
-                                log.info("Contact message {} already marked as delivered, skipping duplicate.", message.id());
-                                continue;
-                            }
-
-                            // 2. Redis duplicate check for 7 days
-                            String dedupKey = NOTIF_SENT_PREFIX + message.id();
-                            redisTemplate.opsForValue().set(dedupKey, "1", Duration.ofDays(7));
-
-                            log.info("Contact notification dispatching for message {} [{}] from {}",
-                                message.id(), message.type(), message.email());
-                            notificationPort.sendNotification(message);
-                        } catch (Exception ex) {
-                            log.error("Failed to parse or notify contact event: {}", payloadJson, ex);
-                        }
-                    }
-                }
-            }
-        } catch (Exception ex) {
-            log.warn("Contact stream consumer error: {}", ex.getMessage());
-        }
-    }
-
-    @Scheduled(fixedDelay = 15000)
+    // Sweeper checks PostgreSQL every 2 minutes for any lingering queued messages.
+    // Zero Redis commands consumed while idle.
+    @Scheduled(fixedDelay = 120000)
     public void sweepQueuedMessages() {
         try {
             List<ContactMessage> queued = persistencePort.findQueuedMessagesOlderThan(10);

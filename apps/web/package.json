@@ -18,7 +18,7 @@
     "@keystatic/core": "^0.6.9",
     "@keystatic/next": "^5.0.5",
     "@supabase/supabase-js": "^2.118.0",
-    "framer-motion": "^14.3.0",
+    "framer-motion": "^14.6.0",
     "gray-matter": "^4.0.3",
     "next": "15.2.9",
     "react": "19.0.0",
